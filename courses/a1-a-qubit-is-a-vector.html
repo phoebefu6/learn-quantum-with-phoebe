@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 1 of 6. A qubit is two numbers whose squares add to one, a gate is a matrix that turns them, and a measurement is a sample. Brindle's board has a vendor deck and two questions; tonight is the vocabulary to read the deck with, on a simulator that runs in the page.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="A qubit is a vector, a gate is a matrix - learn quantum with phoebe">
+<meta property="og:description" content="Leader session 1 of 6. Amplitudes, not probabilities. Ten qubits is 1,024 numbers, and the page holds all of them.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/a1-a-qubit-is-a-vector.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A qubit is a vector, a gate is a matrix - learn quantum with phoebe">
+<meta name="twitter:description" content="Three sentences a data leader can check: the qubit is a vector, the gate is a matrix, the measurement is a sample.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 1 · A qubit is a vector, a gate is a matrix - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Leader session 1 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Leader session 1 of 6</div>
+    <h1>A qubit is a vector, <span class="accent">a gate is a matrix</span></h1>
+    <p class="sub">Brindle's board has a vendor deck on the table and two questions for the data team: will this change our workload, and what do we have to do about the encryption. Neither question can be read without three sentences that most decks skip. A qubit is two numbers whose squares add to one. A gate is a matrix that turns those numbers. A measurement is a sample, and a sample is something a data team already knows how to handle. Tonight is those three sentences, checked on a simulator that runs in this page rather than described. Nothing here is investment advice, and no machine, vendor or roadmap is named.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone asked to fund or read a quantum pitch</span>
+      <span class="chip audience">Anyone who signs off a data team's roadmap</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · A qubit is a vector</span>
+      <span class="a3" style="flex:3">18-28 · A gate, then a sample</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Brindle, on the morning the deck arrives</h2>
+    </div>
+    <p class="lede">Brindle is a mid-sized retailer, constructed for these sessions, with a 12-million-row customer table, a 4-million-row order table and twenty years of encrypted backups. A vendor deck has reached the board. It says the word quantum eleven times and the word data four times, and it proposes a pilot. The board has done the right thing and sent it to the data team with two questions. The data team's problem is that every sentence in the deck uses words that sound like words they know. Superposition sounds like parallelism. Qubit sounds like a bigger bit. Speedup sounds like a faster warehouse. None of those readings is right, and the first job is to replace them with three sentences that can be checked.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Three sentences you can say from memory and defend: a qubit is a vector, a gate is a matrix, a measurement is a sample. A feel for why ten qubits means 1,024 numbers and not ten, which is the whole reason the word is interesting. A live register in the page that you have moved with your own hands and sampled a hundred times. And the first honest reading of Brindle's deck: which of its claims is about a search, which is about linear algebra, and which is about neither.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three sentences the deck does not contain<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ask the room what a qubit is and the answers come back as metaphors: a bit that is zero and one at the same time, a coin spinning in the air, a cat. Metaphors are how the subject is usually sold and they are why the deck cannot be read. Each of them is a picture of a thing that is actually a number.</p>
+        <p>The honest version is shorter and duller. A qubit's state is two numbers, call them a and b, with a squared plus b squared equal to one. A gate is a two-by-two matrix that multiplies that pair and produces a new pair. A measurement reads the qubit and returns zero with probability a squared or one with probability b squared, and then the pair is gone. That is the whole of it for one qubit, and everything else in the field is what happens when you have more than one.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analytics lead read the deck twice and could not say what any claim would look like if it were false. That is the tell. A claim about a vector, a matrix and a sample can be checked by anyone who can multiply; a claim about a spinning coin cannot be checked by anybody. The deck is written in the second language on purpose, and the data team's first move is to translate it into the first.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Amplitude.</strong> One of the numbers in the vector. It can be negative, and that sign is where every speedup comes from. Session 2.</li>
+          <li><strong>Register.</strong> Several qubits together. n qubits carry 2 to the power n amplitudes, so ten qubits carry 1,024 of them. Part 2 tonight.</li>
+          <li><strong>Gate.</strong> A matrix applied to the register. Hadamard, X, Z and CNOT are the four the practitioner track builds by hand.</li>
+          <li><strong>Measurement, shot.</strong> Reading the register returns one basis state, drawn with probability equal to its squared amplitude. One read is a shot; a thousand reads is a sample.</li>
+          <li><strong>Superposition.</strong> A vector with more than one non-zero amplitude. It does not mean the machine tries every answer at once; session 2 is the correction.</li>
+          <li><strong>Oracle.</strong> The gate that marks the item being searched for by flipping its sign. Removing it is the break button on the bench.</li>
+          <li><strong>Interference.</strong> Amplitudes adding when their signs agree and cancelling when they do not. The mechanism, in Grover's own words, is tuning phases so correct paths reinforce and the rest cancel.</li>
+          <li><strong>Noise.</strong> Every gate has a chance of scrambling the register. Session 5 and practitioner session 7 price it.</li>
+          <li><strong>Fine print.</strong> The conditions a speedup claim depends on, usually about getting the data in and the answer out. Sessions 3 and 4.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What these sessions are not<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>No vendor, product, machine or roadmap is named anywhere in the sixteen sessions, and no qubit count is attributed to anyone. The simulator in the page is the only hardware, and a simulator is exact, which real hardware is not; session 5 is about that gap. The timeline for a useful machine is treated as contested evidence, because the primary sources disagree, and no page gives a year.</p>
+        <p>Money is near this subject in exactly one form, a pilot budget, and nothing here is investment advice. No physics is taught beyond the arithmetic, and no coin, token or price appears. The dsec courses own what happens to Brindle's keys after the inventory in session 6; the recommendation course owns the recommender that session 4 talks about.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the vector</span>
+      <h2>A qubit is two numbers whose squares add to one</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">A classical bit is a switch. It is in one of two positions and reading it tells you which. A qubit is a pair of numbers, and reading it does not tell you the numbers. It tells you one of two outcomes, drawn with a probability set by the squares of those numbers. The drawing below is the whole mechanism; every later session is a consequence of it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 418" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison of a bit and a qubit. Left panel, a classical bit: a switch drawn in two positions, zero and one, and a read arrow that returns the position exactly. Middle panel, a qubit: an arrow on a quarter circle with two amplitudes, a along the horizontal axis and b along the vertical, with the rule a squared plus b squared equals one written beside it; the example arrow has a equal to 0.707 and b equal to 0.707. Right panel, a measurement: a read arrow leaves the qubit and lands in a sample box showing one hundred shots, forty three zeros and fifty seven ones, with the note that the expected split was fifty fifty and the amplitudes are gone after the read. A band underneath says the numbers are amplitudes, the squares are probabilities, and the sample is what a data team actually receives.">
+        <defs>
+          <filter id="a1aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a1aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a1aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a1aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a1aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a1aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a1aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a1aV { font: 800 18px Inter, sans-serif; fill: #242070; }
+          .a1aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a1aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a1aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a1aH" x="30" y="26">A BIT IS A SWITCH. A QUBIT IS A PAIR OF NUMBERS. A READ IS A SAMPLE.</text>
+
+        <g filter="url(#a1aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panel 1: the bit -->
+          <rect x="30" y="44" width="250" height="250" rx="10" transform="rotate(-0.4 155 169)" fill="#FFFFFF"/>
+          <rect x="70" y="96" width="60" height="28" rx="14" fill="#EEEDF9"/>
+          <circle cx="84" cy="110" r="10" fill="#3730A3"/>
+          <rect x="70" y="150" width="60" height="28" rx="14" fill="#EEEDF9"/>
+          <circle cx="116" cy="164" r="10" fill="#3730A3"/>
+          <path d="M150 110 L212 110" marker-end="url(#a1aAr)"/>
+          <path d="M150 164 L212 164" marker-end="url(#a1aAr)"/>
+          <rect x="216" y="98" width="40" height="24" rx="5" fill="#FFFFFF"/>
+          <rect x="216" y="152" width="40" height="24" rx="5" fill="#FFFFFF"/>
+
+          <!-- panel 2: the qubit -->
+          <rect x="300" y="44" width="270" height="250" rx="10" transform="rotate(0.3 435 169)" fill="#FFFFFF"/>
+          <path d="M340 250 L340 90" marker-end="url(#a1aAr)"/>
+          <path d="M340 250 L500 250" marker-end="url(#a1aAr)"/>
+          <path d="M490 250 A150 150 0 0 0 340 100" stroke="#C9C9DF" stroke-dasharray="4 5"/>
+          <path d="M340 250 L446 144" stroke="#0E7490" stroke-width="3"/>
+          <circle cx="446" cy="144" r="6" fill="#0E7490" stroke="#0E7490"/>
+          <path d="M446 250 L446 144" stroke="#9A97D4" stroke-dasharray="3 4" stroke-width="1.6"/>
+          <path d="M340 144 L446 144" stroke="#9A97D4" stroke-dasharray="3 4" stroke-width="1.6"/>
+
+          <!-- panel 3: the sample -->
+          <rect x="590" y="44" width="260" height="250" rx="10" transform="rotate(-0.3 720 169)" fill="#FFFFFF"/>
+          <path d="M576 170 L612 170" stroke="#0E7490" marker-end="url(#a1aAr)"/>
+          <rect x="624" y="96" width="200" height="150" rx="8" transform="rotate(0.6 724 171)" fill="url(#a1aHc)"/>
+          <rect x="640" y="150" width="68" height="60" rx="4" fill="#FFFFFF"/>
+          <rect x="736" y="118" width="68" height="92" rx="4" fill="#E3F3F7" stroke="#0E7490"/>
+
+          <!-- band -->
+          <rect x="30" y="318" width="820" height="64" rx="10" transform="rotate(0.15 440 350)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a tiny die -->
+          <rect x="812" y="56" width="22" height="22" rx="4" fill="#FFFFFF"/>
+          <circle cx="818" cy="62" r="1.6" fill="#16153A"/>
+          <circle cx="828" cy="72" r="1.6" fill="#16153A"/>
+          <circle cx="823" cy="67" r="1.6" fill="#16153A"/>
+        </g>
+
+        <!-- panel 1 text -->
+        <text class="a1aL" x="50" y="72">A CLASSICAL BIT</text>
+        <text class="a1aS" x="50" y="88">one of two positions</text>
+        <text class="a1aA" x="160" y="104">read</text>
+        <text class="a1aA" x="160" y="158">read</text>
+        <text class="a1aV" x="229" y="116">0</text>
+        <text class="a1aV" x="229" y="170">1</text>
+        <text class="a1aS" x="50" y="214">The read returns the position.</text>
+        <text class="a1aS" x="50" y="230">Exactly. Every time.</text>
+        <text class="a1aS" x="50" y="266">One number: 0 or 1.</text>
+
+        <!-- panel 2 text -->
+        <text class="a1aL" x="320" y="72">A QUBIT</text>
+        <text class="a1aS" x="320" y="88">a pair of amplitudes, drawn as an arrow</text>
+        <text class="a1aA" x="506" y="254">a</text>
+        <text class="a1aA" x="326" y="108">b</text>
+        <text class="a1aB" x="470" y="120">a = 0.707</text>
+        <text class="a1aB" x="470" y="136">b = 0.707</text>
+        <text class="a1aL" x="320" y="274">a² + b² = 1</text>
+        <text class="a1aS" x="420" y="274">two numbers, one rule</text>
+
+        <!-- panel 3 text -->
+        <text class="a1aL" x="610" y="72">A MEASUREMENT</text>
+        <text class="a1aS" x="610" y="88">100 shots, seed 7, from the page</text>
+        <text class="a1aW" x="674" y="200" text-anchor="middle">0</text>
+        <text class="a1aW" x="770" y="200" text-anchor="middle">1</text>
+        <text class="a1aV" x="674" y="140" text-anchor="middle">43</text>
+        <text class="a1aV" x="770" y="110" text-anchor="middle">57</text>
+        <text class="a1aS" x="610" y="266">Expected 50 / 50. Got 43 / 57.</text>
+        <text class="a1aS" x="610" y="282">The amplitudes are gone after the read.</text>
+
+        <text class="a1aH" x="46" y="342">The numbers are amplitudes. Their squares are probabilities. The sample is what you actually receive.</text>
+        <text class="a1aN" x="46" y="362">A data team never sees a or b. It sees counts, and it estimates a² from them, which is a job it already does every day.</text>
+        <text class="a1aN" x="30" y="406">The 43 / 57 split is one real run of the simulator in this page at 100 shots. Change the seed below and the split changes; a² does not.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the switch returns its position; the qubit returns a draw. The pair of numbers is never observed directly, only estimated from counts.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Amplitude is not probability<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The pair (0.707, 0.707) and the pair (0.707, -0.707) give the same probabilities: a half and a half. Read either one a thousand times and the counts are indistinguishable. They are nevertheless different states, and a gate applied to each produces different results. The sign is real; it just cannot be read directly.</p>
+        <p>This is the single fact that makes the subject more than a noisy coin. Probabilities are never negative, so two probabilities can only add. Amplitudes can be negative, so two amplitudes can cancel. Every quantum speedup that exists is an arrangement in which the wrong answers cancel and the right one adds, and session 2 watches that happen one iteration at a time. For tonight, the thing to hold is narrower: the vector is the state, the squares are the odds, and the squares throw away the sign.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Ten qubits is 1,024 numbers, not ten<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One qubit is a pair. Two qubits are not two pairs; they are four numbers, one for each of the outcomes 00, 01, 10 and 11, with the four squares adding to one. Three qubits are eight numbers. Ten qubits are 1,024 numbers, and that register, all 1,024 amplitudes of it, is what the simulator in this page holds and updates on every gate. It is not a large object. A phone could hold the amplitudes for twenty-five qubits.</p>
+        <p>The doubling is the honest reason the field exists and the honest reason it is hard. Forty qubits would be about a trillion amplitudes, 2 to the 40th, which is past what a simulator can store, and that is the point at which a real machine would be doing something a classical one cannot imitate step by step. It is also the point at which every one of those amplitudes has to survive every gate without being scrambled, which is session 5.</p>
+        <p>Keep the two sentences apart. A register of n qubits is described by 2 to the n numbers. It does not compute 2 to the n things; it is 2 to the n things, in the same way a row with ten columns is not ten rows.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree: what the vector means<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Physicists have argued for a century about whether the amplitudes describe something that exists or describe what an observer can predict, and the argument has produced no experiment that settles it. A data leader does not need to hold a position, and should notice when a vendor does: the deck's metaphors usually smuggle one in. "The qubit is in both states at once" is a reading of the vector, not a fact about it, and it is the reading that leads straight to "so it tries every answer at once", which is wrong for reasons session 2 measures.</p>
+        <p>The position these sessions take is the operational one, which every camp accepts: the vector predicts the sample, the gates update the vector, and anything a claim says beyond that is interpretation. If a sentence in a deck cannot be rewritten as a statement about a vector, a matrix or a sample, treat it as decoration until somebody rewrites it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the gate and the sample</span>
+      <h2>A gate is a matrix, and a measurement is a sample you have to estimate from</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The register below is real. Move the angle and the two amplitudes change; take shots and the counts come from those amplitudes through a seeded draw, in this page, with nothing looked up. The gate that matters most tonight is the one that turns a certain zero into an even pair, because it is the first move of every search.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 352" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of one gate and one measurement. On the left the input vector one, zero, drawn as a column. In the middle the Hadamard gate drawn as a two by two matrix with entries 0.707, 0.707 on the top row and 0.707, negative 0.707 on the bottom row, inside a box labelled H. An arrow carries the vector through the matrix and out as the column 0.707, 0.707. A second arrow labelled measure leads to a sampling box where one thousand shots produce counts of about five hundred each, with the note that one shot gives a zero or a one and the amplitudes are recovered only as an estimate from many shots. A band underneath says the matrix is the whole gate and the sample is the whole output.">
+        <defs>
+          <filter id="a1bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="23" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a1bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a1bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a1bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a1bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a1bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a1bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a1bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a1bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a1bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a1bH" x="30" y="26">ONE GATE, ONE MEASUREMENT: THE MATRIX IS THE WHOLE GATE, THE SAMPLE IS THE WHOLE OUTPUT</text>
+
+        <g filter="url(#a1bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- input column -->
+          <path d="M60 86 L52 86 L52 170 L60 170"/>
+          <path d="M108 86 L116 86 L116 170 L108 170"/>
+          <path d="M136 128 L196 128" marker-end="url(#a1bAr)"/>
+          <!-- the gate box -->
+          <rect x="206" y="60" width="190" height="136" rx="10" transform="rotate(-0.5 301 128)" fill="#EEEDF9" stroke="#3730A3"/>
+          <path d="M236 96 L228 96 L228 166 L236 166"/>
+          <path d="M366 96 L374 96 L374 166 L366 166"/>
+          <path d="M406 128 L466 128" marker-end="url(#a1bAr)"/>
+          <!-- output column -->
+          <path d="M486 86 L478 86 L478 170 L486 170"/>
+          <path d="M546 86 L554 86 L554 170 L546 170"/>
+          <!-- measure arrow -->
+          <path d="M574 128 L624 128" stroke="#0E7490" marker-end="url(#a1bAr)"/>
+          <!-- the sample box -->
+          <rect x="636" y="56" width="214" height="146" rx="8" transform="rotate(0.5 743 129)" fill="url(#a1bHc)"/>
+          <rect x="660" y="112" width="70" height="66" rx="4" fill="#FFFFFF"/>
+          <rect x="760" y="104" width="70" height="74" rx="4" fill="#E3F3F7" stroke="#0E7490"/>
+          <!-- band -->
+          <rect x="30" y="236" width="820" height="56" rx="10" transform="rotate(-0.15 440 264)" fill="#EEEDF9"/>
+          <!-- doodle anchor: coin -->
+          <circle cx="92" cy="208" r="11" fill="#FFFFFF"/>
+          <path d="M92 201 L92 215 M86 208 L98 208"/>
+        </g>
+
+        <text class="a1bS" x="56" y="74">input</text>
+        <text class="a1bV" x="84" y="116" text-anchor="middle">1</text>
+        <text class="a1bV" x="84" y="156" text-anchor="middle">0</text>
+        <text class="a1bS" x="112" y="208">a certain zero</text>
+
+        <text class="a1bL" x="226" y="82">H, the Hadamard gate</text>
+        <text class="a1bB" x="258" y="122">0.707</text>
+        <text class="a1bB" x="316" y="122">0.707</text>
+        <text class="a1bB" x="258" y="156">0.707</text>
+        <text class="a1bB" x="310" y="156">-0.707</text>
+        <text class="a1bS" x="226" y="186">a 2 x 2 matrix, and nothing else</text>
+
+        <text class="a1bS" x="480" y="74">output</text>
+        <text class="a1bV" x="516" y="116" text-anchor="middle">0.707</text>
+        <text class="a1bV" x="516" y="156" text-anchor="middle">0.707</text>
+        <text class="a1bS" x="472" y="208">an even pair</text>
+
+        <text class="a1bA" x="578" y="118">measure</text>
+        <text class="a1bL" x="656" y="80">1,000 shots</text>
+        <text class="a1bS" x="656" y="96">one 0 or 1 per shot</text>
+        <text class="a1bW" x="695" y="168" text-anchor="middle">0</text>
+        <text class="a1bW" x="795" y="168" text-anchor="middle">1</text>
+        <text class="a1bS" x="695" y="140" text-anchor="middle">about 500</text>
+        <text class="a1bS" x="795" y="140" text-anchor="middle">about 500</text>
+        <text class="a1bS" x="656" y="226">the amplitudes come back as an estimate</text>
+
+        <text class="a1bH" x="46" y="258">H turns a certain zero into an even pair in one step. That is the first gate of every search in the practitioner track.</text>
+        <text class="a1bN" x="46" y="278">Apply H twice and you get the certain zero back: the second application cancels the first because the minus sign is still there.</text>
+        <text class="a1bN" x="30" y="340">Entries rounded to three decimals; the engine carries them in full. About 500 is an expectation; one run lands near it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the gate is four numbers in a box. The measurement is a draw. Nothing in between is observable, which is the whole operational constraint of session 5.</figcaption>
+    </figure>
+
+    <div class="wk" id="a1-qubit">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">One qubit, in this page. The amplitudes, their squares and every shot below are computed here by the course's statevector simulator; nothing is looked up.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a1-angle">Angle of the arrow: <b id="a1-angle-val">45</b> degrees</label>
+        <input class="sql-code" id="a1-angle" type="range" min="0" max="90" step="1" value="45">
+        <label class="sql-label" for="a1-shots">How many shots to take</label>
+        <select class="sql-code" id="a1-shots">
+          <option value="10">10</option>
+          <option value="100" selected>100</option>
+          <option value="1000">1,000</option>
+          <option value="10000">10,000</option>
+        </select>
+        <label class="sql-label" for="a1-seed">Which draw</label>
+        <select class="sql-code" id="a1-seed">
+          <option value="7">Draw A</option>
+          <option value="11">Draw B</option>
+          <option value="2026">Draw C</option>
+          <option value="101">Draw D</option>
+        </select>
+        <div id="a1-out"></div>
+        <p class="sql-note" id="a1-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a1-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Read the box like a data team<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Leave the angle at 45 degrees, where the two amplitudes are equal, and take 100 shots on Draw A. The split is 43 to 57. The true probability is a half; the estimate from the sample is 0.57. Take 10,000 shots and the estimate tightens to within a couple of hundredths. That is not a quantum fact. It is the standard error of a proportion, the square root of p times one minus p over the number of shots, and at p of one half and a thousand shots it is 0.016. Anyone who has run an A/B test has done this arithmetic.</p>
+        <p>Now move the angle to 30 degrees. The amplitude for zero becomes 0.866 and its square is 0.75, so three quarters of the shots come back zero. Nothing in the box reveals 0.866 directly. It reveals a count, and the count is consistent with 0.866 and also with 0.860 and 0.872. The register's actual numbers are inferred, never read, and the inference costs shots. Every cost in this subject is eventually paid in shots.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Brindle's deck, translated<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three of the deck's claims survive translation into the three sentences, and they become checkable the moment they do. "Quantum search over your customer base" is a claim about a register of about 24 qubits, since 2 to the 24th is about 16 million and Brindle has 12 million rows, and about the number of oracle calls a search needs; session 2 and practitioner session 5 count those calls. "Quantum machine learning on your recommendation data" is a claim about a matrix, and it has a specific published history that session 4 walks through. "Quantum-safe encryption" is not a claim about a quantum machine at all; it is a claim about which algorithms protect Brindle's backups, and session 6 turns it into an inventory.</p>
+        <p>The claims that do not survive translation are the ones built on the metaphors: "harnesses the power of superposition to evaluate all possibilities simultaneously" names no vector, no matrix and no sample, and the data team's reply should be to ask which of the three it is. That question, asked politely and in writing, is the most useful thing a data leader can do with a quantum pitch, and it is the whole reason tonight exists.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The register, by size<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <table class="clean">
+          <thead><tr><th>Qubits</th><th>Amplitudes in the register</th><th>Where it sits</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>2</td><td>the figure above</td></tr>
+            <tr><td>2</td><td>4</td><td>a Bell pair, practitioner session 2</td></tr>
+            <tr><td>3</td><td>8</td><td>the first search, practitioner session 4</td></tr>
+            <tr><td>10</td><td>1,024</td><td>the top of the bench in this page</td></tr>
+            <tr><td>20</td><td>1,048,576</td><td>a laptop still holds it comfortably</td></tr>
+            <tr><td>24</td><td>16,777,216</td><td>enough indices to label Brindle's 12 million customers</td></tr>
+            <tr><td>40</td><td>about 1.1 trillion</td><td>past any simulator; the arithmetic is 2 to the 40th</td></tr>
+          </tbody>
+        </table>
+        <p>Every row is arithmetic, not a measurement. The practical reading is that a simulator is an honest stand-in up to the low twenties and nothing beyond, and that any claim about a register larger than that is a claim about hardware, which brings in noise, which is session 5.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Translate one page of the deck</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps with the register above and a page of any quantum pitch you have seen, or the Brindle one described in Part 0. The aim is to leave with every claim sorted into vector, matrix, sample or decoration.</p>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Say the three sentences without looking</h4>
+        <p>A qubit is two numbers whose squares add to one. A gate is a matrix that turns them. A measurement is a draw with those squares as the odds. If one of the three will not come, it is the one to practise, and it is usually the third.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Predict before you press</h4>
+        <p>Set the angle to 30 degrees and 1,000 shots. Write down how many zeros you expect before taking the draw. Then press. Then explain the gap between your number and the count to the person next to you in one sentence that uses the word sample.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Size the register Brindle would need</h4>
+        <p>12 million customers need an index, and 2 to the 24th is about 16.8 million, so the register is 24 qubits and holds about 16.8 million amplitudes. Write that down. Then write down what fraction of them would be zero if only Brindle's actual rows were loaded.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Sort the deck's claims</h4>
+        <p>Take each sentence that promises something and mark it V, M, S or D: a claim about a vector, a matrix, a sample, or decoration. A sentence you cannot mark is a D by default. Count the Ds. In most decks they are the majority.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Pick the one claim to test next</h4>
+        <p>Of the V, M and S claims, pick the one that would cost Brindle most if it were true, and write it as a question with a number in it. "How many oracle calls does a search over 12 million rows take" is the right shape. "Is quantum search faster" is not.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Commit to a guess for session 2</h4>
+        <p>A search over 1,024 items. Write down how many lookups a classical search needs for an even chance, and how many oracle calls the quantum version needs. Single numbers, on paper, unhedged. Session 2 measures both on the register in the page.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody says quantum, ask which of the three they mean: the vector, the matrix or the sample. The claim is almost never wrong about the arithmetic. It is wrong about which of the three it has quietly skipped, and the skipped one is nearly always the sample, because the sample is where the cost lives.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Two qubits are prepared as (0.707, 0.707) and (0.707, -0.707). Each is measured a thousand times. What does the data team see, and what does it mean?</p>
+      <div class="qopt">A · Different counts, because the second state is mostly one</div>
+      <div class="qopt">B · The same counts within sampling error, because the squares are equal; the sign is real but is not visible in a measurement, only in what a later gate does</div>
+      <div class="qopt">C · The second qubit cannot be measured because its amplitude is negative</div>
+      <q class="qwhy">Probabilities are the squares, and 0.707 squared equals negative 0.707 squared. The two states give identical samples and behave differently under gates, which is exactly why amplitudes rather than probabilities are the object of study.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A deck says a ten-qubit register "processes 1,024 values at once". What is the honest reading?</p>
+      <div class="qopt">A · Correct: ten qubits run 1,024 computations in parallel</div>
+      <div class="qopt">B · Wrong: ten qubits hold ten values</div>
+      <div class="qopt">C · The register is described by 1,024 amplitudes, which is a statement about the size of its state, not about computations run; a measurement returns one of the 1,024 outcomes and nothing else</div>
+      <q class="qwhy">A ten-column row is not ten rows. The 1,024 numbers describe one state, and reading it produces one outcome. Any speedup has to come from arranging those numbers so the wrong outcomes cancel, which is session 2, not from the count of them.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">The register reads 43 zeros in 100 shots at an angle of 45 degrees. Brindle's analyst reports "the amplitude for zero is 0.656". What went wrong?</p>
+      <div class="qopt">A · A count estimates a probability, and 0.43 is an estimate of a² near 0.5 with a standard error of about 0.05; the amplitude is the square root of the probability and is never read directly, so the honest report is a probability with its uncertainty</div>
+      <div class="qopt">B · Nothing: 0.656 is the square root of 0.43</div>
+      <div class="qopt">C · The analyst should have reported 0.57, the count for one</div>
+      <q class="qwhy">The arithmetic in B is right and the inference is wrong. One hundred shots at p of one half have a standard error of 0.05, so 0.43 is consistent with the true half. Reporting a three-decimal amplitude from it is false precision, and the register's numbers are never observed in any case.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 2</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, with the register in this page and the guess you just wrote down.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Take the same draw at four sizes</h4>
+        <p>Angle 30 degrees, Draw B, at 10, 100, 1,000 and 10,000 shots. Write the four estimates of the probability of zero in a row and watch them close on 0.75. Note the shot count at which you would be willing to put the number in a report.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Bring your two numbers</h4>
+        <p>Classical lookups for an even chance over 1,024 items, and quantum oracle calls for the same job. Unhedged, on paper. Session 2 runs the search on the register and puts both guesses against the count.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The qubit as a vector</span><span class="note">Two amplitudes whose squares add to one, drawn as an arrow, moved by hand.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Amplitude against probability</span><span class="note">The sign is real and unobservable; the squares are the odds and throw it away.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The register</span><span class="note">n qubits, 2 to the n amplitudes; ten is 1,024, and the page holds them.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The gate as a matrix</span><span class="note">Hadamard as four numbers that turn a certain zero into an even pair.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The measurement as a sample</span><span class="note">Counts, standard error, and the inference a data team already does.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Brindle's deck, sorted</span><span class="note">Vector, matrix, sample or decoration, claim by claim.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Where the speedup comes from</span><span class="note">Named tonight as cancellation. Session 2 watches it happen per iteration.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Noise and the real machine</span><span class="note">The simulator is exact; session 5 prices the gap.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">The physics of a qubit</span><span class="note">How any hardware realises the vector is out of scope; nobody on the hub teaches it.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Vendors, machines, roadmaps, prices</span><span class="note">None named anywhere, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>Sentence one.</strong> A qubit is two numbers whose squares add to one. Not a coin, not a cat, not both at once.</div>
+      <div class="cheat-item"><strong>Sentence two.</strong> A gate is a matrix. Hadamard is four numbers that turn (1, 0) into (0.707, 0.707).</div>
+      <div class="cheat-item"><strong>Sentence three.</strong> A measurement is a draw with the squares as odds. You get a count, never the numbers.</div>
+      <div class="cheat-item"><strong>The sign.</strong> (0.707, 0.707) and (0.707, -0.707) sample identically and behave differently. Every speedup lives in that sign.</div>
+      <div class="cheat-item"><strong>The register.</strong> n qubits, 2 to the n amplitudes. Ten is 1,024. Twenty-four indexes Brindle's customers. Forty is past any simulator.</div>
+      <div class="cheat-item"><strong>The sample.</strong> Standard error is the square root of p(1 - p) over shots. A thousand shots at a half is 0.016. Costs are paid in shots.</div>
+      <div class="cheat-item"><strong>The sort.</strong> Every claim is V, M, S or D. Decoration is the default and usually the majority.</div>
+      <div class="cheat-item"><strong>The open question.</strong> 1,024 items. Classical lookups for an even chance, and quantum oracle calls. Commit to both before session 2.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 1 of 6 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="../index.html">← All sessions</a>
+        <a href="a2-where-the-speedup-comes-from.html">Leader session 2 · Where the speedup actually comes from →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var angle = document.getElementById("a1-angle");
+  var angleVal = document.getElementById("a1-angle-val");
+  var shotsSel = document.getElementById("a1-shots");
+  var seedSel = document.getElementById("a1-seed");
+  var out = document.getElementById("a1-out");
+  var verdict = document.getElementById("a1-verdict");
+  var self = document.getElementById("a1-self");
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function render() {
+    var deg = Number(angle.value), shots = Number(shotsSel.value), seed = Number(seedSel.value);
+    angleVal.textContent = String(deg);
+    var th = deg * Math.PI / 180;
+    /* build the one-qubit state directly: a = cos, b = sin, then sample it with the engine */
+    var s = QS.newState(1);
+    s.re[0] = Math.cos(th); s.re[1] = Math.sin(th);
+    var p = QS.probs(s);
+    var counts = QS.sample(s, shots, seed);
+    var est0 = counts[0] / shots;
+    var se = Math.sqrt(p[0] * (1 - p[0]) / shots);
+
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Zero</th><th>One</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Amplitude</td><td>" + s.re[0].toFixed(3) + "</td><td>" + s.re[1].toFixed(3) + "</td><td>the vector, which nobody ever reads</td></tr>";
+    html += "<tr><td>Probability, the square</td><td>" + p[0].toFixed(3) + "</td><td>" + p[1].toFixed(3) + "</td><td>the odds of each outcome on one shot</td></tr>";
+    html += "<tr><td>Counts in " + comma(shots) + " shots</td><td><b>" + comma(counts[0]) + "</b></td><td><b>" + comma(counts[1]) + "</b></td><td>what a data team actually receives</td></tr>";
+    html += "<tr><td>Estimate of the probability of zero</td><td>" + est0.toFixed(3) + "</td><td>" + (1 - est0).toFixed(3) + "</td><td>standard error about " + se.toFixed(3) + "</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var gap = Math.abs(est0 - p[0]);
+    verdict.textContent = "The true probability of zero is " + p[0].toFixed(3) + " and this draw estimates it at " + est0.toFixed(3)
+      + ", a gap of " + gap.toFixed(3) + " against a standard error of " + se.toFixed(3) + ". "
+      + (gap <= 2 * se ? "That is ordinary sampling, not a fault." : "That is further than two standard errors, which happens about one draw in twenty.")
+      + " Nothing in these counts reveals the amplitude " + s.re[0].toFixed(3) + " directly; it is inferred.";
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The simulator's seven properties pass in this browser, so the counts above are the counts any correct run gives for this seed. The simulator is exact; no real machine is."
+    : "The simulator's self test did not pass in this browser, so nothing above should be believed.";
+
+  angle.addEventListener("input", render);
+  shotsSel.addEventListener("change", render);
+  seedSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #a1-qubit .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 14rem; }
+  #a1-qubit input[type="range"] { max-width: 20rem; padding: 0; }
+  #a1-qubit table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

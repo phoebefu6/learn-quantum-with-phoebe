@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 1 of 10. A register is an array of 2 to the n complex numbers, a gate is a loop over pairs, a measurement is a draw from the squares. Build the simulator the rest of the track runs on, in numpy, and check it against the one in the page.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="A statevector simulator from scratch - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 1 of 10. Two arrays, one pair loop, one sampler. Ten qubits is 1,024 numbers and your laptop does not notice.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p1-a-statevector-simulator-from-scratch.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A statevector simulator from scratch - learn quantum with phoebe">
+<meta name="twitter:description" content="Every number in the next nine sessions comes out of thirty lines you write tonight.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 1 · A statevector simulator from scratch - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 1 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 1 of 10</div>
+    <h1>A statevector simulator <span class="accent">from scratch</span></h1>
+    <p class="sub">Brindle's analyst has decided the vendor deck will be tested on something she built herself and can read every line of. That thing is thirty lines of numpy: an array of 2 to the n complex amplitudes, a loop that applies a 2 x 2 matrix to pairs of entries, and a sampler that draws from the squares. The same simulator runs in this page, up to ten qubits, and every number in the next nine sessions comes out of it. Tonight you build yours, check it against the page's on the same seeds, and leave with a register you can trust because you wrote it.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone who will have to check a quantum claim with code</span>
+      <span class="chip audience">Comfortable with numpy arrays and bit operations</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · The register as an array</span>
+      <span class="a3" style="flex:2">15-23 · Pairs and draws</span>
+      <span class="a4" style="flex:4">23-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Brindle decides to build the thing it is being sold</h2>
+    </div>
+    <p class="lede">A statevector simulator is the least glamorous object in the field and the most useful one for a data team, because it is exact. It holds every amplitude of a small register and applies every gate as the matrix it is, so any claim about a small circuit can be checked to floating-point precision without a machine, a vendor or a queue. The limit is memory: 2 to the n numbers, which is 1,024 at ten qubits and about a trillion at forty. Up to the low twenties it is the ground truth, and it is the ground truth these sessions use.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A working simulator in numpy, about thirty lines, that agrees with the one in this page to the last decimal on the circuits you both run. The index trick that makes a gate on qubit q a loop over pairs of array entries. A seeded sampler that turns amplitudes into the counts a data team receives. And the seven properties the page's engine checks on every load, two of which fail the moment a common fault is reintroduced.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the engine in this page does when it loads<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Before any widget on any page draws a number, the engine runs seven checks on itself: the register stays normalised through six gates, H on zero gives two equal amplitudes, a Bell pair never reads 01 or 10, two qubits find a marked item with certainty in one Grover iteration, five qubits match the closed form at every iteration, removing the oracle returns the uniform distribution, and noise lowers success without ever going below uniform. If any one fails, the widget says so instead of showing a number.</p>
+        <p>Two of those checks exist because of faults that are easy to carry without noticing. Build the diffusion step without its X layer and four of the seven fail. Make the oracle a no-op and four fail. A self test that passes on the broken engine is not a test, so both faults were reintroduced on purpose during the build and the failing properties were recorded before any page quoted a number.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analyst had a version of the diffusion step that looked right, ran without error, and reported a success probability of 0.25 on two qubits where the answer is 1.0. Nothing in the code was marked wrong. The only thing that caught it was the comparison against a closed form she had written down before running anything. The habit this session teaches is that one: write the expected number first.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in code terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Register.</strong> Two float arrays of length N = 2 to the n, real and imaginary parts. Index 0 is every qubit zero.</li>
+          <li><strong>Basis state.</strong> One index. Its binary digits are the qubit values; qubit q is bit q of the index, so index 5 on three qubits is 101 and qubit 1 is zero.</li>
+          <li><strong>Amplitude.</strong> The complex number at an index. The sum of squared magnitudes over all indices is one, always, after every gate.</li>
+          <li><strong>Single-qubit gate on q.</strong> For every index i with bit q clear, pair it with j = i with bit q set, and apply the 2 x 2 matrix to the pair (a_i, a_j). N / 2 pairs, one matrix each.</li>
+          <li><strong>CNOT.</strong> For every index with the control bit set and the target bit clear, swap its amplitude with the one at target bit set. A permutation, nothing more.</li>
+          <li><strong>Phase flip.</strong> Negate one amplitude. The oracle in session 4 is exactly this, applied to the marked index.</li>
+          <li><strong>Measurement.</strong> Compute the squares, build the cumulative sum, draw a uniform number, find the first index whose cumulative exceeds it. Repeat for each shot.</li>
+          <li><strong>Gate count.</strong> The engine counts one per gate call. The oracle and the multi-controlled flip each count as one, which undercounts hardware, and the page says so wherever it quotes a depth.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the register</span>
+      <h2>The register is an array of 2 to the n complex numbers</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Three qubits are eight slots. The slot number, written in binary, is the value of each qubit, and the complex number in the slot is the amplitude. That is the entire data structure. The rule that the squared magnitudes sum to one is the invariant, and it is the first thing to assert after every gate.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of a three qubit register as an array. Eight slots in a row, indexed 0 to 7, each labelled underneath with its binary digits from 000 to 111. Above the slots a bracket shows which digit is which qubit: the rightmost digit is qubit zero, the middle is qubit one, the leftmost is qubit two. Two rows of values sit inside the slots, the real part and the imaginary part, drawn as two parallel arrays. The register shown is the state after H on every qubit, so every real part reads 0.354 and every imaginary part reads 0. A side note says the squares sum to one, eight times 0.125. A band underneath says qubit q is bit q of the index, and index 5 is 101, so qubit 1 is zero there.">
+        <defs>
+          <filter id="p1aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p1aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p1aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p1aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p1aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p1aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p1aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p1aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p1aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p1aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p1aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p1aH" x="30" y="26">THREE QUBITS, EIGHT SLOTS. THE SLOT NUMBER IN BINARY IS THE QUBIT VALUES. THE ENTRY IS THE AMPLITUDE.</text>
+
+        <g filter="url(#p1aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the re row -->
+          <rect x="60" y="120" width="760" height="44" rx="6" transform="rotate(-0.2 440 142)" fill="#FFFFFF"/>
+          <!-- the im row -->
+          <rect x="60" y="176" width="760" height="44" rx="6" transform="rotate(0.2 440 198)" fill="#FFFFFF"/>
+          <!-- slot dividers -->
+          <path d="M155 120 L155 220 M250 120 L250 220 M345 120 L345 220 M440 120 L440 220 M535 120 L535 220 M630 120 L630 220 M725 120 L725 220" stroke="#C9C9DF"/>
+          <!-- highlight slot 5 -->
+          <rect x="537" y="122" width="91" height="96" rx="4" fill="none" stroke="#0E7490" stroke-width="2.4"/>
+          <!-- sum box -->
+          <rect x="60" y="262" width="330" height="48" rx="8" transform="rotate(-0.4 225 286)" fill="#EEEDF9"/>
+          <!-- band -->
+          <rect x="30" y="322" width="820" height="40" rx="10" transform="rotate(0.15 440 342)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a small abacus bead -->
+          <circle cx="836" cy="286" r="10" fill="url(#p1aHc)"/>
+          <path d="M836 268 L836 304"/>
+        </g>
+
+        <text class="p1aA" x="440" y="58">digits, left to right: qubit 2, qubit 1, qubit 0</text>
+
+        <!-- index labels -->
+        <text class="p1aS" x="107" y="80" text-anchor="middle">index 0</text>
+        <text class="p1aS" x="202" y="80" text-anchor="middle">1</text>
+        <text class="p1aS" x="297" y="80" text-anchor="middle">2</text>
+        <text class="p1aS" x="392" y="80" text-anchor="middle">3</text>
+        <text class="p1aS" x="487" y="80" text-anchor="middle">4</text>
+        <text class="p1aB" x="582" y="80" text-anchor="middle">5</text>
+        <text class="p1aS" x="677" y="80" text-anchor="middle">6</text>
+        <text class="p1aS" x="772" y="80" text-anchor="middle">7</text>
+        <text class="p1aL" x="107" y="100" text-anchor="middle">000</text>
+        <text class="p1aL" x="202" y="100" text-anchor="middle">001</text>
+        <text class="p1aL" x="297" y="100" text-anchor="middle">010</text>
+        <text class="p1aL" x="392" y="100" text-anchor="middle">011</text>
+        <text class="p1aL" x="487" y="100" text-anchor="middle">100</text>
+        <text class="p1aB" x="582" y="100" text-anchor="middle">101</text>
+        <text class="p1aL" x="677" y="100" text-anchor="middle">110</text>
+        <text class="p1aL" x="772" y="100" text-anchor="middle">111</text>
+
+        <text class="p1aA" x="34" y="146">re</text>
+        <text class="p1aA" x="34" y="202">im</text>
+        <text class="p1aV" x="107" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="202" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="297" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="392" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="487" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="582" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="677" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aV" x="772" y="148" text-anchor="middle">0.354</text>
+        <text class="p1aS" x="107" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="202" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="297" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="392" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="487" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="582" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="677" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="772" y="204" text-anchor="middle">0</text>
+        <text class="p1aS" x="60" y="244">the state after H on every qubit: eight equal amplitudes, 1 / sqrt 8 each</text>
+
+        <text class="p1aL" x="76" y="282">sum of squares</text>
+        <text class="p1aB" x="190" y="282">8 x 0.125 = 1.000</text>
+        <text class="p1aS" x="76" y="300">asserted after every gate, to 1e-12</text>
+        <text class="p1aS" x="420" y="282">slot 5 is 101: qubit 2 is one, qubit 1 is zero, qubit 0 is one</text>
+        <text class="p1aS" x="420" y="300">a gate on qubit 1 pairs slot 5 with slot 7 (111)</text>
+
+        <text class="p1aH" x="46" y="347">Qubit q is bit q of the index. That one convention is the whole bridge between the maths and the array.</text>
+        <text class="p1aN" x="30" y="374">Values rounded to three decimals; the arrays carry doubles. The page's engine and your numpy build agree to the last digit on every state in these sessions.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - nothing in the register is quantum except the rule that the entries are complex and their squares sum to one. The rest is indexing.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Index arithmetic: qubit q is bit q<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every operation in the simulator comes down to one question: for a given slot, what is the slot that differs from it only in qubit q? The answer is index XOR (1 shifted left by q), and because XOR with a single bit is its own inverse, each slot has exactly one partner. For a gate on qubit 1 of three qubits, the pairs are (0, 2), (1, 3), (4, 6) and (5, 7). The loop visits each pair once by taking only the slots with bit q clear and computing the partner.</p>
+        <p>The convention that qubit 0 is the least significant bit is a choice, and the other choice is equally common in textbooks and libraries. It does not matter which you pick as long as you pick once and write it at the top of the file; what does matter is that a Bell pair on qubits 0 and 1 puts its probability on indices 0 and 3 under this convention and on 0 and 3 under the other, which is why the page always labels results by bit string and never by index alone.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Two float arrays, not one complex object<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The page's engine keeps the real and imaginary parts in two separate double arrays rather than one array of complex numbers, and the numpy build does the same so the two can be compared element by element. For the circuits in these sessions the imaginary parts stay at zero throughout, because H, X, Z, CNOT and the phase flip are all real matrices. They are kept anyway, because the first gate outside this set, a rotation about the Y or Z axis by an arbitrary angle, would need them, and a simulator that silently drops the imaginary part is one of the faults the self test cannot see.</p>
+        <p>At ten qubits that is two arrays of 1,024 doubles, 16 kilobytes. At twenty it is 16 megabytes. At thirty it is 16 gigabytes, which is where a laptop stops, and the arithmetic of why is the only honest answer to "how big a machine would you need to simulate".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Normalisation is the invariant, and the first assertion<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every gate in the set is unitary, which in array terms means the sum of squared magnitudes before equals the sum after, to rounding. The engine's first property runs six gates in a row and checks the sum is one within 1e-12; on this build it comes back as 1.0000000000000004. That last digit is floating point and is the right size for it. A drift to 0.9 or 1.1 would mean a gate was written with the wrong matrix, and it would show up on the first gate, not the hundredth.</p>
+        <p>The assertion costs one pass over the array, so leave it on. A simulator that normalises after every gate rather than asserting is hiding the bug that the assertion would have caught, in the same way a pipeline that coerces nulls to zero hides the join that produced them.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the gate loop and the sampler</span>
+      <h2>A gate touches pairs; a measurement draws from the squares</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">The register below is the page's engine, live. Choose a size and a preparation and the amplitude table is computed on the spot; take shots and the counts come from a seeded draw over the squares. The three-qubit, eight-hundred-shot run on seed B is the one the build-along reproduces, so you can check your numpy build against it number for number.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 392" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic in two panels. Left panel, the gate loop: the eight slots of a three qubit register drawn as a row, with four arcs joining the pairs that a gate on qubit one touches, slot 0 with 2, 1 with 3, 4 with 6, 5 with 7; a two by two matrix box sits above the arcs with the note that the same matrix is applied to every pair, four pairs for eight slots. Right panel, the sampler: a ruler from 0 to 1 divided into segments whose widths are the squared amplitudes, with cumulative sums marked at 0.125, 0.25 and so on up to 1; a seeded draw u lands at a point on the ruler and an arrow drops into the segment it falls in, which is the index returned by that shot; a note says eight hundred shots on seed B return the counts 115, 106, 94, 106, 103, 113, 77, 86. A band underneath says a gate is N over two matrix multiplications and a shot is one uniform draw and one search.">
+        <defs>
+          <filter id="p1bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="37" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p1bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p1bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p1bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p1bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p1bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p1bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p1bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p1bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p1bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p1bH" x="30" y="26">LEFT: A GATE ON QUBIT 1 IS THE SAME 2 x 2 MATRIX ON FOUR PAIRS. RIGHT: A SHOT IS ONE DRAW ON A RULER OF SQUARES.</text>
+
+        <g filter="url(#p1bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel -->
+          <rect x="30" y="44" width="400" height="264" rx="10" transform="rotate(-0.3 230 176)" fill="#FFFFFF"/>
+          <!-- matrix box -->
+          <rect x="150" y="70" width="160" height="56" rx="8" fill="#EEEDF9" stroke="#3730A3"/>
+          <!-- slots -->
+          <rect x="50" y="190" width="360" height="36" rx="5" fill="#FFFFFF"/>
+          <path d="M95 190 L95 226 M140 190 L140 226 M185 190 L185 226 M230 190 L230 226 M275 190 L275 226 M320 190 L320 226 M365 190 L365 226" stroke="#C9C9DF"/>
+          <!-- arcs: pairs (0,2) (1,3) (4,6) (5,7): centres at 72,117,162,207,252,297,342,387 -->
+          <path d="M72 188 C 72 150, 162 150, 162 188" stroke="#0E7490"/>
+          <path d="M117 188 C 117 160, 207 160, 207 188" stroke="#0E7490"/>
+          <path d="M252 188 C 252 150, 342 150, 342 188" stroke="#0E7490"/>
+          <path d="M297 188 C 297 160, 387 160, 387 188" stroke="#0E7490"/>
+          <path d="M230 130 L230 156" marker-end="url(#p1bAr)" stroke="#3730A3"/>
+
+          <!-- right panel -->
+          <rect x="450" y="44" width="400" height="264" rx="10" transform="rotate(0.3 650 176)" fill="#FFFFFF"/>
+          <!-- the ruler -->
+          <rect x="470" y="150" width="360" height="26" rx="4" fill="url(#p1bHc)"/>
+          <path d="M515 146 L515 180 M560 146 L560 180 M605 146 L605 180 M650 146 L650 180 M695 146 L695 180 M740 146 L740 180 M785 146 L785 180" stroke="#3730A3"/>
+          <!-- the draw -->
+          <path d="M722 96 L722 142" stroke="#0E7490" marker-end="url(#p1bAr)"/>
+          <circle cx="722" cy="90" r="7" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="695" y="152" width="45" height="22" fill="#E3F3F7" stroke="#0E7490"/>
+
+          <!-- band -->
+          <rect x="30" y="330" width="820" height="36" rx="10" transform="rotate(-0.15 440 348)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a die -->
+          <rect x="818" y="60" width="20" height="20" rx="4" fill="#FFFFFF"/>
+          <circle cx="824" cy="66" r="1.5" fill="#16153A"/>
+          <circle cx="832" cy="74" r="1.5" fill="#16153A"/>
+        </g>
+
+        <text class="p1bL" x="50" y="66">THE GATE LOOP, qubit 1 of 3</text>
+        <text class="p1bB" x="172" y="94">h11  h12</text>
+        <text class="p1bB" x="172" y="114">h21  h22</text>
+        <text class="p1bS" x="246" y="104">one matrix</text>
+        <text class="p1bS" x="72" y="214" text-anchor="middle">0</text>
+        <text class="p1bS" x="117" y="214" text-anchor="middle">1</text>
+        <text class="p1bS" x="162" y="214" text-anchor="middle">2</text>
+        <text class="p1bS" x="207" y="214" text-anchor="middle">3</text>
+        <text class="p1bS" x="252" y="214" text-anchor="middle">4</text>
+        <text class="p1bS" x="297" y="214" text-anchor="middle">5</text>
+        <text class="p1bS" x="342" y="214" text-anchor="middle">6</text>
+        <text class="p1bS" x="387" y="214" text-anchor="middle">7</text>
+        <text class="p1bS" x="50" y="252">pairs (0,2) (1,3) (4,6) (5,7): partner = index XOR 2</text>
+        <text class="p1bS" x="50" y="270">four matrix multiplications for eight slots, N / 2 in general</text>
+        <text class="p1bA" x="50" y="292">the matrix never sees the other qubits; the loop does the bookkeeping</text>
+
+        <text class="p1bL" x="470" y="66">THE SAMPLER, one shot</text>
+        <text class="p1bS" x="470" y="84">cumulative sums of the squares, 0 to 1</text>
+        <text class="p1bA" x="700" y="110" text-anchor="end">u = a seeded uniform draw</text>
+        <text class="p1bS" x="470" y="136">0</text>
+        <text class="p1bS" x="515" y="136" text-anchor="middle">.125</text>
+        <text class="p1bS" x="560" y="136" text-anchor="middle">.25</text>
+        <text class="p1bS" x="605" y="136" text-anchor="middle">.375</text>
+        <text class="p1bS" x="650" y="136" text-anchor="middle">.5</text>
+        <text class="p1bS" x="695" y="136" text-anchor="middle">.625</text>
+        <text class="p1bS" x="740" y="136" text-anchor="middle">.75</text>
+        <text class="p1bS" x="785" y="136" text-anchor="middle">.875</text>
+        <text class="p1bS" x="830" y="136" text-anchor="middle">1</text>
+        <text class="p1bB" x="717" y="200" text-anchor="middle">index 5</text>
+        <text class="p1bS" x="470" y="240">first segment whose top exceeds u is the shot's result</text>
+        <text class="p1bS" x="470" y="258">800 shots, seed B, from this page:</text>
+        <text class="p1bB" x="470" y="276">115 / 106 / 94 / 106 / 103 / 113 / 77 / 86</text>
+        <text class="p1bS" x="470" y="294">expected 100 each; the spread is sampling, and 77 is normal</text>
+
+        <text class="p1bH" x="46" y="353">A gate is N / 2 tiny matrix products. A shot is one uniform draw and one search along the ruler. There is no other machinery.</text>
+        <text class="p1bN" x="30" y="384">The ruler shows the eight-equal case. For a Bell pair two segments have width 0.5 and the other two width 0, which is why 01 and 10 are never drawn.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the gate loop never touches the qubits it is not acting on, and the sampler never touches the amplitudes, only their squares. The sign is lost at the ruler.</figcaption>
+    </figure>
+
+    <div class="wk" id="p1-reg">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The page's engine, running here. Pick a size and a preparation; every amplitude, square and shot below is computed on the spot.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p1-n">Qubits</label>
+        <select class="sql-code" id="p1-n">
+          <option value="1">1 qubit, 2 slots</option>
+          <option value="2">2 qubits, 4 slots</option>
+          <option value="3" selected>3 qubits, 8 slots</option>
+        </select>
+        <label class="sql-label" for="p1-prep">Preparation</label>
+        <select class="sql-code" id="p1-prep">
+          <option value="zero">Nothing: every qubit zero</option>
+          <option value="h0">H on qubit 0</option>
+          <option value="hall" selected>H on every qubit</option>
+          <option value="bell">H on qubit 0, then CNOT 0 to 1 (needs 2 or more qubits)</option>
+        </select>
+        <label class="sql-label" for="p1-shots">Shots</label>
+        <select class="sql-code" id="p1-shots">
+          <option value="100">100</option>
+          <option value="800" selected>800</option>
+          <option value="1000">1,000</option>
+          <option value="10000">10,000</option>
+        </select>
+        <label class="sql-label" for="p1-seed">Which draw</label>
+        <select class="sql-code" id="p1-seed">
+          <option value="7">Draw A</option>
+          <option value="11" selected>Draw B</option>
+          <option value="2026">Draw C</option>
+        </select>
+        <div id="p1-out"></div>
+        <p class="sql-note" id="p1-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p1-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three runs worth doing first<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave it alone.</strong> Three qubits, H on every qubit, 800 shots, Draw B. Eight amplitudes of 0.354, eight squares of 0.125, and counts of 115, 106, 94, 106, 103, 113, 77, 86. The build-along reproduces the amplitudes exactly and the counts only if you use the same generator; the page says which.</li>
+          <li><strong>Switch to the Bell preparation.</strong> Two amplitudes of 0.707 at 00 and 11, zeros at 01 and 10, and every one of the 800 shots lands on 00 or 11. Not most of them: all of them. Session 3 measures what that means.</li>
+          <li><strong>One qubit, H on qubit 0, 100 shots, Draw A.</strong> 43 and 57. The leader track's first figure is this run; the true probability is a half and the sample says 0.57.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The sampler is inverse-CDF, which you have written before<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Drawing an index with probability proportional to its square is the same operation as drawing a category from a weighted table, and the engine does it the plain way: cumulative sum, one uniform number, linear search for the first segment that exceeds it. For 1,024 slots and 10,000 shots that is ten million comparisons, which is nothing. A binary search would be faster and was not worth the lines.</p>
+        <p>The generator is a 32-bit mixing function seeded by the draw you pick, and the numpy reference used to check the page carries a bit-for-bit port of it so that counts can be compared exactly rather than approximately. Your own build will use numpy's generator, which is a different stream, so your counts will differ from the page's and your probabilities will not. That distinction, exact amplitudes and sampled counts, is the one to keep in mind every time a page quotes a number.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Thirty lines of numpy</h2>
+      <span class="tag build">22 min hands on</span>
+    </div>
+    <p class="lede">Open a fresh notebook or file. Each step is a few lines and prints something you can check against the page. Run from a scratch directory; nothing here writes files.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>The register</h4>
+        <p>Two float arrays and a rule. Index 0 gets amplitude 1; everything else is 0. Print the norm straight away so you have the invariant in front of you.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import numpy as np
+
+def new_state(n):
+    N = 1 &lt;&lt; n
+    re = np.zeros(N); im = np.zeros(N)
+    re[0] = 1.0
+    return {"n": n, "N": N, "re": re, "im": im}
+
+def probs(s):
+    return s["re"] ** 2 + s["im"] ** 2
+
+s = new_state(3)
+print("step 1:", s["re"], "norm", float(probs(s).sum()))
+# step 1: [1. 0. 0. 0. 0. 0. 0. 0.] norm 1.0</div>
+      </div>
+      <div class="step">
+        <h4>Hadamard on one qubit, as a pair loop</h4>
+        <p>Take every index with bit q clear, compute its partner, and apply the 2 x 2 to each pair. Copy the inputs before writing or the second line reads the first line's output.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def apply_h(s, q):
+    bit = 1 &lt;&lt; q
+    i = np.arange(s["N"]); i = i[(i &amp; bit) == 0]; j = i | bit
+    ar, ai = s["re"][i].copy(), s["im"][i].copy()
+    br, bi = s["re"][j].copy(), s["im"][j].copy()
+    r = np.sqrt(0.5)
+    s["re"][i] = (ar + br) * r; s["im"][i] = (ai + bi) * r
+    s["re"][j] = (ar - br) * r; s["im"][j] = (ai - bi) * r
+
+apply_h(s, 0)
+print("step 2:", np.round(s["re"], 4), "norm", round(float(probs(s).sum()), 12))
+# step 2: [0.7071 0.7071 0.     0.     0.     0.     0.     0.    ] norm 1.0</div>
+      </div>
+      <div class="step">
+        <h4>H on the other two qubits</h4>
+        <p>The same function, twice more. Eight equal amplitudes of 1 over the square root of 8, which is 0.3536. Compare with the register widget above on the same preparation.</p>
+        <div class="prompt-box good"><span class="label">Python</span>apply_h(s, 1); apply_h(s, 2)
+print("step 3:", np.round(s["re"], 4), "norm", round(float(probs(s).sum()), 12))
+# step 3: [0.3536 0.3536 0.3536 0.3536 0.3536 0.3536 0.3536 0.3536] norm 1.0</div>
+      </div>
+      <div class="step">
+        <h4>X and CNOT are swaps, and a Bell pair is two lines</h4>
+        <p>X swaps each pair. CNOT swaps the pair only where the control bit is set. Then H on qubit 0 followed by CNOT from 0 to 1 gives the pair session 3 is about. Assert the norm.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def apply_x(s, q):
+    bit = 1 &lt;&lt; q
+    i = np.arange(s["N"]); i = i[(i &amp; bit) == 0]; j = i | bit
+    for k in ("re", "im"):
+        a = s[k][i].copy(); s[k][i] = s[k][j]; s[k][j] = a
+
+def apply_cnot(s, c, t):
+    cb, tb = 1 &lt;&lt; c, 1 &lt;&lt; t
+    idx = np.arange(s["N"])
+    i = idx[((idx &amp; cb) != 0) &amp; ((idx &amp; tb) == 0)]; j = i | tb
+    for k in ("re", "im"):
+        a = s[k][i].copy(); s[k][i] = s[k][j]; s[k][j] = a
+
+t = new_state(2); apply_h(t, 0); apply_cnot(t, 0, 1)
+print("step 4 bell:", np.round(t["re"], 4), "probs", np.round(probs(t), 4))
+assert abs(probs(t).sum() - 1) &lt; 1e-12
+# step 4 bell: [0.7071 0.     0.     0.7071] probs [0.5 0.  0.  0.5]</div>
+      </div>
+      <div class="step">
+        <h4>The sampler</h4>
+        <p>Squares to probabilities, then a weighted draw. numpy's generator is a different stream from the page's, so your counts will differ from the widget's 115, 106, 94, 106, 103, 113, 77, 86 and your probabilities will not. The two runs below are from one execution of this exact code; yours will match them only if your numpy version draws the same stream.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def sample(s, shots, seed):
+    p = probs(s)
+    rng = np.random.default_rng(seed)
+    draws = rng.choice(s["N"], size=shots, p=p / p.sum())
+    return np.bincount(draws, minlength=s["N"])
+
+print("step 5 counts (3 qubits, H on all, 800 shots, seed 11):", sample(s, 800, 11))
+print("step 5 counts (bell, 1000 shots, seed 7):", sample(t, 1000, 7))
+# step 5 counts (3 qubits, H on all, 800 shots, seed 11): [109 107 107  97 107  93  86  94]
+# step 5 counts (bell, 1000 shots, seed 7): [502   0   0 498]</div>
+      </div>
+      <div class="step">
+        <h4>Write the expected number before the next gate</h4>
+        <p>Before session 2 you will add Z and a phase flip. Write down now, from the matrices, what H then Z then H does to a certain zero. It should return a certain one. If your build says anything else when you run it, the build is wrong and the prediction is right, and that order of trust is the whole method.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Predict, then run, then compare, in that order. A simulator that only ever runs is a random-number generator with good branding. The page's engine was built the same way: seven predictions written first, then checked on every load, then checked again against two deliberately broken copies.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A gate is applied to qubit 2 of a four-qubit register. How many 2 x 2 matrix products does the simulator perform, and which slots does slot 5 pair with?</p>
+      <div class="qopt">A · 16 products; slot 5 pairs with slot 6</div>
+      <div class="qopt">B · 4 products; slot 5 pairs with slot 4</div>
+      <div class="qopt">C · 8 products, one per pair; slot 5 (0101) pairs with slot 1 (0001), its partner under XOR with 4</div>
+      <q class="qwhy">Sixteen slots form eight pairs, and the partner of any slot under a gate on qubit q is the slot with bit q flipped. 5 is 0101; flipping bit 2 gives 0001, which is 1. The matrix is applied once per pair, so eight times.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Your build reports a norm of 1.0000000000000004 after six gates. What should you do?</p>
+      <div class="qopt">A · Nothing: a deviation in the sixteenth digit is floating point, and the assertion threshold of 1e-12 is there to catch a wrong matrix, which would show up as 0.9 or 1.1 on the first gate</div>
+      <div class="qopt">B · Renormalise the register after every gate so the norm reads exactly 1</div>
+      <div class="qopt">C · Switch to complex128 arrays, which do not accumulate rounding</div>
+      <q class="qwhy">The page's own engine returns exactly that value on its first self-test property. Renormalising would hide a genuinely wrong gate behind a clean-looking norm, which is the fault the assertion exists to catch. Complex arrays round identically.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Your numpy build and the page's widget give identical amplitudes for H on three qubits but different counts for 800 shots on the same seed number. What is going on?</p>
+      <div class="qopt">A · One of the two simulators has a bug in its gate loop</div>
+      <div class="qopt">B · Nothing is wrong: the amplitudes are exact and must agree, while the counts come from two different seeded generators, so they are two valid samples of the same distribution</div>
+      <div class="qopt">C · The page's counts are the true values and the numpy counts are an approximation</div>
+      <q class="qwhy">Amplitudes are deterministic arithmetic and have one right answer. Counts are a sample and have a distribution; two generators with the same seed number produce two different draws from it. Neither sample is truer than the other, and both estimate the same squares.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 2</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with your build.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Add Z and a phase flip</h4>
+        <p>Z negates every amplitude whose bit q is set. A phase flip negates one amplitude at a given index. Both are three lines. Then check your prediction from step 6: H, Z, H on a certain zero should give a certain one.</p>
+      </div>
+      <div class="step">
+        <h4>Write a norm assertion into every gate</h4>
+        <p>Have each gate assert the norm within 1e-12 after it runs. Then introduce a fault on purpose, a 0.5 instead of the square root of 0.5 in H, and confirm the assertion fires on the very first call.</p>
+      </div>
+      <div class="step">
+        <h4>Scale it</h4>
+        <p>Build a ten-qubit register and apply H to every qubit. Time it. Then try twenty. Write down the size at which your machine first takes longer than a second, and what the register occupies in memory at that size.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The register as two arrays</span><span class="note">2 to the n complex amplitudes, index bits as qubit values, norm as the invariant.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The pair loop</span><span class="note">Partner = index XOR (1 shifted by q); N / 2 matrix products per single-qubit gate.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">H, X and CNOT in numpy</span><span class="note">Built, run, and checked against the page's engine on the same preparations.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The seeded sampler</span><span class="note">Cumulative sums and a uniform draw; exact amplitudes against sampled counts.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The engine's seven properties</span><span class="note">Checked on every load; two reintroduced faults each fail four of them.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Z, the phase flip and the Bell pair measured</span><span class="note">Homework tonight; sessions 2 and 3 take them to depth.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Grover on this register</span><span class="note">Session 4 builds the oracle and the diffusion step on exactly this code.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Density matrices and structured noise</span><span class="note">The track's noise model is a declared one-parameter channel; session 7 says what it leaves out.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any hardware, vendor or framework</span><span class="note">None named. The simulator is the only machine here.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The register.</strong> Two float arrays of length 2 to the n. Index 0 is all zeros. Qubit q is bit q of the index.</div>
+      <div class="cheat-item"><strong>The pair.</strong> Partner of i under a gate on q is i XOR (1 shifted by q). Loop over the slots with bit q clear.</div>
+      <div class="cheat-item"><strong>H.</strong> (a + b) and (a - b), both times the square root of a half. Copy before you write.</div>
+      <div class="cheat-item"><strong>X and CNOT.</strong> Swaps. CNOT swaps only where the control bit is set. No arithmetic.</div>
+      <div class="cheat-item"><strong>The invariant.</strong> Sum of squares is 1 within 1e-12 after every gate. Assert it; never renormalise.</div>
+      <div class="cheat-item"><strong>The sampler.</strong> Cumulative sums, a uniform draw, the first segment that exceeds it. Counts differ by generator; squares do not.</div>
+      <div class="cheat-item"><strong>The size.</strong> Ten qubits is 16 KB. Twenty is 16 MB. Thirty is 16 GB. That arithmetic is the honest limit of simulation.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Predict, run, compare. A simulator that only runs is a random-number generator with branding.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 1 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="../index.html">← All sessions</a>
+        <a href="p2-gates-as-matrices.html">Practitioner session 2 · Gates as matrices →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var nSel = document.getElementById("p1-n");
+  var prepSel = document.getElementById("p1-prep");
+  var shotsSel = document.getElementById("p1-shots");
+  var seedSel = document.getElementById("p1-seed");
+  var out = document.getElementById("p1-out");
+  var verdict = document.getElementById("p1-verdict");
+  var self = document.getElementById("p1-self");
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function bits(i, n) { var s = i.toString(2); while (s.length < n) s = "0" + s; return s; }
+
+  function render() {
+    var n = Number(nSel.value), prep = prepSel.value, shots = Number(shotsSel.value), seed = Number(seedSel.value);
+    var s = QS.newState(n), q;
+    if (prep === "h0") QS.applyH(s, 0);
+    else if (prep === "hall") QS.hadamardAll(s);
+    else if (prep === "bell") { QS.applyH(s, 0); if (n >= 2) QS.applyCNOT(s, 0, 1); }
+    var p = QS.probs(s);
+    var counts = QS.sample(s, shots, seed);
+
+    var html = '<table class="sql-table"><thead><tr><th>Index</th><th>Bits (q' + (n - 1) + ' .. q0)</th><th>re</th><th>im</th><th>Square</th><th>Counts in ' + comma(shots) + ' shots</th><th>Estimate</th></tr></thead><tbody>';
+    for (var i = 0; i < s.N; i++) {
+      html += "<tr><td>" + i + "</td><td>" + bits(i, n) + "</td><td>" + s.re[i].toFixed(4) + "</td><td>" + s.im[i].toFixed(4) + "</td><td>" + p[i].toFixed(4) + "</td><td><b>" + comma(counts[i]) + "</b></td><td>" + (counts[i] / shots).toFixed(3) + "</td></tr>";
+    }
+    html += "<tr><td></td><td>sum</td><td></td><td></td><td>" + QS.norm(s).toFixed(4) + "</td><td>" + comma(shots) + "</td><td>1.000</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var nz = 0; for (i = 0; i < s.N; i++) if (p[i] > 1e-12) nz++;
+    var msg = s.N + " slots, " + nz + " with non-zero amplitude, " + s.gates + " gate" + (s.gates === 1 ? "" : "s") + " applied, norm " + QS.norm(s).toFixed(12) + ". ";
+    if (prep === "bell" && n >= 2) {
+      var off = 0; for (i = 0; i < s.N; i++) if (p[i] < 1e-12) off += counts[i];
+      msg += "Shots landing on a zero-amplitude slot: " + off + " of " + comma(shots) + ". Not few. None.";
+    } else if (prep === "zero") {
+      msg += "Every shot returns index 0, because the only non-zero square is 1. There is nothing to estimate yet.";
+    } else {
+      var exp = shots / nz;
+      msg += "Expected about " + comma(Math.round(exp)) + " per non-zero slot; the spread you see is sampling, and the squares did not move.";
+    }
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the two that fail on a broken diffusion step or a silent oracle. The simulator is exact; no real machine is."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  nSel.addEventListener("change", render);
+  prepSel.addEventListener("change", render);
+  shotsSel.addEventListener("change", render);
+  seedSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p1-reg .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p1-reg table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

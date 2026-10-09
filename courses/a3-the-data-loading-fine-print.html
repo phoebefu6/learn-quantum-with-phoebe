@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 3 of 6. A quantum search is only fast once the data is inside the machine, and getting 12 million classical rows inside costs 12 million writes. Aaronson's four caveats, the qRAM write cost, and a loading-tax calculator that runs in the page.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The data-loading fine print - learn quantum with phoebe">
+<meta property="og:description" content="Leader session 3 of 6. Load N rows, then search in about sqrt N. For one search over fresh data the load alone costs more than the classical scan.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/a3-the-data-loading-fine-print.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The data-loading fine print - learn quantum with phoebe">
+<meta name="twitter:description" content="Ask what the load costs before you ask what the search costs. Four caveats, one write cost, and a window of 3 to 4,224 searches per load.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 3 · The data-loading fine print - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Leader session 3 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Leader session 3 of 6</div>
+    <h1>The data-loading <span class="accent">fine print</span></h1>
+    <p class="sub">Session 2 watched a search find one item in about the square root of N oracle calls, and it was real. It also assumed something the vendor deck never says out loud: that the data was already inside the machine. Brindle's 12 million customer rows live on disk, and every one of them has to be written into quantum memory before the first query runs. Tonight prices that write, with the four caveats Aaronson published in 2015, the one claim the best qRAM design does and does not make, and a calculator in the page that prints the load beside the search. No machine, vendor or roadmap is named.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone asked to fund or read a quantum pitch</span>
+      <span class="chip audience">Anyone who owns the tables a pilot would load</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · Four caveats</span>
+      <span class="a3" style="flex:3">18-28 · The write qRAM cannot skip</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The sentence that leaves something out</h2>
+    </div>
+    <p class="lede">Brindle is a constructed retailer with a 12-million-row customer table, a 4-million-row order table and twenty years of encrypted backups. Page four of the vendor deck says the pilot will "search all 12 million customers at quantum speed". The sentence is not false. The search half of it is the arithmetic session 2 measured. What it leaves out is the step before the search, and the leader's job tonight is to find that step, put a number on it, and rewrite the sentence so it contains both halves.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Aaronson's four caveats in his order, each with what it means for a table you own. The one claim the qRAM paper makes, and the one it never makes. A number for Brindle's single search, quantum against classical, with the model's three parameters printed beside it. A window, in searches per load, inside which the quantum route is ahead and outside which it is not. And one honest sentence to replace the deck's.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Read the deck's sentence slowly<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Search all 12 million customers at quantum speed." Split it into the work it implies. First, the 12 million customers have to become something a quantum search can query: an oracle that can be asked about any row, in superposition. Second, the search asks that oracle about the square root of N times. Third, a measurement returns one row. The sentence describes the second step and is silent on the first and third.</p>
+        <p>Silence on the first step is the expensive one. A search is fast because it touches far fewer than N rows. Loading touches every row once, by definition, because a row that was never written cannot be found. So the moment the data starts outside the machine, the job contains an order-N step, and an order-N step is exactly what the square-root speedup was supposed to avoid.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's data engineering lead, reading the constructed deck, asked the question an engineer always asks about a new store: how does the data get in, and how long does that take. The deck had no page for it. Every pitch that promises a fast query over a big table owes you an ingest number, and a quantum pitch owes it more, because the query is the only part it can speed up.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Six words for tonight<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Load.</strong> Writing N classical values into quantum memory. One write per row, so N writes for N rows. The step the deck skips.</li>
+          <li><strong>Query.</strong> One call to the memory to read a value, or a superposition of values, at an address. What qRAM is designed to make cheap.</li>
+          <li><strong>Oracle.</strong> The gate that marks the row being searched for. Session 2 treated it as free. Tonight it costs one query, and the query costs something.</li>
+          <li><strong>qRAM.</strong> Quantum random access memory: n qubits of address reaching N = 2 to the n cells at once. Proposed by Giovannetti, Lloyd and Maccone in 2008; part 2.</li>
+          <li><strong>Fine print.</strong> The conditions a speedup depends on, mostly about getting the data in and the answer out. Aaronson's word, and the stance of these sessions.</li>
+          <li><strong>Searches per load.</strong> How many times the loaded memory is searched before the data changes and has to be loaded again. Written R. The one number that decides who wins.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What tonight does not do<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Tonight prices the load with a declared model, not a machine. No qRAM of the size Brindle would need has been built, so there is no measured write time to quote, and none is invented. The hardware cost of building such a memory is not taught; nobody on the hub teaches hardware.</p>
+        <p>The linear-systems algorithm Aaronson's essay was written about, HHL, is named so the caveats make sense and is not taught. Session 4 picks up the second half of his argument: what happens when the fine print is satisfied and a classical algorithm turns out to need the same fine print and runs nearly as fast.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Aaronson 2015, four caveats</span>
+      <h2>Four caveats, and the first one is a load</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">In 2015 Scott Aaronson wrote a short essay in Nature Physics titled "Quantum machine learning algorithms: read the fine print". It lists four conditions under which the best-known quantum linear-algebra speedup holds, and shows that any one of them can eat the speedup whole. The first is about getting the input in. The drawing below is that first caveat, applied to the search the deck is promising.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 490" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of loading before searching, for Brindle's constructed table of 12,000,000 rows. Left panel, a hachured pile of classical rows on disk. Five arrows labelled N writes, one per row, carry rows into the middle panel, a quantum memory with 24 qubits of address drawn as a grid of cells that is full only after the last write. An arrow labelled query leads to the right panel, the search, which makes about 2,721 oracle calls, each costing log2 N equals 23.5, for 63,988 in total, and returns one row. Below, two bars drawn to scale: the load bar of 12,000,000 writes runs almost the full width, and the search bar of 63,988 is a sliver. The model is load 1 per row, query cost log2 N, one search per load. A strip at the bottom names Aaronson's four caveats in order: load the input, apply the matrix fast, well conditioned, read the output; the first is highlighted as the one this figure prices.">
+        <defs>
+          <filter id="a3aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a3aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a3aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a3aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a3aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a3aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a3aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a3aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a3aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a3aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a3aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a3aH" x="30" y="26">N WRITES FIRST, THEN ABOUT SQRT N QUERIES. THE LOAD IS PAID BEFORE THE SEARCH STARTS.</text>
+
+        <g filter="url(#a3aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panel A: the pile of classical rows -->
+          <rect x="30" y="44" width="220" height="206" rx="10" transform="rotate(-0.4 140 147)" fill="#FFFFFF"/>
+          <rect x="54" y="96" width="172" height="112" rx="6" transform="rotate(0.6 140 152)" fill="url(#a3aHc)"/>
+          <path d="M62 116 L218 116"/>
+          <path d="M62 136 L218 136"/>
+          <path d="M62 156 L218 156"/>
+          <path d="M62 176 L218 176"/>
+          <path d="M62 196 L218 196"/>
+
+          <!-- the N individual writes -->
+          <path d="M234 112 L322 112" marker-end="url(#a3aAr)"/>
+          <path d="M234 132 L322 132" marker-end="url(#a3aAr)"/>
+          <path d="M234 152 L322 152" marker-end="url(#a3aAr)"/>
+          <path d="M234 172 L322 172" marker-end="url(#a3aAr)"/>
+          <path d="M234 192 L322 192" marker-end="url(#a3aAr)"/>
+
+          <!-- panel B: quantum memory -->
+          <rect x="330" y="44" width="220" height="206" rx="10" transform="rotate(0.3 440 147)" fill="#EEEDF9"/>
+          <rect x="362" y="100" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="406" y="100" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="450" y="100" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="494" y="100" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="362" y="128" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="406" y="128" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="450" y="128" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="494" y="128" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="362" y="156" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="406" y="156" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="450" y="156" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="494" y="156" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="362" y="184" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="406" y="184" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="450" y="184" width="32" height="18" rx="3" fill="#FFFFFF"/>
+          <rect x="494" y="184" width="32" height="18" rx="3" fill="#FFFFFF"/>
+
+          <!-- the query arrow -->
+          <path d="M556 150 L644 150" marker-end="url(#a3aAr)"/>
+
+          <!-- panel C: the search -->
+          <rect x="650" y="44" width="200" height="206" rx="10" transform="rotate(-0.3 750 147)" fill="#FFFFFF"/>
+          <rect x="690" y="120" width="120" height="30" rx="6" fill="#E3F3F7"/>
+
+          <!-- doodle anchor: a tiny dial -->
+          <circle cx="826" cy="64" r="10" fill="#FFFFFF"/>
+          <path d="M826 64 L832 57"/>
+
+          <!-- the two bars, to scale -->
+          <rect x="150" y="284" width="680" height="26" rx="4" transform="rotate(-0.2 490 297)" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="150" y="326" width="4" height="26" rx="1" fill="#EEEDF9"/>
+
+          <!-- the four caveats strip -->
+          <rect x="30" y="400" width="196" height="50" rx="8" transform="rotate(-0.4 128 425)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="238" y="400" width="196" height="50" rx="8" transform="rotate(0.3 336 425)" fill="#FFFFFF"/>
+          <rect x="446" y="400" width="196" height="50" rx="8" transform="rotate(-0.2 544 425)" fill="#FFFFFF"/>
+          <rect x="654" y="400" width="196" height="50" rx="8" transform="rotate(0.4 752 425)" fill="#FFFFFF"/>
+        </g>
+
+        <!-- panel A text -->
+        <text class="a3aL" x="46" y="68">12,000,000 CLASSICAL ROWS</text>
+        <text class="a3aS" x="46" y="84">Brindle's table, constructed</text>
+        <text class="a3aS" x="46" y="232">on disk, a row at a time</text>
+
+        <!-- writes text -->
+        <text class="a3aA" x="254" y="102">N writes</text>
+        <text class="a3aS" x="254" y="214">one per row</text>
+
+        <!-- panel B text -->
+        <text class="a3aL" x="346" y="68">QUANTUM MEMORY</text>
+        <text class="a3aS" x="346" y="84">24 qubits of address</text>
+        <text class="a3aS" x="346" y="232">full after the last write</text>
+
+        <!-- query text -->
+        <text class="a3aA" x="580" y="140">query</text>
+
+        <!-- panel C text -->
+        <text class="a3aL" x="666" y="68">THEN THE SEARCH</text>
+        <text class="a3aS" x="666" y="84">once the memory is full</text>
+        <text class="a3aV" x="750" y="141" text-anchor="middle">2,721</text>
+        <text class="a3aS" x="750" y="168" text-anchor="middle">oracle calls</text>
+        <text class="a3aS" x="750" y="184" text-anchor="middle">each costing log2 N = 23.5</text>
+        <text class="a3aB" x="750" y="204" text-anchor="middle">63,988 in total</text>
+        <text class="a3aS" x="750" y="232" text-anchor="middle">returns one row</text>
+
+        <!-- bars text -->
+        <text class="a3aA" x="30" y="302">the load</text>
+        <text class="a3aW" x="164" y="302">12,000,000 writes, one per row</text>
+        <text class="a3aA" x="30" y="344">the search</text>
+        <text class="a3aL" x="168" y="344">63,988 = 2,721 oracle calls x log2 N (23.5)</text>
+        <text class="a3aN" x="30" y="380">To scale: 63,988 against 12,000,000. Model: load 1 per row, query cost log2 N, R = 1 search per load.</text>
+
+        <!-- caveats text -->
+        <text class="a3aL" x="42" y="421">1 LOAD THE INPUT</text>
+        <text class="a3aB" x="42" y="439">the one this figure prices</text>
+        <text class="a3aL" x="250" y="421">2 APPLY THE MATRIX FAST</text>
+        <text class="a3aS" x="250" y="439">needs sparsity or structure</text>
+        <text class="a3aL" x="458" y="421">3 WELL CONDITIONED</text>
+        <text class="a3aS" x="458" y="439">run time grows with it</text>
+        <text class="a3aL" x="666" y="421">4 READ THE OUTPUT</text>
+        <text class="a3aS" x="666" y="439">about n repeats per entry</text>
+
+        <text class="a3aN" x="30" y="474">Aaronson 2015 lists four caveats, and any one can eat the speedup. Box 1 is the one this figure prices.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the search is a sliver; the load is the whole bar. A quantum search over classical data cannot start until every row has been written once.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four caveats, in Aaronson's order<span class="mini">6 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Aaronson wrote about HHL and its offshoots, the algorithms that promise an exponential speedup for linear algebra. Each caveat below can kill that speedup on its own. Read each one twice: once as he wrote it, once as a question about a table you own.</p>
+        <ul>
+          <li><strong>1. The input has to be loaded fast.</strong> That needs a quantum RAM and a reasonably uniform vector, and if preparing the input already takes n to some power steps, the speedup vanishes "in the very first step". For a data table: if the rows start on disk, somebody pays to write them in, and that payment is order N.</li>
+          <li><strong>2. Applying the matrix has to be fast.</strong> That needs the matrix to be sparse or to have structure. For a data table: a dense customer-by-product matrix with no structure does not qualify just because it is big.</li>
+          <li><strong>3. The matrix has to be well conditioned.</strong> Run time grows about linearly with the condition number. For a data table: a nearly collinear feature set, the kind every analyst has met in a regression, is the bad case.</li>
+          <li><strong>4. Reading the output costs about n repetitions.</strong> The answer is a quantum state, not a list of numbers, and reading one specific entry takes about n runs. For a data table: if the business wants the whole answer column back, the readout alone can cost what the classical method cost.</li>
+        </ul>
+        <p>A search claim like the deck's is not a linear-systems claim, so caveats 2 and 3 do not apply to it directly. Caveats 1 and 4 apply to anything that starts and ends in classical data, which is everything a data team owns. Tonight prices caveat 1; caveat 4 is why the deck's single returned row is a measurement, which session 1 already taught you to read as a sample.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>His general rule, and the two-part check<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Aaronson states the condition for an exponential speedup in one sentence with two halves. There must be an extremely fast way to create a certain superposition, AND there must be no fast way to create the analogous probability distribution classically. The first half is caveat 1 restated. The second half is the one most decks never test.</p>
+        <p>His worked example makes the second half concrete. An inner-product estimate from Lloyd, Mohseni and Rebentrost runs in about log(mn) over epsilon quantum steps. Under the same uniformity condition the quantum algorithm needed, a classical sampler does the same job in about log(mn) over epsilon squared. The gap is at most quadratic, not exponential, and the condition that made the quantum version fast is what made the classical version fast too.</p>
+        <p>His closing position is the stance these sessions adopt, and it is a check any leader can run: for each application, (a) does it satisfy all of the fine print, and (b) once the fine print is included, does a fast classical algorithm give the same information. Session 4 is a published case where the answer to (b) turned out to be yes.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The bridge to search: why a single 1 cannot be loaded for free<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A footnote in the essay connects his linear-algebra fine print to the search fine print. If HHL could take, as input, a vector that is a single 1 with zeros everywhere else, and prepare it fast without knowing where the 1 was, it would find that 1 faster than the Bennett-Bernstein-Brassard-Vazirani bound allows for black-box search. That bound is the same one Grover's algorithm sits at, about the square root of N queries, and nothing can go below it.</p>
+        <p>Read it from the data side. Finding the one row with a 1 in it is a search. Loading a vector that already has the 1 in the right place means somebody already knew where the row was. So a fast load of arbitrary classical data would be a faster-than-possible search in disguise, and a load of N rows that the machine does not already know costs order N. A square-root search gain cannot survive an order-N load.</p>
+        <p>A second footnote is about what qRAM is allowed to be. It has to be passive. A memory that needed a parallel processing element for every stored number would let a classical parallel machine solve the same linear system in about log squared n too, and then the comparison would be quantum against a very wide classical computer, not quantum against your warehouse.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's constructed deck promises the search and, two pages later, a "quantum-accelerated recommendation model". Run the four caveats on each and they fail differently. The search fails caveat 1 at the first step: the 12 million rows are on disk. The recommendation claim needs caveats 1, 2, 3 and 4 all satisfied before it is worth testing, and then it needs check (b), which is session 4's whole subject.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers qRAM and the one-search arithmetic</span>
+      <h2>qRAM cuts the query and never the write</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The serious answer to caveat 1 is a quantum memory. Giovannetti, Lloyd and Maccone proposed one in 2008: n qubits of address reach N = 2 to the n cells, and their design needs about log N switches per memory call instead of the N a conventional design would use. That is a real improvement, to the query. The drawing shows where it stops.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of a quantum random access memory. Left panel: an address register of n qubits feeds a binary tree of switches in three levels above eight memory cells. One query path is highlighted from the address through one switch on each level down to a single cell, three switches in all. Underneath, a hachured pile of classical rows sends eight separate write arrows up into the eight cells, one per cell, all before the first query. Right panel, at Brindle's constructed 12,000,000 rows: one query passes about 24 switch levels, log2 N equals 23.5, which is what qRAM makes small; filling the memory takes 12,000,000 writes, one per row, which qRAM leaves alone. The panel concludes qRAM cuts the query, never the write.">
+        <defs>
+          <filter id="a3bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="37" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a3bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a3bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a3bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a3bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a3bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a3bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a3bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a3bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a3bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a3bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a3bH" x="30" y="26">QRAM: A QUERY WALKS ABOUT LOG N SWITCHES. THE MEMORY STILL TAKES N WRITES TO FILL.</text>
+
+        <g filter="url(#a3bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel -->
+          <rect x="30" y="44" width="520" height="370" rx="10" transform="rotate(-0.3 290 229)" fill="#FFFFFF"/>
+
+          <!-- address register -->
+          <rect x="240" y="62" width="100" height="28" rx="6" transform="rotate(0.8 290 76)" fill="#EEEDF9"/>
+
+          <!-- tree edges, ordinary -->
+          <path d="M290 142 L190 178"/>
+          <path d="M190 202 L140 238"/>
+          <path d="M190 202 L240 238"/>
+          <path d="M390 202 L440 238"/>
+          <path d="M140 262 L115 290"/>
+          <path d="M140 262 L165 290"/>
+          <path d="M240 262 L215 290"/>
+          <path d="M240 262 L265 290"/>
+          <path d="M340 262 L365 290"/>
+          <path d="M440 262 L415 290"/>
+          <path d="M440 262 L465 290"/>
+
+          <!-- the query path -->
+          <path d="M290 90 L290 118" stroke="#0E7490" stroke-width="3"/>
+          <path d="M290 142 L390 178" stroke="#0E7490" stroke-width="3"/>
+          <path d="M390 202 L340 238" stroke="#0E7490" stroke-width="3"/>
+          <path d="M340 262 L315 290" stroke="#0E7490" stroke-width="3"/>
+
+          <!-- switches -->
+          <circle cx="290" cy="130" r="12" fill="#E3F3F7" stroke="#0E7490"/>
+          <circle cx="190" cy="190" r="12" fill="#FFFFFF"/>
+          <circle cx="390" cy="190" r="12" fill="#E3F3F7" stroke="#0E7490"/>
+          <circle cx="140" cy="250" r="12" fill="#FFFFFF"/>
+          <circle cx="240" cy="250" r="12" fill="#FFFFFF"/>
+          <circle cx="340" cy="250" r="12" fill="#E3F3F7" stroke="#0E7490"/>
+          <circle cx="440" cy="250" r="12" fill="#FFFFFF"/>
+
+          <!-- memory cells -->
+          <rect x="97" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+          <rect x="147" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+          <rect x="197" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+          <rect x="247" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+          <rect x="297" y="290" width="36" height="26" rx="4" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="347" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+          <rect x="397" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+          <rect x="447" y="290" width="36" height="26" rx="4" fill="#FFFFFF"/>
+
+          <!-- the N writes, from the pile -->
+          <path d="M115 354 L115 322" marker-end="url(#a3bAr)"/>
+          <path d="M165 354 L165 322" marker-end="url(#a3bAr)"/>
+          <path d="M215 354 L215 322" marker-end="url(#a3bAr)"/>
+          <path d="M265 354 L265 322" marker-end="url(#a3bAr)"/>
+          <path d="M315 354 L315 322" marker-end="url(#a3bAr)"/>
+          <path d="M365 354 L365 322" marker-end="url(#a3bAr)"/>
+          <path d="M415 354 L415 322" marker-end="url(#a3bAr)"/>
+          <path d="M465 354 L465 322" marker-end="url(#a3bAr)"/>
+          <rect x="96" y="358" width="388" height="24" rx="5" transform="rotate(0.4 290 370)" fill="url(#a3bHc)"/>
+
+          <!-- doodle anchor: a tiny bead on a wire -->
+          <path d="M500 62 L530 62"/>
+          <circle cx="515" cy="62" r="5" fill="#FFFFFF"/>
+
+          <!-- right panel -->
+          <rect x="570" y="44" width="280" height="370" rx="10" transform="rotate(0.3 710 229)" fill="#EEEDF9"/>
+          <rect x="590" y="104" width="240" height="100" rx="8" transform="rotate(-0.4 710 154)" fill="#FFFFFF"/>
+          <rect x="590" y="222" width="240" height="100" rx="8" transform="rotate(0.4 710 272)" fill="#FFFFFF"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="a3bL" x="46" y="68">THE MEMORY, 8 CELLS</text>
+        <text class="a3bL" x="290" y="81" text-anchor="middle">address</text>
+        <text class="a3bS" x="350" y="81">n = log2 N qubits</text>
+        <text class="a3bA" x="46" y="134">level 1</text>
+        <text class="a3bA" x="46" y="194">level 2</text>
+        <text class="a3bA" x="46" y="254">level 3</text>
+        <text class="a3bB" x="410" y="150">one query, 3 switches</text>
+        <text class="a3bS" x="490" y="307">cells</text>
+        <text class="a3bA" x="492" y="374">N writes</text>
+        <text class="a3bS" x="96" y="400">N classical rows: one write per cell, all before the first query</text>
+
+        <!-- right panel text -->
+        <text class="a3bL" x="586" y="72">AT BRINDLE'S 12,000,000 ROWS</text>
+        <text class="a3bS" x="586" y="88">constructed table, same memory design</text>
+        <text class="a3bB" x="606" y="126">ONE QUERY</text>
+        <text class="a3bV" x="606" y="152">about 24</text>
+        <text class="a3bS" x="606" y="172">switch levels, log2 N = 23.5</text>
+        <text class="a3bS" x="606" y="190">what qRAM makes small</text>
+        <text class="a3bB" x="606" y="244">FILLING THE MEMORY</text>
+        <text class="a3bV" x="606" y="270">12,000,000</text>
+        <text class="a3bS" x="606" y="290">writes, one per row</text>
+        <text class="a3bS" x="606" y="308">what qRAM leaves alone</text>
+        <text class="a3bL" x="590" y="352">qRAM cuts the query,</text>
+        <text class="a3bL" x="590" y="370">never the write.</text>
+        <text class="a3bS" x="590" y="394">Giovannetti, Lloyd, Maccone 2008</text>
+
+        <text class="a3bN" x="30" y="440">Drawn with 8 cells and 3 levels. At 12,000,000 rows it is about 24 levels, and still 12,000,000 writes.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the cyan path is what the 2008 design makes cheap: about log N switches per query. The eight arrows from the pile are what nothing in it makes cheap.</figcaption>
+    </figure>
+
+    <div class="wk" id="a3-tax">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The loading tax, computed in this page by the same engine the bench uses. Pick a table size; every number below is calculated now from a declared model, not looked up and not measured on hardware.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a3-tax-N">Rows in the table, N</label>
+        <select class="sql-code" id="a3-tax-N">
+          <option value="1000">1,000</option>
+          <option value="10000">10,000</option>
+          <option value="100000">100,000</option>
+          <option value="1000000">1,000,000</option>
+          <option value="10000000">10,000,000</option>
+          <option value="12000000" selected>12,000,000 (Brindle's customer table, constructed)</option>
+        </select>
+        <div id="a3-tax-out"></div>
+        <p class="sql-note" id="a3-tax-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a3-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why one search over fresh data always loses<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Set the widget to 12,000,000. Under the declared model (load 1 per row, query cost log2 N per oracle call, one search per load) the quantum route costs 12,063,988: 12,000,000 to load and 63,988 to search. A classical brute-force scan, Grover's own N over 2, costs 6,000,000. The quantum route is about twice as expensive, and the whole of the difference is the load.</p>
+        <p>Now move N through every option and watch the verdict. It never changes, and the reason is one line of algebra rather than a coincidence of these sizes. Loading costs N. Brute force costs N over 2. N is bigger than N over 2 for every N, so the load alone has already lost before the first query runs, and the square-root search gain, however large, is spent on a race that ended at ingest.</p>
+        <p>This is caveat 1 with a number on it. It does not say quantum search is a mistake. It says a quantum search over data that starts on disk and is searched once is a slower way to do a scan.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Load once, search R times: the window<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The load is paid once per load. If the memory is searched R times before the data changes, the load is shared across R searches, and the comparison shifts. Under the same model, quantum beats brute force from R = 3 on every table from 10,000 rows up (from R = 4 at 1,000 rows), because three scans at N over 2 each cost more than one load plus three short searches.</p>
+        <p>But if Brindle is going to search the same table thousands of times, nobody honest compares against a brute-force scan. A data team would build an index once, at about N log2 N, and then answer each search in about log2 N. Against that baseline the quantum route stays ahead only while R is small enough that building the index has not paid for itself. On 12,000,000 rows that ceiling is 4,224 searches per load.</p>
+        <table class="clean">
+          <thead><tr><th>N rows</th><th>Quantum beats brute force from R =</th><th>Classical index wins beyond R =</th></tr></thead>
+          <tbody>
+            <tr><td>1,000</td><td>4</td><td>37</td></tr>
+            <tr><td>10,000</td><td>3</td><td>118</td></tr>
+            <tr><td>100,000</td><td>3</td><td>380</td></tr>
+            <tr><td>1,000,000</td><td>3</td><td>1,211</td></tr>
+            <tr><td>10,000,000</td><td>3</td><td>3,854</td></tr>
+            <tr><td>12,000,000 (Brindle, constructed)</td><td>3</td><td>4,224</td></tr>
+          </tbody>
+        </table>
+        <p>Model for every row: load 1 per row, query cost log2 N per oracle call, about pi/4 times the square root of N oracle calls per search. So the honest window for Brindle is 3 to 4,224 searches per load. Below 3, scan. Above 4,224, index. In between, under this model, the quantum route is ahead. Whether Brindle's actual workload sits in that window is a question about Brindle, not about quantum.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The model is declared, not measured<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every number in the widget and the table comes from three parameters, and all three are choices. Load cost 1 per row says a write into quantum memory costs the same as one classical lookup, which is generous: no qRAM of this size exists to time. Query cost log2 N per oracle call takes the 2008 design at its word, about log N switches per memory call. Searches per load, R, is whatever the use case says it is.</p>
+        <p>Move any of them and every column moves. A dearer write pushes the brute-force crossover up. A dearer query shrinks the window from the top. Practitioner session 6 is a calculator that exposes all three as sliders; tonight they are fixed so the argument has one shape. What none of the parameters can do is make one search over fresh data win, because that needs a load cheaper than half a row per row, and that is the write qRAM never promised.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's constructed customer table is refreshed nightly from the order system. If the pilot's search runs ten times a day, that is R = 10 per load, inside the window. If it runs once, it is outside, and the scan wins. The same deck, the same machine, the same table: the answer turns on a scheduling fact that only Brindle's data team knows, which is why the deck could not have answered it.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Rewrite the deck's search sentence</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps with the widget above and the deck's sentence from Part 0. The aim is to leave with one sentence a board can read, which contains the load, the search and the window, and one question for the vendor.</p>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Copy the sentence exactly</h4>
+        <p>"Search all 12 million customers at quantum speed." Write it at the top of a page, word for word. Rewriting starts from what was actually claimed, not from what you assume was meant.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Mark which caveats it skips</h4>
+        <p>Go through Aaronson's four in order. Load the input: skipped, the rows are on disk and the sentence is silent. Apply the matrix fast and well conditioned: not a linear-systems claim, so mark them not applicable. Read the output: one row comes back as a measurement, so ask how many runs are needed to trust it. Write the caveat numbers in the margin.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Take the 12,000,000 row from the widget</h4>
+        <p>Quantum, one search: 12,063,988. Classical brute force: 6,000,000. Copy the three model parameters next to them, exactly as the widget prints them: load 1 per row, query cost log2 N per oracle call, R = 1 search per load. A number without its parameters is the same mistake the deck made.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Note the search-only number, and say what it is</h4>
+        <p>Indexing 12,000,000 rows needs 24 qubits, since 2 to the 24th is 16,777,216. Over that full index space a search takes about 3,217 oracle calls against 8,388,608 classical lookups for an even chance, a factor of about 2,600. These three numbers are closed-form arithmetic, not a simulation: 24 qubits is past the simulator in this page. This is the number the deck is quietly quoting. The widget's 2,721 counts the 12,000,000 rows themselves; both leave out the load.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write the honest sentence</h4>
+        <p>Something like: "Once our 12 million rows are loaded, which costs about 12 million writes, a quantum search beats a full scan only if we search the loaded table between 3 and 4,224 times before reloading it; below that a scan wins and above it a classical index wins. This is a declared model, not a measurement." Shorten it if you can; do not drop the window or the word model.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write one question to send the vendor</h4>
+        <p>One question, in writing, with a number in it. "What does loading our 12 million customer rows cost, in writes and in hours, and how many searches per load does your pilot plan assume?" If the reply gives a search time and no load time, you have learned the most useful thing the reply could tell you.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Ask what the load costs before you ask what the search costs. A fast query over data that has to be written in first is only as fast as the write, and the write is the page a pitch is most likely to leave out.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Under the declared model, one quantum search over a freshly loaded table always costs more than a classical brute-force scan, at every table size in the widget. Why?</p>
+      <div class="qopt">A · Because each oracle call is slower than a classical lookup, and there are too many of them</div>
+      <div class="qopt">B · Because loading N rows costs N, which is already more than the N over 2 lookups a scan needs; the square-root search gain is spent before the first query runs</div>
+      <div class="qopt">C · Because a quantum memory large enough does not exist yet</div>
+      <q class="qwhy">The oracle calls are the cheap part: 63,988 against a 12,000,000 load on Brindle's constructed table (load 1 per row, query cost log2 N, one search per load). The loss is structural, N against N over 2, and it holds whatever the size. C may be true but is not the reason; the model assumes the memory exists and the search still loses.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Giovannetti, Lloyd and Maccone's 2008 qRAM design is often cited as the answer to the loading problem. What does it reduce, and what does it leave alone?</p>
+      <div class="qopt">A · It reduces each query to about log N switches instead of N; nothing in it makes filling the memory with N classical values cost less than N writes</div>
+      <div class="qopt">B · It reduces both the query and the initial write to about log N</div>
+      <div class="qopt">C · It reduces the number of oracle calls a search needs from the square root of N to log N</div>
+      <q class="qwhy">The 2008 design is about the memory call: n qubits of address, about log N switches per call. The N writes that put the data in are untouched, which is why caveat 1 survives it. The number of oracle calls is set by the search bound, not by the memory, so C confuses two different costs.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Aaronson closes his essay with a check to run on any proposed application. What are its two parts?</p>
+      <div class="qopt">A · Is the qubit count high enough, and is the noise low enough</div>
+      <div class="qopt">B · Is the speedup exponential, and has it been published</div>
+      <div class="qopt">C · Does the application satisfy all of the fine print, and once the fine print is included, does a fast classical algorithm give the same information</div>
+      <q class="qwhy">The check is about the algorithm and its assumptions, not the hardware or the venue. Part (a) is the four caveats. Part (b) asks whether the same assumptions hand a classical algorithm the same speed, and session 4 is a published case where they did.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 4</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, with a pitch from your own inbox and the caveat list in your margin.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Find one quantum machine learning claim and mark it</h4>
+        <p>Any pitch, slide, article or vendor email you receive this week that promises a quantum speedup on data. Copy the claim, then list which of Aaronson's four caveats it skips. Most will skip the first; note whether any of them mentions loading at all.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Put a number on R for one real workload</h4>
+        <p>Pick one table your team owns and one query that runs against it. How many times is that query run between refreshes? Write R down and say which side of the window it falls on for that table size, using the table in Part 2.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Hold one question for session 4</h4>
+        <p>If a quantum algorithm needs the data in a special structure before it runs fast, could a classical algorithm use the same structure and run fast too? Write down yes, no or depends, with one sentence of reasoning. Session 4 is the published case that answered it.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Aaronson 2015, the four caveats</span><span class="note">Load, apply, condition, read out, in his order, each read as a question about a table.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Giovannetti, Lloyd, Maccone 2008 qRAM</span><span class="note">About log N switches per query; nothing that makes the N writes cheaper.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The loading-tax model</span><span class="note">Three declared parameters, printed beside every number, computed in the page.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">One search against R searches per load</span><span class="note">One search always loses; the window on 12,000,000 rows is 3 to 4,224.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The link to the search bound</span><span class="note">Named through the single-1 footnote; session 2 and practitioner session 5 measure the bound itself.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">HHL, the linear-systems algorithm</span><span class="note">Named so the caveats make sense; not taught.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Dequantization</span><span class="note">Check (b) in action. Session 4 walks through the published case.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The loading-tax calculator</span><span class="note">All three parameters as sliders in practitioner session 6.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">The hardware cost of qRAM</span><span class="note">No memory of this size has been built; nobody on the hub teaches hardware.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The skipped step.</strong> A quantum search over classical data starts with a load, and a load of N rows costs N writes.</div>
+      <div class="cheat-item"><strong>Four caveats.</strong> Load the input fast, apply the matrix fast, keep it well conditioned, read the output in about n runs. Aaronson 2015.</div>
+      <div class="cheat-item"><strong>His rule.</strong> A fast superposition AND no fast classical sampler for the same distribution. Both halves, or no exponential speedup.</div>
+      <div class="cheat-item"><strong>The bridge.</strong> Loading a single 1 for free would beat the search bound Grover sits at, so a load of unknown data is order N.</div>
+      <div class="cheat-item"><strong>qRAM.</strong> About log N switches per query (2008). It cuts the query and never the write.</div>
+      <div class="cheat-item"><strong>One search.</strong> The load alone, N writes, is more than the N over 2 a scan needs. Brindle, constructed: 12,063,988 against 6,000,000 (load 1 per row, query cost log2 N, R = 1).</div>
+      <div class="cheat-item"><strong>The window.</strong> Same model, 12,000,000 rows: quantum ahead of a scan from R = 3, behind a classical index beyond R = 4,224 searches per load.</div>
+      <div class="cheat-item"><strong>The two-part check.</strong> (a) Is all the fine print satisfied? (b) With it included, does a fast classical algorithm give the same answer? Session 4 is (b).</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 3 of 6 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a2-where-the-speedup-comes-from.html">← Leader session 2 · Where the speedup actually comes from</a>
+        <a href="a4-when-the-classical-algorithm-catches-up.html">Leader session 4 · When the classical algorithm catches up →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var nSel = document.getElementById("a3-tax-N");
+  var out = document.getElementById("a3-tax-out");
+  var verdict = document.getElementById("a3-tax-verdict");
+  var self = document.getElementById("a3-self");
+
+  function comma(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function render() {
+    var N = Number(nSel.value);
+    var r = QS.loadingTax({ N: N, R: 1 });
+
+    var html = '<table class="sql-table"><thead><tr><th>Route, one search</th><th>Cost</th><th>Made of</th></tr></thead><tbody>';
+    html += "<tr><td>Quantum (load + search)</td><td><b>" + comma(r.quantum) + "</b></td><td>" + comma(r.quantumLoad) + " to load + " + comma(r.quantumSearch) + " to search (" + comma(r.k) + " oracle calls)</td></tr>";
+    html += "<tr><td>Classical brute force, N/2</td><td><b>" + comma(r.brute) + "</b></td><td>Grover's own classical figure, no load needed</td></tr>";
+    html += "<tr><td>Classical index, built for this one search</td><td>" + comma(r.indexed) + "</td><td>N log2 N to build + log2 N to look up</td></tr>";
+    html += "<tr><td>Winner</td><td colspan=\"2\"><b>" + r.winner + "</b></td></tr>";
+    html += "</tbody></table>";
+    html += '<table class="sql-table"><thead><tr><th>Model parameter</th><th>Value</th></tr></thead><tbody>';
+    html += "<tr><td>Load per row</td><td>" + r.loadPerRow + "</td></tr>";
+    html += "<tr><td>Query cost per oracle call, log2 N</td><td>" + r.queryCost.toFixed(1) + "</td></tr>";
+    html += "<tr><td>Searches per load, R</td><td>" + r.R + "</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var loadAlone = r.quantumLoad > r.brute;
+    verdict.textContent = "On " + comma(N) + " rows, one search: quantum " + comma(r.quantum) + " against brute force " + comma(r.brute) + ". "
+      + (loadAlone ? "The load alone, " + comma(r.quantumLoad) + ", already exceeds the whole scan before a single query runs. " : "")
+      + "Searched more than once per load, quantum passes brute force from R = " + r.crossBrute
+      + ", and a classical index built once wins beyond R = " + comma(r.crossIndexed) + " searches per load. "
+      + "Declared model, three parameters above; not a hardware measurement.";
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, so the arithmetic above is what any correct run gives. The loading tax itself is a declared model with three parameters, not a measurement of any machine."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  nSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #a3-tax .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 26rem; }
+  #a3-tax table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

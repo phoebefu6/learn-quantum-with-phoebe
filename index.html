@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Sixteen sessions on what quantum computing will and will not do to a data team's workload, taught on a real statevector simulator in the page. Speedups per algorithm, the data-loading fine print, dequantization, noise against depth, and the post-quantum inventory. No vendors, no roadmaps. Free.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Learn Quantum with Phoebe">
+<meta property="og:description" content="Fine print first. A data and AI course on quantum computing, not a physics tour and not a vendor pitch.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Learn Quantum with Phoebe">
+<meta name="twitter:description" content="25 oracle calls against 512 lookups, and then one error per thousand gates turns 0.9995 into 0.3467.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Learn Quantum with Phoebe</title>
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>
+
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(55,48,163,.16); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--muted); font-weight: 700; }
+
+  .transfer { margin-top: 2.2rem; }
+  .transfer h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .transfer .plede { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; }
+  .transfer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; }
+  .transfer-col { border: 1px solid var(--hairline); border-radius: var(--radius); background: #fff; padding: 1.1rem 1.2rem 1rem; }
+  .transfer-col h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 800; margin-bottom: .6rem; padding: .22rem .7rem; border-radius: 999px; display: inline-block; }
+  .transfer-col.keep h3 { background: var(--indigo-50); color: var(--indigo-deep); }
+  .transfer-col.learn h3 { background: var(--amber-50); color: var(--amber-ink-text); }
+  .transfer-col.unlearn h3 { background: var(--ink); color: #fff; }
+  .transfer-col ul { margin: 0 0 0 1.1rem; font-size: .88rem; line-height: 1.7; }
+  .transfer-col li { margin-bottom: .45rem; }
+  .transfer-col li b { color: var(--ink); }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff,#EEEDF9); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-link:hover .mm-node rect { filter: brightness(1.06); }
+  .mm-edge { transition: opacity .15s ease; }
+
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn with Phoebe · Emerging Tech</div>
+    <h1>Learn <span class="accent">Quantum</span> with Phoebe</h1>
+    <p class="sub">Fine print first. A data and AI course, not a physics tour and not a vendor pitch. Brindle is a retailer whose board has received a quantum pilot deck, and its data team has two questions: will this change our workload, and what do we have to do about the encryption. The answers are taught on a real statevector simulator that runs in every page, up to ten qubits and 1,024 amplitudes. Speedups are per algorithm, never general: at ten qubits a search makes 25 oracle calls where a classical one makes 512, and that is the only table where quantum wins outright. Most quantum machine learning claims die at data loading, because loading N rows costs N and a square-root search gain cannot survive it. One famous claim was dequantized outright. Noise collapses success with circuit depth, and adding qubits makes it worse. The hardware timeline is contested evidence and is taught as a disagreement. The one quantum job a data team is certain to get is the post-quantum inventory, which is a data job. Six leader sessions on the decision, ten practitioner sessions on the build, four benches that run in the page. No vendor, machine, roadmap or price is named anywhere, and nothing here is investment advice.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="16">16</b><span>sessions, two tracks</span></div>
+      <div class="stat"><b data-count="1024">1,024</b><span>amplitudes simulated live</span></div>
+      <div class="stat"><b data-count="25">25</b><span>oracle calls against 512 lookups</span></div>
+      <div class="stat"><b data-count="7">7</b><span>engine properties, two fail on a reintroduced fault</span></div>
+      <div class="stat"><b data-count="45">45</b><span>min per session</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Leader track 🧭 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· six sessions, no code</span></h2>
+      <p class="plede">For anyone asked to fund, approve or explain a quantum pilot. What a qubit actually is, where a speedup actually comes from, the data-loading fine print that eats most claims, the famous claim that a classical algorithm caught up with, why the ordinary data-team playbook breaks on this hardware, and the transfer map from a warehouse team to a quantum-ready one, including the post-quantum inventory.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/a1-a-qubit-is-a-vector.html" style="--diff:#FBBF24">
+        <span class="cicon">🧭</span>
+        <span class="cnum">Leader session 1 · start here</span>
+        <h3>A qubit is a vector, a gate is a matrix</h3>
+        <p>Three sentences a data leader can check: the qubit is a vector, the gate is a matrix, the measurement is a sample. Ten qubits is 1,024 numbers.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/a2-where-the-speedup-comes-from.html" style="--diff:#FBBF24">
+        <span class="cicon">🌊</span>
+        <span class="cnum">Leader session 2</span>
+        <h3>Where the speedup actually comes from</h3>
+        <p>Interference, not trying every answer at once. Watch one amplitude climb per iteration and fall again past the optimum.</p>
+      </a>
+      <a class="course-card" href="courses/a3-the-data-loading-fine-print.html" style="--diff:#FB923C">
+        <span class="cicon">🧾</span>
+        <span class="cnum">Leader session 3</span>
+        <h3>The data-loading fine print</h3>
+        <p>Loading N rows costs N. A square-root search gain cannot survive it on a single search, and the four caveats that follow.</p>
+      </a>
+      <a class="course-card" href="courses/a4-when-the-classical-algorithm-catches-up.html" style="--diff:#FB923C">
+        <span class="cicon">🏃</span>
+        <span class="cnum">Leader session 4</span>
+        <h3>When the classical algorithm catches up</h3>
+        <p>A quantum recommendation algorithm from 2016 and the classical one from 2018 that matched it. Dequantization, and what it teaches about assumptions.</p>
+      </a>
+      <a class="course-card" href="courses/a5-why-the-data-team-playbook-breaks-here.html" style="--diff:#F87171">
+        <span class="cicon">🧰</span>
+        <span class="cnum">Leader session 5</span>
+        <h3>Why the data-team playbook breaks here</h3>
+        <p>Noise with depth, no intermediate inspection, no debugging by printing state, a cost per shot, and a timeline the sources disagree on.</p>
+      </a>
+      <a class="course-card" href="courses/a6-from-data-team-to-quantum-ready.html" style="--diff:#F87171">
+        <span class="cicon">🗺️</span>
+        <span class="cnum">Leader session 6</span>
+        <h3>From data team to quantum-ready: the transfer map</h3>
+        <p>Carries over, must learn, must unlearn. The post-quantum inventory as a data job, and a 90-day ladder of free, official sources.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Practitioner track 🛠️ <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· ten sessions, hands on</span></h2>
+      <p class="plede">For whoever has to check a claim with code. Build the simulator, the gates and a measured Bell pair; build the search and count its queries; price the load and the noise; read a claim against the checklist; catalogue where the estate uses which cryptography; then drive all four benches with every input exposed.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/p1-a-statevector-simulator-from-scratch.html" style="--diff:#FBBF24">
+        <span class="cicon">🧮</span>
+        <span class="cnum">Practitioner session 1 · start here</span>
+        <h3>A statevector simulator from scratch</h3>
+        <p>Two float arrays, one pair loop, one seeded sampler. Thirty lines of numpy that agree with the engine in the page to the last digit.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/p2-gates-as-matrices.html" style="--diff:#FB923C">
+        <span class="cicon">🔲</span>
+        <span class="cnum">Practitioner session 2</span>
+        <h3>Gates as matrices</h3>
+        <p>H, X, Z and CNOT as the matrices they are. A Bell pair in two lines, and the norm asserted after every gate.</p>
+      </a>
+      <a class="course-card" href="courses/p3-entanglement-measured.html" style="--diff:#FB923C">
+        <span class="cicon">🔗</span>
+        <span class="cnum">Practitioner session 3</span>
+        <h3>Entanglement, measured</h3>
+        <p>A Bell pair agrees 1,000 times in 1,000 and a product state about half the time. The difference, sampled, not asserted.</p>
+      </a>
+      <a class="course-card" href="courses/p4-grover-step-by-step.html" style="--diff:#FB923C">
+        <span class="cicon">📈</span>
+        <span class="cnum">Practitioner session 4</span>
+        <h3>Grover step by step</h3>
+        <p>Oracle, diffusion, and the amplitude climbing per iteration. About pi/4 sqrt N iterations, and worse past that.</p>
+      </a>
+      <a class="course-card" href="courses/p5-counting-queries.html" style="--diff:#F87171">
+        <span class="cicon">🔢</span>
+        <span class="cnum">Practitioner session 5</span>
+        <h3>Counting queries</h3>
+        <p>Quantum oracle calls against classical N over 2 from two to ten qubits, measured on the register. 25 against 512 at the top.</p>
+      </a>
+      <a class="course-card" href="courses/p6-the-loading-tax-calculator.html" style="--diff:#F87171">
+        <span class="cicon">⚖️</span>
+        <span class="cnum">Practitioner session 6</span>
+        <h3>The loading-tax calculator</h3>
+        <p>Load N, search sqrt N, R searches per load, and a classical index built once. Where the net crosses, with every parameter declared.</p>
+      </a>
+      <a class="course-card" href="courses/p7-a-noisy-circuit.html" style="--diff:#F87171">
+        <span class="cicon">📉</span>
+        <span class="cnum">Practitioner session 7</span>
+        <h3>A noisy circuit</h3>
+        <p>One error rate per gate, declared. 0.9995 becomes 0.3467 at one in a thousand and the uniform floor at one in a hundred.</p>
+      </a>
+      <a class="course-card" href="courses/p8-reading-a-speedup-claim.html" style="--diff:#EF4444">
+        <span class="cicon">🔍</span>
+        <span class="cnum">Practitioner session 8</span>
+        <h3>Reading a speedup claim</h3>
+        <p>The fine-print checklist applied to three constructed claims. Which algorithm, what load, what readout, what noise, what classical baseline.</p>
+      </a>
+      <a class="course-card" href="courses/p9-the-post-quantum-inventory.html" style="--diff:#EF4444">
+        <span class="cicon">🗂️</span>
+        <span class="cnum">Practitioner session 9</span>
+        <h3>The post-quantum inventory</h3>
+        <p>Which systems use which cryptography, for data that must stay secret how long. The inventory the standards bodies ask for, as a data job.</p>
+      </a>
+      <a class="course-card" href="courses/p10-the-fine-print-bench.html" style="--diff:#EF4444">
+        <span class="cicon">🎛️</span>
+        <span class="cnum">Practitioner session 10 · capstone</span>
+        <h3>The fine-print bench</h3>
+        <p>Four benches, every input exposed. Remove the oracle and the search finds nothing; add a qubit under noise and the answer gets worse.</p>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#FBBF24"></i>Foundations</span>
+      <span><i style="background:#FB923C"></i>Working depth</span>
+      <span><i style="background:#F87171"></i>Advanced</span>
+      <span><i style="background:#EF4444"></i>Hardest</span>
+    </div>
+  </section>
+
+  <section class="section mm-section">
+    <h2>The whole thing on one page</h2>
+    <p class="mm-lede">Every idea in the course and the session that owns it. Click any node to jump there.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+
+  <section class="section">
+    <div class="paths">
+      <h2>Three ways through</h2>
+      <p class="plede">Everyone starts at session 1 of their track. These are the shortest useful routes if you cannot take all sixteen.</p>
+      <div class="path"><b>I have to answer the board</b>
+        <a class="pstep" href="courses/a1-a-qubit-is-a-vector.html">The vocabulary</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a3-the-data-loading-fine-print.html">The fine print</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a5-why-the-data-team-playbook-breaks-here.html">Why it breaks</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a6-from-data-team-to-quantum-ready.html">The transfer map</a>
+      </div>
+      <div class="path"><b>I have to check a claim</b>
+        <a class="pstep" href="courses/p1-a-statevector-simulator-from-scratch.html">The simulator</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p4-grover-step-by-step.html">The search</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p6-the-loading-tax-calculator.html">The load</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p10-the-fine-print-bench.html">The bench</a>
+      </div>
+      <div class="path"><b>I own the encryption question</b>
+        <a class="pstep" href="courses/a6-from-data-team-to-quantum-ready.html">The inventory as a data job</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p9-the-post-quantum-inventory.html">Cataloguing the estate</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p8-reading-a-speedup-claim.html">The checklist</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section transfer">
+    <h2>If you come from a data team</h2>
+    <p class="plede">Leader session 6 in three columns. What a conventional data analyst, engineer or scientist already has that is worth more here, what is genuinely new, and the habits that are actively dangerous on this hardware.</p>
+    <div class="transfer-grid">
+      <div class="transfer-col keep">
+        <h3>Carries over</h3>
+        <ul>
+          <li><b>Sampling and standard error.</b> A measurement is a sample; every shot count is an estimate with an error bar you already know how to compute.</li>
+          <li><b>Linear algebra.</b> A gate is a matrix and a register is a vector; the pair loop is an index trick, not new maths.</li>
+          <li><b>Benchmark discipline.</b> Baselines, held-out checks and the habit of writing the expected number before running anything.</li>
+          <li><b>Data inventory and lineage.</b> Cataloguing which systems hold which data for how long is the exact shape of the post-quantum job.</li>
+        </ul>
+      </div>
+      <div class="transfer-col learn">
+        <h3>Must learn</h3>
+        <ul>
+          <li><b>Amplitudes and interference.</b> Signs that cancel are where every speedup lives, and they are never visible in a sample.</li>
+          <li><b>Per-algorithm speedup factors.</b> Square root for unstructured search, conditional exponentials elsewhere, each with its own fine print.</li>
+          <li><b>Loading, readout and noise arithmetic.</b> Order-N load, n-repetition readout, (1 - p) to the G survival. Three costs no deck prints.</li>
+          <li><b>The post-quantum standards.</b> FIPS 203, 204 and 205 of August 2024, the proposed 2030 and 2035 dates, and what harvest now, decrypt later means for your archive.</li>
+        </ul>
+      </div>
+      <div class="transfer-col unlearn">
+        <h3>Must unlearn</h3>
+        <ul>
+          <li><b>Debugging by printing state.</b> You cannot inspect a register mid-circuit without destroying it; the only output is a sample at the end.</li>
+          <li><b>More compute is more answer.</b> More qubits lengthens the circuit, and under any noise the answer gets worse, measurably.</li>
+          <li><b>Reading a speedup as a wall-clock claim.</b> It is a count of oracle calls under assumptions about loading and readout; translate before you compare.</li>
+          <li><b>Treating the timeline as settled.</b> The primary sources disagree and none gives a date; plan on the data's secrecy lifetime instead.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="paths">
+      <h2>What is real here</h2>
+      <p class="plede">Every number in the course was computed before any page quoted it. The simulator is exact; the noise is a declared model; the loading arithmetic prints its assumptions.</p>
+      <table class="pp-strip" style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:.5rem 0;font-weight:700">The simulator</td><td style="padding:.5rem 0;color:var(--muted)">A real statevector engine, up to ten qubits, in every page. A numpy twin re-derives 3,112 amplitudes with a maximum difference of zero and every sampled count identical</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">The search</td><td style="padding:.5rem 0;color:var(--muted)">Grover's algorithm built from gates, checked against the closed form at every iteration. 25 oracle calls against 512 lookups at ten qubits, success 0.9995</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">The engine checks itself</td><td style="padding:.5rem 0;color:var(--muted)">Seven properties on every page load. A diffusion step without its X layer fails four of them; an oracle that does not flip fails four</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">No vendors</td><td style="padding:.5rem 0;color:var(--muted)">No machine, product, roadmap, qubit count attributed to anyone, coin or price appears. The timeline is taught as a disagreement, and nothing here is investment advice</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span class="meta">part of <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a> · by Phoebe Fu · nothing here is investment advice · key management lives in <a href="https://phoebefu6.github.io/learn-cyber-security-with-phoebe/">learn cyber security ↗</a> and recommender mechanics in <a href="https://phoebefu6.github.io/learn-recommendation-with-phoebe/">learn recommendation ↗</a></span>
+  </footer>
+
+</main>
+
+<script>
+window.MINDMAP_DATA = {
+  "title": "Quantum\nfine print",
+  "centerColor": "#242070",
+  "sessions": [
+    {
+      "label": "A qubit is a vector",
+      "href": "courses/a1-a-qubit-is-a-vector.html",
+      "concepts": [
+        {
+          "label": "Amplitudes, not odds",
+          "href": "courses/a1-a-qubit-is-a-vector.html"
+        },
+        {
+          "label": "The simulator",
+          "href": "courses/p1-a-statevector-simulator-from-scratch.html"
+        },
+        {
+          "label": "Gates as matrices",
+          "href": "courses/p2-gates-as-matrices.html"
+        }
+      ]
+    },
+    {
+      "label": "Where the speedup is",
+      "href": "courses/a2-where-the-speedup-comes-from.html",
+      "concepts": [
+        {
+          "label": "Interference",
+          "href": "courses/a2-where-the-speedup-comes-from.html"
+        },
+        {
+          "label": "Entanglement, measured",
+          "href": "courses/p3-entanglement-measured.html"
+        },
+        {
+          "label": "Grover step by step",
+          "href": "courses/p4-grover-step-by-step.html"
+        }
+      ]
+    },
+    {
+      "label": "The loading fine print",
+      "href": "courses/a3-the-data-loading-fine-print.html",
+      "concepts": [
+        {
+          "label": "Counting queries",
+          "href": "courses/p5-counting-queries.html"
+        },
+        {
+          "label": "The loading tax",
+          "href": "courses/p6-the-loading-tax-calculator.html"
+        },
+        {
+          "label": "Order N beats sqrt N",
+          "href": "courses/a3-the-data-loading-fine-print.html"
+        }
+      ]
+    },
+    {
+      "label": "The classical catch-up",
+      "href": "courses/a4-when-the-classical-algorithm-catches-up.html",
+      "concepts": [
+        {
+          "label": "Dequantization",
+          "href": "courses/a4-when-the-classical-algorithm-catches-up.html"
+        },
+        {
+          "label": "Reading a claim",
+          "href": "courses/p8-reading-a-speedup-claim.html"
+        },
+        {
+          "label": "Matched assumptions",
+          "href": "courses/a4-when-the-classical-algorithm-catches-up.html"
+        }
+      ]
+    },
+    {
+      "label": "Why the playbook breaks",
+      "href": "courses/a5-why-the-data-team-playbook-breaks-here.html",
+      "concepts": [
+        {
+          "label": "A noisy circuit",
+          "href": "courses/p7-a-noisy-circuit.html"
+        },
+        {
+          "label": "No printing state",
+          "href": "courses/a5-why-the-data-team-playbook-breaks-here.html"
+        },
+        {
+          "label": "A contested timeline",
+          "href": "courses/a5-why-the-data-team-playbook-breaks-here.html"
+        }
+      ]
+    },
+    {
+      "label": "The transfer map",
+      "href": "courses/a6-from-data-team-to-quantum-ready.html",
+      "concepts": [
+        {
+          "label": "The PQ inventory",
+          "href": "courses/p9-the-post-quantum-inventory.html"
+        },
+        {
+          "label": "Carry, learn, unlearn",
+          "href": "courses/a6-from-data-team-to-quantum-ready.html"
+        },
+        {
+          "label": "The fine-print bench",
+          "href": "courses/p10-the-fine-print-bench.html"
+        }
+      ]
+    }
+  ]
+};
+</script>
+<script src="assets/mindmap.js?v=1"></script>
+<script src="assets/app.js?v=1"></script>
+</body>
+</html>

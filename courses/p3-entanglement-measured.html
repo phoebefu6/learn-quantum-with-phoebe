@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 3 of 10. Sample a Bell pair and a product pair a thousand times each, compute the agreement rate, and see that the marginals cannot tell them apart. Then the honest caveat: a classical mixture gives the same 00 and 11 counts, and changing the basis before measuring is the simplest check that separates them.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Entanglement, measured - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 3 of 10. Same marginals, different joint table. And a correlation in one basis is not proof of anything until you change the basis and measure again.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p3-entanglement-measured.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Entanglement, measured - learn quantum with phoebe">
+<meta name="twitter:description" content="A Bell pair agrees 1,000 times in 1,000. So does a box that flips one coin and writes it twice. One basis change tells them apart.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 3 · Entanglement, measured - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 3 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 3 of 10</div>
+    <h1>Entanglement, <span class="accent">measured</span></h1>
+    <p class="sub">Slide four of the vendor deck Brindle's board received says "entanglement-powered analytics", and the data engineer has been asked whether that phrase means anything for a 12-million-row customer table. Her job tonight is narrower and more useful: measure what entanglement does to sampled data and nothing more. You will sample the Bell pair from session 2 against a pair that is not entangled, compute a statistic you already compute every week, find that each qubit on its own cannot tell the two apart, and then meet the honest caveat: a perfectly classical box gives the same counts, and one basis change is the simplest check that catches it.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone who will have to check a quantum claim with code</span>
+      <span class="chip audience">Comfortable with numpy, a crosstab and a match rate</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Bell against product</span>
+      <span class="a3" style="flex:2">15-23 · The basis-change test</span>
+      <span class="a4" style="flex:4">23-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>"Entanglement-powered" is a claim about a joint table</h2>
+    </div>
+    <p class="lede">Whatever entanglement does, a data team only ever sees it one way: as counts. You prepare two qubits, measure both, write down two bits, and repeat. After a thousand shots you have a four-row table of outcomes, and every honest statement about entanglement that a data engineer can check is a statement about that table. So the session treats it like any other dataset: the joint distribution, the two marginals, one summary statistic, and the question every analyst should ask before trusting a correlation, which is whether it survives a change in how you look.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> The Bell pair and the product pair sampled on three seeds each, with the agreement rate computed for both. The reason neither qubit alone can tell them apart, drawn as two joint tables with identical margins. A classical mixture that fakes the Bell pair's counts exactly, and the two-basis test that exposes it, run live in the page and again in numpy. And one habit: before calling a correlation entanglement, change the basis and measure again.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the deck's phrase would have to mean in a table<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two qubits, measured, give two bits per shot. If they are entangled, the two bits are linked in a way that no pair of independent qubits can produce. If they are not, the four outcomes 00, 01, 10 and 11 come out as the product of two separate coins. Either way, the only thing that leaves the machine is a column of two-bit strings, and the only thing anyone can do with it is count.</p>
+        <p>That gives the engineer a very plain test for any slide: which table would change, and how? If the answer is a sampled correlation between two bits, it can be measured, and tonight you measure it. If the answer is "faster analytics on customer rows", that is a speedup claim, and it lives or dies on the fine print that sessions 4 to 8 read. Entanglement is a property of the state. It is not, by itself, a speedup.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>In the constructed Brindle story the engineer asked the deck's authors one question in writing: "What do your two-qubit measurement counts look like, and in which bases?" The reply was a screenshot of 00 and 11 only, about half each, captioned "perfect entanglement". Tonight is about why that screenshot, on its own, proves less than its caption says.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in data terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Product state.</strong> A two-qubit state that is qubit 1's column times qubit 0's column, as in session 2. H on each qubit gives one: 0.5 on every slot. The two qubits are independent coins.</li>
+          <li><strong>Entangled state.</strong> A state that cannot be written as such a product. The Bell pair, H on qubit 0 then CNOT 0 to 1, is the standard example: 0.7071 on 00 and 11, zero on 01 and 10.</li>
+          <li><strong>Joint distribution.</strong> The four probabilities of 00, 01, 10 and 11, the squares of the four amplitudes. Laid out as q1 rows by q0 columns, it is a 2 x 2 crosstab.</li>
+          <li><strong>Marginal.</strong> The distribution of one qubit alone: the row sums or the column sums of that crosstab. P(q0 = 1) is the 01 slot plus the 11 slot.</li>
+          <li><strong>Agreement rate.</strong> The fraction of shots in which both qubits read the same value, so (count of 00 + count of 11) / shots. The engine's QS.agreement computes exactly this.</li>
+          <li><strong>Basis.</strong> The question the measurement asks. "As prepared" reads each qubit as 0 or 1. Applying H to both qubits just before measuring asks a different question of the same state, and some correlations survive the change while others do not.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Bell pair against the product pair, sampled</span>
+      <h2>Same marginals, different joint table</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Take the two pairs and lay each one's exact probabilities out as a 2 x 2 crosstab, qubit 1 down the side and qubit 0 across the top. The Bell pair's mass sits on the diagonal and nowhere else. The product pair's mass is spread evenly over all four cells. Now add up the rows and the columns: both tables give 0.5 and 0.5 for each qubit. Anyone who looks at one qubit at a time sees two identical fair coins. The difference is only in the cells.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 432" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of two joint distribution tables side by side, each a two by two grid with qubit 1 as rows and qubit 0 as columns, plus a row and a column of marginal sums. Left, the Bell pair: slot 00 holds 0.5 with 460 shots on seed 7, slots 01 and 10 hold 0 with no shots, slot 11 holds 0.5 with 540 shots; agreement 1.000. Right, the product pair, H on each qubit: every slot holds 0.25, with 220, 240, 273 and 267 shots on seed 7; agreement 0.487. In both tables the marginal for each qubit is 0.5 and 0.5. A band underneath says the marginals are identical and only the joint table differs.">
+        <defs>
+          <filter id="p3aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p3aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p3aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p3aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p3aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p3aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p3aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p3aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p3aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p3aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p3aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p3aH" x="30" y="26">SAME MARGINALS, DIFFERENT JOINT TABLE. NEITHER QUBIT ALONE TELLS A BELL PAIR FROM A PRODUCT PAIR.</text>
+
+        <g filter="url(#p3aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel: Bell pair -->
+          <rect x="30" y="44" width="400" height="300" rx="10" transform="rotate(-0.3 230 194)" fill="#FFFFFF"/>
+          <rect x="110" y="128" width="90" height="58" rx="5" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.4"/>
+          <rect x="206" y="128" width="90" height="58" rx="5" fill="#FFFFFF"/>
+          <rect x="110" y="192" width="90" height="58" rx="5" fill="#FFFFFF"/>
+          <rect x="206" y="192" width="90" height="58" rx="5" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.4"/>
+          <rect x="314" y="128" width="80" height="58" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="314" y="192" width="80" height="58" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="110" y="266" width="90" height="44" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="206" y="266" width="90" height="44" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="314" y="266" width="80" height="44" rx="5" fill="#EEEDF9"/>
+
+          <!-- right panel: product pair -->
+          <rect x="450" y="44" width="400" height="300" rx="10" transform="rotate(0.3 650 194)" fill="#FFFFFF"/>
+          <rect x="530" y="128" width="90" height="58" rx="5" fill="#EEEDF9"/>
+          <rect x="626" y="128" width="90" height="58" rx="5" fill="#EEEDF9"/>
+          <rect x="530" y="192" width="90" height="58" rx="5" fill="#EEEDF9"/>
+          <rect x="626" y="192" width="90" height="58" rx="5" fill="#EEEDF9"/>
+          <rect x="734" y="128" width="80" height="58" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="734" y="192" width="80" height="58" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="530" y="266" width="90" height="44" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="626" y="266" width="90" height="44" rx="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="734" y="266" width="80" height="44" rx="5" fill="#EEEDF9"/>
+
+          <!-- band: the one thing -->
+          <rect x="30" y="360" width="820" height="38" rx="10" transform="rotate(-0.15 440 379)" fill="#0E7490" stroke="#0E7490"/>
+          <!-- doodle anchor: a coin -->
+          <circle cx="858" cy="22" r="9" fill="url(#p3aHc)" transform="rotate(4 858 22)"/>
+          <circle cx="858" cy="22" r="4"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="p3aL" x="50" y="68">BELL PAIR: H on q0, then CNOT 0 to 1</text>
+        <text class="p3aS" x="50" y="86">exact probabilities; rows are q1, columns are q0</text>
+        <text class="p3aA" x="155" y="118" text-anchor="middle">q0 = 0</text>
+        <text class="p3aA" x="251" y="118" text-anchor="middle">q0 = 1</text>
+        <text class="p3aA" x="354" y="118" text-anchor="middle">P(q1)</text>
+        <text class="p3aA" x="58" y="161">q1 = 0</text>
+        <text class="p3aA" x="58" y="225">q1 = 1</text>
+        <text class="p3aA" x="58" y="292">P(q0)</text>
+        <text class="p3aB" x="118" y="144">00</text>
+        <text class="p3aV" x="155" y="166" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="155" y="180" text-anchor="middle">460 shots</text>
+        <text class="p3aS" x="214" y="144">01</text>
+        <text class="p3aV" x="251" y="166" text-anchor="middle">0</text>
+        <text class="p3aS" x="251" y="180" text-anchor="middle">0 shots</text>
+        <text class="p3aS" x="118" y="208">10</text>
+        <text class="p3aV" x="155" y="230" text-anchor="middle">0</text>
+        <text class="p3aS" x="155" y="244" text-anchor="middle">0 shots</text>
+        <text class="p3aB" x="214" y="208">11</text>
+        <text class="p3aV" x="251" y="230" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="251" y="244" text-anchor="middle">540 shots</text>
+        <text class="p3aV" x="354" y="162" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="354" y="178" text-anchor="middle">seen 0.460</text>
+        <text class="p3aV" x="354" y="226" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="354" y="242" text-anchor="middle">seen 0.540</text>
+        <text class="p3aV" x="155" y="288" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="155" y="303" text-anchor="middle">seen 0.460</text>
+        <text class="p3aV" x="251" y="288" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="251" y="303" text-anchor="middle">seen 0.540</text>
+        <text class="p3aL" x="354" y="293" text-anchor="middle">1.0</text>
+        <text class="p3aA" x="50" y="330">agreement 1.000: every shot reads 00 or 11</text>
+
+        <!-- right panel text -->
+        <text class="p3aL" x="470" y="68">PRODUCT PAIR: H on q0, H on q1</text>
+        <text class="p3aS" x="470" y="86">exact probabilities; rows are q1, columns are q0</text>
+        <text class="p3aA" x="575" y="118" text-anchor="middle">q0 = 0</text>
+        <text class="p3aA" x="671" y="118" text-anchor="middle">q0 = 1</text>
+        <text class="p3aA" x="774" y="118" text-anchor="middle">P(q1)</text>
+        <text class="p3aA" x="478" y="161">q1 = 0</text>
+        <text class="p3aA" x="478" y="225">q1 = 1</text>
+        <text class="p3aA" x="478" y="292">P(q0)</text>
+        <text class="p3aS" x="538" y="144">00</text>
+        <text class="p3aV" x="575" y="166" text-anchor="middle">0.25</text>
+        <text class="p3aS" x="575" y="180" text-anchor="middle">220 shots</text>
+        <text class="p3aS" x="634" y="144">01</text>
+        <text class="p3aV" x="671" y="166" text-anchor="middle">0.25</text>
+        <text class="p3aS" x="671" y="180" text-anchor="middle">240 shots</text>
+        <text class="p3aS" x="538" y="208">10</text>
+        <text class="p3aV" x="575" y="230" text-anchor="middle">0.25</text>
+        <text class="p3aS" x="575" y="244" text-anchor="middle">273 shots</text>
+        <text class="p3aS" x="634" y="208">11</text>
+        <text class="p3aV" x="671" y="230" text-anchor="middle">0.25</text>
+        <text class="p3aS" x="671" y="244" text-anchor="middle">267 shots</text>
+        <text class="p3aV" x="774" y="162" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="774" y="178" text-anchor="middle">seen 0.460</text>
+        <text class="p3aV" x="774" y="226" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="774" y="242" text-anchor="middle">seen 0.540</text>
+        <text class="p3aV" x="575" y="288" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="575" y="303" text-anchor="middle">seen 0.493</text>
+        <text class="p3aV" x="671" y="288" text-anchor="middle">0.5</text>
+        <text class="p3aS" x="671" y="303" text-anchor="middle">seen 0.507</text>
+        <text class="p3aL" x="774" y="293" text-anchor="middle">1.0</text>
+        <text class="p3aA" x="470" y="330">agreement 0.487: same value about half the time</text>
+
+        <text class="p3aW" x="46" y="384">Both tables: each qubit alone is 0.5 and 0.5. The margins are identical; only the four cells differ.</text>
+        <text class="p3aN" x="30" y="420">Counts are 1,000 shots on seed 7 from this page's engine; "seen" is the sampled margin. Slot labels read q1 q0.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - read one column of outcomes and you see a fair coin in both cases. The entanglement, if there is any, lives in the cells, which is why every check tonight reads both bits of the same shot together.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The counts, three seeds each<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>These are the frozen numbers from the page's engine, 1,000 shots per run, counts in slot order 00 / 01 / 10 / 11. The widget in Part 2 reprints all six on the spot.</p>
+        <ul>
+          <li><strong>Bell pair, seed 7.</strong> 460 / 0 / 0 / 540, agreement 1.000.</li>
+          <li><strong>Bell pair, seed 11.</strong> 519 / 0 / 0 / 481, agreement 1.000.</li>
+          <li><strong>Bell pair, seed 2026.</strong> 501 / 0 / 0 / 499, agreement 1.000.</li>
+          <li><strong>Product pair, seed 7.</strong> 220 / 240 / 273 / 267, agreement 0.487.</li>
+          <li><strong>Product pair, seed 11.</strong> 265 / 254 / 260 / 221, agreement 0.486.</li>
+          <li><strong>Product pair, seed 2026.</strong> 249 / 252 / 250 / 249, agreement 0.498.</li>
+        </ul>
+        <p>Three things to notice. The Bell pair never reads 01 or 10, not once in 3,000 shots: the squares there are exactly zero, so the sampler has nothing to land on. The split between 00 and 11 wanders from seed to seed (460 against 540 on seed 7) exactly as a fair coin would, because it is one. And the product pair's agreement sits near a half on every seed, which is what two independent fair coins give.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The agreement rate is a statistic you already compute<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two columns, one row per shot, and the question "in what fraction of rows do they hold the same value?" is a match rate. Data teams compute it for duplicate detection, for label agreement between two annotators, and for checking that two systems wrote the same flag. Nothing about it is quantum. The engine's QS.agreement adds the 00 and 11 counts and divides by the total; the build-along writes the same line in numpy.</p>
+        <p>What makes it informative here is the baseline. Two independent fair coins agree half the time, so 0.487, 0.486 and 0.498 are what "no link at all" looks like over 1,000 shots. The Bell pair's 1.000 is as far from that baseline as a match rate can go. Keep the baseline in your head, because Part 2 shows a case where a match rate of 1.000 means something very different.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's engineer (constructed, like every Brindle detail) put the deck's screenshot next to a crosstab from her own order table: "paid online" against "shipped to home" across the order table, a match rate far above a half. Nobody in the room called that entanglement. It is a correlation in the data with an ordinary cause. The screenshot needed the same question her crosstab gets: what produced the agreement?</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the marginals cannot help, written out<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>P(q0 = 1) is the 01 slot plus the 11 slot. For the Bell pair that is 0 + 0.5 = 0.5. For the product pair it is 0.25 + 0.25 = 0.5. P(q1 = 1) is the 10 slot plus the 11 slot, and again both pairs give 0.5. So a pipeline that summarises each qubit separately, a mean per column, a histogram per column, a per-feature drift monitor, produces identical output for the two states. The sampled margins on seed 7 show the same thing with sampling noise on top: 0.540 for the Bell pair's q0 and 0.507 for the product pair's.</p>
+        <p>This is the same trap as two columns that each look fine and a join that does not. Any check that could ever detect entanglement has to read both bits from the same shot together. Per-column statistics are blind to it by construction.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the honest caveat: one basis is not proof</span>
+      <h2>A classical box can fake the Bell counts; a basis change cannot be faked so easily</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">Here is a machine with no quantum anything in it: on each run, flip one fair coin; if heads, prepare 00, if tails, prepare 11. Over a thousand runs it reads only 00 and 11, about half each, agreement 1.000. Its counts are the Bell pair's counts. The difference shows up only when you ask a different question of the same preparation: apply H to both qubits just before measuring. The Bell pair keeps its agreement. Each branch of the mixture spreads evenly across all four slots, and the agreement falls to about a half.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic in two panels showing what applying H to both qubits before measuring does. Left panel, the Bell pair: the four slots 00, 01, 10, 11 read 0.5, 0, 0, 0.5 as prepared; an arrow labelled H on both leads to a second row that reads 0.5, 0, 0, 0.5 again, unchanged, so agreement stays 1.000 and each qubit alone stays at a half. Right panel, the classical mixture: two branches, half the runs prepare 00 and read 1, 0, 0, 0; the other half prepare 11 and read 0, 0, 0, 1; after H on both, each branch reads 0.25 on every slot, so the mixture reads 0.25 everywhere and agreement falls to about a half, 0.482 on seed 7 in the widget. A band says same counts in one basis, different counts in the other, and that difference is the check. Notes add that the product pair after H on both reads 00 every shot, and that this is the simplest honest check, not a full entanglement witness.">
+        <defs>
+          <filter id="p3bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p3bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p3bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p3bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p3bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p3bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p3bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p3bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p3bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p3bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p3bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p3bH" x="30" y="26">CHANGE THE BASIS, THEN MEASURE. THE BELL PAIR KEEPS ITS AGREEMENT; THE MIXTURE LOSES IT.</text>
+
+        <g filter="url(#p3bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel: Bell pair -->
+          <rect x="30" y="44" width="400" height="320" rx="10" transform="rotate(-0.3 230 204)" fill="#FFFFFF"/>
+          <!-- before strip -->
+          <rect x="60" y="116" width="76" height="36" rx="5" fill="#EEEDF9"/>
+          <rect x="142" y="116" width="76" height="36" rx="5" fill="#FFFFFF"/>
+          <rect x="224" y="116" width="76" height="36" rx="5" fill="#FFFFFF"/>
+          <rect x="306" y="116" width="76" height="36" rx="5" fill="#EEEDF9"/>
+          <path d="M110 176 L110 212" marker-end="url(#p3bAr)"/>
+          <!-- after strip -->
+          <rect x="60" y="220" width="76" height="36" rx="5" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.4"/>
+          <rect x="142" y="220" width="76" height="36" rx="5" fill="#FFFFFF"/>
+          <rect x="224" y="220" width="76" height="36" rx="5" fill="#FFFFFF"/>
+          <rect x="306" y="220" width="76" height="36" rx="5" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.4"/>
+
+          <!-- right panel: mixture -->
+          <rect x="450" y="44" width="400" height="320" rx="10" transform="rotate(0.3 650 204)" fill="#FFFFFF"/>
+          <!-- branch 00 before -->
+          <rect x="470" y="116" width="42" height="36" rx="4" fill="#EEEDF9"/>
+          <rect x="516" y="116" width="42" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="562" y="116" width="42" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="608" y="116" width="42" height="36" rx="4" fill="#FFFFFF"/>
+          <!-- branch 11 before -->
+          <rect x="660" y="116" width="42" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="706" y="116" width="42" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="752" y="116" width="42" height="36" rx="4" fill="#FFFFFF"/>
+          <rect x="798" y="116" width="42" height="36" rx="4" fill="#EEEDF9"/>
+          <path d="M560 176 L560 212" marker-end="url(#p3bAr)"/>
+          <path d="M750 176 L750 212" marker-end="url(#p3bAr)"/>
+          <!-- branch 00 after: spread, the data -->
+          <rect x="470" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <rect x="516" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <rect x="562" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <rect x="608" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <!-- branch 11 after -->
+          <rect x="660" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <rect x="706" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <rect x="752" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+          <rect x="798" y="220" width="42" height="36" rx="4" fill="url(#p3bHc)"/>
+
+          <!-- band: the one thing -->
+          <rect x="30" y="380" width="820" height="38" rx="10" transform="rotate(-0.15 440 399)" fill="#0E7490" stroke="#0E7490"/>
+          <!-- doodle anchor: a dial turned to a new setting -->
+          <circle cx="858" cy="22" r="9" fill="#FFFFFF"/>
+          <path d="M858 22 L864 16" transform="rotate(3 858 22)"/>
+        </g>
+
+        <!-- left text -->
+        <text class="p3bL" x="50" y="68">BELL PAIR</text>
+        <text class="p3bS" x="50" y="86">one state, prepared the same way every run</text>
+        <text class="p3bA" x="50" y="108">as prepared</text>
+        <text class="p3bV" x="98" y="140" text-anchor="middle">0.5</text>
+        <text class="p3bV" x="180" y="140" text-anchor="middle">0</text>
+        <text class="p3bV" x="262" y="140" text-anchor="middle">0</text>
+        <text class="p3bV" x="344" y="140" text-anchor="middle">0.5</text>
+        <text class="p3bS" x="98" y="166" text-anchor="middle">00</text>
+        <text class="p3bS" x="180" y="166" text-anchor="middle">01</text>
+        <text class="p3bS" x="262" y="166" text-anchor="middle">10</text>
+        <text class="p3bS" x="344" y="166" text-anchor="middle">11</text>
+        <text class="p3bB" x="124" y="198">H on both</text>
+        <text class="p3bV" x="98" y="244" text-anchor="middle">0.5</text>
+        <text class="p3bV" x="180" y="244" text-anchor="middle">0</text>
+        <text class="p3bV" x="262" y="244" text-anchor="middle">0</text>
+        <text class="p3bV" x="344" y="244" text-anchor="middle">0.5</text>
+        <text class="p3bS" x="98" y="270" text-anchor="middle">00</text>
+        <text class="p3bS" x="180" y="270" text-anchor="middle">01</text>
+        <text class="p3bS" x="262" y="270" text-anchor="middle">10</text>
+        <text class="p3bS" x="344" y="270" text-anchor="middle">11</text>
+        <text class="p3bA" x="50" y="296">probabilities 0.5, 0, 0, 0.5: unchanged</text>
+        <text class="p3bS" x="50" y="314">agreement stays 1.000 (seed 7: 460 / 0 / 0 / 540)</text>
+        <text class="p3bS" x="50" y="332">each qubit alone is still a half and a half</text>
+
+        <!-- right text -->
+        <text class="p3bL" x="470" y="68">CLASSICAL MIXTURE</text>
+        <text class="p3bS" x="470" y="86">each run flips a coin: prepare 00, or prepare 11</text>
+        <text class="p3bA" x="470" y="108">branch 00, half the runs</text>
+        <text class="p3bA" x="660" y="108">branch 11, other half</text>
+        <text class="p3bL" x="491" y="139" text-anchor="middle">1</text>
+        <text class="p3bL" x="537" y="139" text-anchor="middle">0</text>
+        <text class="p3bL" x="583" y="139" text-anchor="middle">0</text>
+        <text class="p3bL" x="629" y="139" text-anchor="middle">0</text>
+        <text class="p3bL" x="681" y="139" text-anchor="middle">0</text>
+        <text class="p3bL" x="727" y="139" text-anchor="middle">0</text>
+        <text class="p3bL" x="773" y="139" text-anchor="middle">0</text>
+        <text class="p3bL" x="819" y="139" text-anchor="middle">1</text>
+        <text class="p3bS" x="491" y="166" text-anchor="middle">00</text>
+        <text class="p3bS" x="537" y="166" text-anchor="middle">01</text>
+        <text class="p3bS" x="583" y="166" text-anchor="middle">10</text>
+        <text class="p3bS" x="629" y="166" text-anchor="middle">11</text>
+        <text class="p3bS" x="681" y="166" text-anchor="middle">00</text>
+        <text class="p3bS" x="727" y="166" text-anchor="middle">01</text>
+        <text class="p3bS" x="773" y="166" text-anchor="middle">10</text>
+        <text class="p3bS" x="819" y="166" text-anchor="middle">11</text>
+        <text class="p3bB" x="572" y="198">H on both</text>
+        <text class="p3bB" x="762" y="198">H on both</text>
+        <text class="p3bL" x="491" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="537" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="583" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="629" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="681" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="727" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="773" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bL" x="819" y="243" text-anchor="middle">0.25</text>
+        <text class="p3bS" x="491" y="270" text-anchor="middle">00</text>
+        <text class="p3bS" x="537" y="270" text-anchor="middle">01</text>
+        <text class="p3bS" x="583" y="270" text-anchor="middle">10</text>
+        <text class="p3bS" x="629" y="270" text-anchor="middle">11</text>
+        <text class="p3bS" x="681" y="270" text-anchor="middle">00</text>
+        <text class="p3bS" x="727" y="270" text-anchor="middle">01</text>
+        <text class="p3bS" x="773" y="270" text-anchor="middle">10</text>
+        <text class="p3bS" x="819" y="270" text-anchor="middle">11</text>
+        <text class="p3bA" x="470" y="296">add the two halves: 0.25 on every slot</text>
+        <text class="p3bS" x="470" y="314">agreement falls to about a half (widget, seed 7: 0.482)</text>
+        <text class="p3bS" x="470" y="332">the 00 and 11 pattern was the preparation, not a link</text>
+
+        <text class="p3bW" x="46" y="404">Same counts in one basis, different counts in the other. That difference is the check.</text>
+        <text class="p3bN" x="30" y="440">Not drawn: the product pair after H on both reads 00 on every shot. Agreement 1.000, but each qubit is certain.</text>
+        <text class="p3bN" x="30" y="458">This is the simplest honest check, not a full entanglement witness. Bell inequalities are the formal test.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a basis change is a second question asked of the same preparation. A correlation that only exists in the first answer was put there by whoever prepared the runs.</figcaption>
+    </figure>
+
+    <div class="wk" id="p3-corr">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The page's engine on two qubits, 1,000 shots per run. Pick a state, a basis and a seed; every count, rate and probability below is computed on the spot. The mixture draws 500 shots from 00 and 500 from 11, the second half on the next seed up. This two-basis test is the simplest honest check, not a full entanglement witness; the formal tests, Bell inequalities, are named here and not taught.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p3-state">State</label>
+        <select class="sql-code" id="p3-state">
+          <option value="bell" selected>Bell pair: H on q0, then CNOT 0 to 1</option>
+          <option value="product">Product pair: H on q0, H on q1</option>
+          <option value="mix">Classical mixture: half the runs 00, half 11</option>
+        </select>
+        <label class="sql-label" for="p3-basis">Basis</label>
+        <select class="sql-code" id="p3-basis">
+          <option value="prep" selected>As prepared</option>
+          <option value="hh">H on both qubits, then measure</option>
+        </select>
+        <label class="sql-label" for="p3-seed">Seed</label>
+        <select class="sql-code" id="p3-seed">
+          <option value="7" selected>Seed 7</option>
+          <option value="11">Seed 11</option>
+          <option value="2026">Seed 2026</option>
+        </select>
+        <div id="p3-out"></div>
+        <p class="sql-note" id="p3-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p3-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Four runs worth doing first<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Bell pair, as prepared, seed 7.</strong> 460 / 0 / 0 / 540, agreement 1.000. The canon run, reprinted from the engine.</li>
+          <li><strong>Classical mixture, as prepared, seed 7.</strong> 500 / 0 / 0 / 500, agreement 1.000. Exact probabilities 0.5, 0, 0, 0.5: the same column as the Bell pair. On counts alone there is nothing to choose between them.</li>
+          <li><strong>Classical mixture, H on both, seed 7.</strong> 235 / 241 / 277 / 247, agreement 0.482, every exact probability 0.25. Seeds 11 and 2026 give 0.461 and 0.483. The agreement was a property of the preparation, and a different question removes it.</li>
+          <li><strong>Bell pair, H on both, seed 7.</strong> 460 / 0 / 0 / 540 again, probabilities 0.5, 0, 0, 0.5. H on both returns the Bell pair to itself, so the same seed draws the same shots. The agreement survived the second question.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The product pair's 1.000, and why agreement needs its margins<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Set the widget to the product pair and H on both. Every one of the 1,000 shots reads 00, so agreement is 1.000. That is not correlation. H undoes H, so each qubit goes back to a certain zero, and two certain zeros agree every time for the same reason two constant columns match on every row. The widget prints "q0 reads 1" as 0.000 beside it, which is the tell.</p>
+        <p>So the agreement rate is only informative when both qubits are uncertain on their own. The Bell pair is the one state of the three that agrees on every shot AND keeps each qubit at about a half, in both bases. Report agreement beside the margins, every time, or a constant will pass for a link.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the test is, and what it is not<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two bases is the smallest experiment that separates the Bell pair from the coin-flip box, and that is all it claims. It is not a full entanglement witness. A classical device that knows in advance which two questions you will ask can be built to agree in both, and ruling that out takes measurements at several settings and a Bell inequality, a bound that any such pre-arranged classical model must respect and an entangled pair can break. Bell inequalities are named here and not taught; the simulator here only ever asks the two questions above.</p>
+        <p>For a data engineer the practical reading is narrower still. A vendor's screenshot of counts in one basis cannot establish entanglement, and even a two-basis result establishes only that the counts behave as an entangled pair's would on those two questions. Neither says anything about whether the analytics on the slide got faster. That is a separate claim with its own fine print, and <a href="p8-reading-a-speedup-claim.html">session 8</a> reads it.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Back in the constructed Brindle thread, the engineer's follow-up was one line: "Please send the same counts with a Hadamard on both qubits before measurement." It costs the vendor one gate per qubit to answer. If the reply shows the 00 and 11 pattern again with each qubit near a half, the screenshot has passed the simplest honest check. If the reply never comes, that is data too.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Three states, two bases, one agreement rate, in numpy</h2>
+      <span class="tag build">22 min hands on</span>
+    </div>
+    <p class="lede">Open a fresh notebook or file in a scratch directory; nothing here writes files. The six steps run in one session, one after another. The exact probabilities are arithmetic and yours will match to the digit. The counts come from numpy's generator, which is a different stream from the page's, so your counts will differ from the widget's; the outputs below are pasted from one run of this exact code, and yours match them only if your numpy version draws the same stream. The figure is the pipeline every step builds a piece of.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 426" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn pipeline of five boxes joined by arrows: prepare the Bell pair, the product pair or the two mixture branches; change basis by applying H on both or skip it; measure by drawing 1,000 shots from the squares; tally into 00, 01, 10, 11 with bincount; compute agreement as counts of 00 plus 11 over shots, alongside the margins. The change basis box is highlighted and a note under it says skipping it tests one basis only. Below, a results table from one numpy run on seed 7: Bell pair agreement 1.000 with q0 reading 1 at 0.498 as prepared and the same after H on both; product pair 0.510 and 0.498 as prepared, 1.000 and 0.000 after H on both, agreeing only by certainty; classical mixture 1.000 and 0.500 as prepared, 0.480 and 0.508 after H on both, which is highlighted as the drop that exposes it.">
+        <defs>
+          <filter id="p3cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p3cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p3cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p3cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p3cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p3cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p3cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p3cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p3cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p3cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p3cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p3cH" x="30" y="26">FIVE STEPS. THE SECOND IS OPTIONAL, AND SKIPPING IT IS HOW A MIXTURE PASSES FOR A BELL PAIR.</text>
+
+        <g filter="url(#p3cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- pipeline boxes -->
+          <rect x="30" y="52" width="140" height="80" rx="8" transform="rotate(-0.4 100 92)" fill="#EEEDF9"/>
+          <rect x="195" y="52" width="140" height="80" rx="8" transform="rotate(0.4 265 92)" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="360" y="52" width="140" height="80" rx="8" transform="rotate(-0.3 430 92)" fill="#FFFFFF"/>
+          <rect x="525" y="52" width="140" height="80" rx="8" transform="rotate(0.3 595 92)" fill="#FFFFFF"/>
+          <rect x="690" y="52" width="140" height="80" rx="8" transform="rotate(-0.4 760 92)" fill="#EEEDF9"/>
+          <path d="M172 92 L192 92" marker-end="url(#p3cAr)"/>
+          <path d="M337 92 L357 92" marker-end="url(#p3cAr)"/>
+          <path d="M502 92 L522 92" marker-end="url(#p3cAr)"/>
+          <path d="M667 92 L687 92" marker-end="url(#p3cAr)"/>
+
+          <!-- results panel -->
+          <rect x="30" y="170" width="820" height="170" rx="10" transform="rotate(0.15 440 255)" fill="#FFFFFF"/>
+          <path d="M50 254 L830 254 M50 284 L830 284" stroke="#E4E4F1"/>
+          <!-- the drop that exposes the mixture -->
+          <rect x="414" y="290" width="112" height="24" rx="5" fill="none" stroke="#0E7490" stroke-width="2.4"/>
+
+          <!-- band -->
+          <rect x="30" y="356" width="820" height="36" rx="10" transform="rotate(-0.15 440 374)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a die -->
+          <rect x="838" y="140" width="16" height="16" rx="3" transform="rotate(4 846 148)" fill="#FFFFFF"/>
+          <circle cx="843" cy="145" r="1.4" fill="#16153A"/>
+          <circle cx="849" cy="151" r="1.4" fill="#16153A"/>
+        </g>
+
+        <!-- box text -->
+        <text class="p3cL" x="42" y="76">1 prepare</text>
+        <text class="p3cS" x="42" y="96">bell, product, or</text>
+        <text class="p3cS" x="42" y="112">the 00 and 11 branches</text>
+        <text class="p3cW" x="207" y="76">2 change basis</text>
+        <text class="p3cW" x="207" y="96">HH @ v, or skip</text>
+        <text class="p3cW" x="207" y="112">the one to keep</text>
+        <text class="p3cL" x="372" y="76">3 measure</text>
+        <text class="p3cS" x="372" y="96">draw 1,000 shots</text>
+        <text class="p3cS" x="372" y="112">from the squares</text>
+        <text class="p3cL" x="537" y="76">4 tally</text>
+        <text class="p3cS" x="537" y="96">np.bincount into</text>
+        <text class="p3cS" x="537" y="112">00, 01, 10, 11</text>
+        <text class="p3cL" x="702" y="76">5 agreement</text>
+        <text class="p3cS" x="702" y="96">(c[0] + c[3]) / n</text>
+        <text class="p3cS" x="702" y="112">plus the margins</text>
+        <text class="p3cA" x="265" y="152" text-anchor="middle">skip it: one basis only</text>
+
+        <!-- results text -->
+        <text class="p3cL" x="50" y="194">Step 6, one numpy run on seed 7 (your counts will differ)</text>
+        <text class="p3cS" x="50" y="216">state</text>
+        <text class="p3cS" x="200" y="216">as prepared: agree, q0 = 1</text>
+        <text class="p3cS" x="420" y="216">H on both: agree, q0 = 1</text>
+        <text class="p3cS" x="620" y="216">what it means</text>
+        <text class="p3cL" x="50" y="244">Bell pair</text>
+        <text class="p3cB" x="200" y="244">1.000, 0.498</text>
+        <text class="p3cB" x="420" y="244">1.000, 0.498</text>
+        <text class="p3cS" x="620" y="244">keeps it in both bases</text>
+        <text class="p3cL" x="50" y="274">Product pair</text>
+        <text class="p3cB" x="200" y="274">0.510, 0.498</text>
+        <text class="p3cB" x="420" y="274">1.000, 0.000</text>
+        <text class="p3cS" x="620" y="274">agrees only by certainty</text>
+        <text class="p3cL" x="50" y="306">Mixture</text>
+        <text class="p3cB" x="200" y="306">1.000, 0.500</text>
+        <text class="p3cB" x="420" y="306">0.480, 0.508</text>
+        <text class="p3cS" x="620" y="306">loses it: classical</text>
+
+        <text class="p3cH" x="46" y="379">Before calling a correlation entanglement, change the basis and measure again.</text>
+        <text class="p3cN" x="30" y="414">Agreement alone misleads: the product pair scores 1.000 after H on both because both qubits read 0 every shot.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the pipeline is a counts job from step 3 onward. Only step 2 is quantum, and it is the step that turns a screenshot into a test.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Two 4-vectors and their exact probabilities</h4>
+        <p>Write the Bell pair and the product pair straight down as amplitudes in slot order 00, 01, 10, 11, with qubit q as bit q of the index, the convention from sessions 1 and 2. Then compute the squares and the two margins. Both margins come out at a half for both states before a single shot is drawn.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import numpy as np
+
+# slot order 00, 01, 10, 11 (q1 q0); qubit q is bit q of the index
+r = np.sqrt(0.5)
+bell = np.array([r, 0, 0, r])
+product = np.array([0.5, 0.5, 0.5, 0.5])
+
+def probs(v):
+    return np.abs(v) ** 2
+
+def marginals(p):
+    q0 = p[1] + p[3]          # slots where bit 0 is 1
+    q1 = p[2] + p[3]          # slots where bit 1 is 1
+    return round(float(q0), 4), round(float(q1), 4)
+
+for name, v in (("bell", bell), ("product", product)):
+    p = probs(v)
+    print(f"step 1 {name:8s} probs {np.round(p, 4)}  P(q0=1), P(q1=1) = {marginals(p)}")
+# step 1 bell     probs [0.5 0.  0.  0.5]  P(q0=1), P(q1=1) = (0.5, 0.5)
+# step 1 product  probs [0.25 0.25 0.25 0.25]  P(q0=1), P(q1=1) = (0.5, 0.5)</div>
+      </div>
+      <div class="step">
+        <h4>1,000 shots and the agreement rate</h4>
+        <p>A weighted draw over the four slots, a bincount, and the match rate. Your counts will differ from the widget's 460 / 0 / 0 / 540 and 220 / 240 / 273 / 267, because numpy's generator is not the page's. What will not differ: the Bell pair never lands on 01 or 10, and the product pair agrees about half the time.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def sample(v, shots, seed):
+    rng = np.random.default_rng(seed)
+    draws = rng.choice(4, size=shots, p=probs(v))
+    return np.bincount(draws, minlength=4)
+
+def agreement(counts):
+    return (counts[0] + counts[3]) / counts.sum()
+
+for seed in (7, 11, 2026):
+    b, p = sample(bell, 1000, seed), sample(product, 1000, seed)
+    print(f"step 2 seed {seed:4d}  bell {b} agree {agreement(b):.3f}   product {p} agree {agreement(p):.3f}")
+# step 2 seed    7  bell [502   0   0 498] agree 1.000   product [257 245 245 253] agree 0.510
+# step 2 seed   11  bell [520   0   0 480] agree 1.000   product [261 259 255 225] agree 0.486
+# step 2 seed 2026  bell [464   0   0 536] agree 1.000   product [223 241 267 269] agree 0.492</div>
+      </div>
+      <div class="step">
+        <h4>The margins from the counts</h4>
+        <p>The per-column view a monitoring pipeline would take: the rate at which each qubit reads 1. On this run the two states give the same pair of rates to three decimals, which is a coincidence of the draw, and the lesson does not depend on it: the margins are a half for both, so any per-column summary is blind to the difference.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def count_marginals(counts):
+    n = counts.sum()
+    return round((counts[1] + counts[3]) / n, 3), round((counts[2] + counts[3]) / n, 3)
+
+b, p = sample(bell, 1000, 7), sample(product, 1000, 7)
+print("step 3 bell    q0=1, q1=1 rates", count_marginals(b))
+print("step 3 product q0=1, q1=1 rates", count_marginals(p))
+# step 3 bell    q0=1, q1=1 rates (0.498, 0.498)
+# step 3 product q0=1, q1=1 rates (0.498, 0.498)</div>
+      </div>
+      <div class="step">
+        <h4>H on both, then measure again</h4>
+        <p>H on both qubits is np.kron(H, H), and because both factors are the same gate the kron order from session 2 cannot bite here. Apply it to each state and repeat the measurement. Predict first: the Bell pair should come back unchanged, and the product pair should go to 00 with certainty.</p>
+        <div class="prompt-box good"><span class="label">Python</span>H = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
+HH = np.kron(H, H)            # H on both; symmetric, so the kron order cannot bite here
+
+for name, v in (("bell", bell), ("product", product)):
+    w = HH @ v
+    c = sample(w, 1000, 7)
+    print(f"step 4 {name:8s} after H on both: probs {np.round(probs(w), 4)} counts {c} agree {agreement(c):.3f} marginals {count_marginals(c)}")
+# step 4 bell     after H on both: probs [0.5 0.  0.  0.5] counts [502   0   0 498] agree 1.000 marginals (0.498, 0.498)
+# step 4 product  after H on both: probs [1. 0. 0. 0.] counts [1000    0    0    0] agree 1.000 marginals (0.0, 0.0)</div>
+      </div>
+      <div class="step">
+        <h4>The classical mixture</h4>
+        <p>Two plain basis states, 500 shots each, added together, with the 11 half on the next seed up exactly as the widget does it. As prepared it reproduces the Bell counts. After H on both, each branch is 0.25 on every slot, and the agreement falls to about a half.</p>
+        <div class="prompt-box good"><span class="label">Python</span>zero_zero = np.array([1.0, 0, 0, 0])
+one_one = np.array([0, 0, 0, 1.0])
+
+def mixture_counts(basis_change, seed):
+    a, b = zero_zero, one_one
+    if basis_change:
+        a, b = HH @ a, HH @ b
+    return sample(a, 500, seed) + sample(b, 500, seed + 1)
+
+for basis_change in (False, True):
+    c = mixture_counts(basis_change, 7)
+    label = "after H on both" if basis_change else "as prepared    "
+    print(f"step 5 mixture {label}: counts {c} agree {agreement(c):.3f}")
+print("step 5 exact, H on both, branch 00:", np.round(probs(HH @ zero_zero), 4), " branch 11:", np.round(probs(HH @ one_one), 4))
+# step 5 mixture as prepared    : counts [500   0   0 500] agree 1.000
+# step 5 mixture after H on both: counts [234 262 258 246] agree 0.480
+# step 5 exact, H on both, branch 00: [0.25 0.25 0.25 0.25]  branch 11: [0.25 0.25 0.25 0.25]</div>
+      </div>
+      <div class="step">
+        <h4>The two-basis report</h4>
+        <p>One line per state: agreement and the q0 margin, in both bases. This is the table the figure above draws, and the one to ask for whenever a slide shows correlated qubits. Only the Bell pair agrees in both bases while each qubit stays near a half.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def two_basis_report(name, counts_as_prepared, counts_h_both):
+    rows = []
+    for label, c in (("as prepared", counts_as_prepared), ("H on both", counts_h_both)):
+        rows.append(f"{label}: agree {agreement(c):.3f}, q0=1 {count_marginals(c)[0]:.3f}")
+    print(f"step 6 {name:8s} | " + " | ".join(rows))
+
+two_basis_report("bell", sample(bell, 1000, 7), sample(HH @ bell, 1000, 7))
+two_basis_report("product", sample(product, 1000, 7), sample(HH @ product, 1000, 7))
+two_basis_report("mixture", mixture_counts(False, 7), mixture_counts(True, 7))
+# step 6 bell     | as prepared: agree 1.000, q0=1 0.498 | H on both: agree 1.000, q0=1 0.498
+# step 6 product  | as prepared: agree 0.510, q0=1 0.498 | H on both: agree 1.000, q0=1 0.000
+# step 6 mixture  | as prepared: agree 1.000, q0=1 0.500 | H on both: agree 0.480, q0=1 0.508</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before calling a correlation entanglement, change the basis and measure again, and read the agreement beside each qubit's own rate. One basis tells you the counts are correlated. Two bases start to tell you why. Neither tells you anything got faster.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A monitoring job reports, for each qubit separately, the fraction of shots that read 1. Why can it never tell the Bell pair from the product pair?</p>
+      <div class="qopt">A · Because 1,000 shots is too few; at a million shots the Bell pair's margins would drift away from a half</div>
+      <div class="qopt">B · Because both states have each qubit at exactly 0.5 on its own; they differ only in how the two bits of the same shot line up, which a per-qubit summary never reads</div>
+      <div class="qopt">C · Because the Bell pair's qubits are random and the product pair's are not</div>
+      <q class="qwhy">P(q0 = 1) is the 01 slot plus the 11 slot: 0 + 0.5 for the Bell pair, 0.25 + 0.25 for the product pair. Both are 0.5 exactly, so more shots only sharpen the same answer. The difference lives in the joint table, so any check that could see it has to read both bits of each shot together.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A deck shows 1,000 shots of a two-qubit device: about 500 on 00, about 500 on 11, nothing else, captioned "perfect entanglement". Why is that not proof?</p>
+      <div class="qopt">A · A classical box that flips one coin per run and prepares 00 or 11 produces exactly the same counts; in a single basis the two cannot be told apart</div>
+      <div class="qopt">B · Because entanglement can only be shown on hardware, never in counts</div>
+      <div class="qopt">C · Because a real Bell pair would show some 01 and 10 counts from sampling noise</div>
+      <q class="qwhy">The widget's classical mixture prints 500 / 0 / 0 / 500 with agreement 1.000 on every seed, the same column of probabilities as the Bell pair. Counts in one basis are consistent with both. And a Bell pair's 01 and 10 squares are exactly zero, so sampling never puts a shot there.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">You apply H to both qubits before measuring. What does that show for each of the three states?</p>
+      <div class="qopt">A · All three spread to 0.25 on every slot, because H always produces an even spread</div>
+      <div class="qopt">B · The Bell pair spreads to 0.25 everywhere, the mixture keeps 00 and 11, and the product pair is unchanged</div>
+      <div class="qopt">C · The Bell pair stays at 0.5, 0, 0, 0.5 with each qubit near a half; each mixture branch spreads to 0.25 per slot so agreement falls to about a half; the product pair reads 00 every shot, agreeing only because both qubits are certain</div>
+      <q class="qwhy">H on both returns the Bell pair to itself and the product pair to 00, and turns 00 and 11 each into an even spread. The widget prints agreement 1.000, 1.000 and 0.482 on seed 7 respectively, and only the Bell pair keeps both agreement and uncertain margins. That pattern is the simplest honest check; Bell inequalities are the formal one.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 4</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with tonight's numpy file open.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Fill the eighteen-cell table</h4>
+        <p>Three states, two bases, three seeds: eighteen widget runs. Write down the agreement and the "q0 reads 1" rate for each. Then mark which state passes the two-basis check on all three seeds, and which state's 1.000 is a constant rather than a link.</p>
+      </div>
+      <div class="step">
+        <h4>Predict, then run, a fourth state</h4>
+        <p>Apply X to qubit 0 after building the Bell pair. Before running anything, write down its four probabilities as prepared and after H on both, and its agreement in each basis. Then run it in your file. If the run disagrees with the prediction, find which line of your reasoning was wrong before you touch the code.</p>
+      </div>
+      <div class="step">
+        <h4>Write the one-line request</h4>
+        <p>Draft the single sentence you would send to anyone who shows you correlated qubit counts as evidence for a product claim. Keep it to what the two-basis test can show. Session 4 moves on to Grover's search, where the question changes from "are these qubits linked" to "how many oracle calls did it take".</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Bell pair against product pair, sampled</span><span class="note">1,000 shots on seeds 7, 11 and 2026 each; 01 and 10 never drawn for the Bell pair.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The agreement rate</span><span class="note">A match rate: 1.000 for the Bell pair, 0.486 to 0.498 for the product pair; read beside the margins.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Marginal against joint</span><span class="note">Each qubit is 0.5 and 0.5 in both states; only the joint table differs.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The basis-change test</span><span class="note">H on both before measuring; run live in the widget and in numpy.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The classical mixture</span><span class="note">Same counts as the Bell pair as prepared; agreement near a half after H on both.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Bell inequalities</span><span class="note">Named as the formal test that a pre-arranged classical model cannot pass; not taught.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">"Entanglement-powered analytics" claims</span><span class="note">Tonight shows entanglement is a property of counts, not a speedup; <a href="p8-reading-a-speedup-claim.html">session 8</a> reads such claims.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Entanglement on hardware</span><span class="note">Not taught. The simulator is the only machine here, and its Bell pair is exact.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>Bell pair.</strong> H on q0, CNOT 0 to 1. Probabilities 0.5, 0, 0, 0.5. Never reads 01 or 10, on any seed.</div>
+      <div class="cheat-item"><strong>Product pair.</strong> H on each qubit. 0.25 on every slot. Two independent fair coins.</div>
+      <div class="cheat-item"><strong>Agreement rate.</strong> (count of 00 + count of 11) / shots. A match rate; about a half for independent fair coins.</div>
+      <div class="cheat-item"><strong>Margins.</strong> P(q0 = 1) is slot 01 plus slot 11. A half for both pairs, so per-qubit summaries are blind.</div>
+      <div class="cheat-item"><strong>The fake.</strong> Prepare 00 or 11 on a coin flip. Same counts as the Bell pair in one basis. Nothing quantum about it.</div>
+      <div class="cheat-item"><strong>The test.</strong> H on both, then measure. Bell stays on 00 and 11; each mixture branch spreads to 0.25 per slot.</div>
+      <div class="cheat-item"><strong>The trap.</strong> Agreement of 1.000 with a qubit that is certain is a constant, not a link. Report agreement beside the margins.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Before calling a correlation entanglement, change the basis and measure again. Bell inequalities are the formal test.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 3 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p2-gates-as-matrices.html">← Practitioner session 2 · Gates as matrices</a>
+        <a href="p4-grover-step-by-step.html">Practitioner session 4 · Grover step by step →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var stateSel = document.getElementById("p3-state");
+  var basisSel = document.getElementById("p3-basis");
+  var seedSel = document.getElementById("p3-seed");
+  var out = document.getElementById("p3-out");
+  var verdict = document.getElementById("p3-verdict");
+  var self = document.getElementById("p3-self");
+
+  var LABELS = ["00", "01", "10", "11"];
+  var SHOTS = 1000;
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function hBoth(s) { QS.applyH(s, 0); QS.applyH(s, 1); return s; }
+  function branch(ones) {
+    var s = QS.newState(2);
+    if (ones) { QS.applyX(s, 0); QS.applyX(s, 1); }
+    return s;
+  }
+
+  /* one run: counts summed over the shots, and the exact probabilities */
+  function run(state, basis, seed) {
+    var counts = [0, 0, 0, 0], p = [0, 0, 0, 0], i;
+    if (state === "mix") {
+      var a = branch(false), b = branch(true);
+      if (basis === "hh") { hBoth(a); hBoth(b); }
+      var ca = QS.sample(a, SHOTS / 2, seed), cb = QS.sample(b, SHOTS / 2, seed + 1);
+      var pa = QS.probs(a), pb = QS.probs(b);
+      for (i = 0; i < 4; i++) { counts[i] = ca[i] + cb[i]; p[i] = 0.5 * pa[i] + 0.5 * pb[i]; }
+      return { counts: counts, p: p, branch: [pa, pb] };
+    }
+    var s = state === "bell" ? QS.bellPair() : QS.productPair();
+    if (basis === "hh") hBoth(s);
+    var c = QS.sample(s, SHOTS, seed), pr = QS.probs(s);
+    for (i = 0; i < 4; i++) { counts[i] = c[i]; p[i] = pr[i]; }
+    return { counts: counts, p: p };
+  }
+
+  function rates(c) {
+    var n = c[0] + c[1] + c[2] + c[3];
+    return { q0: (c[1] + c[3]) / n, q1: (c[2] + c[3]) / n };
+  }
+
+  function render() {
+    var state = stateSel.value, basis = basisSel.value, seed = Number(seedSel.value);
+    var r = run(state, basis, seed);
+    var other = run(state, basis === "hh" ? "prep" : "hh", seed);
+    var agree = QS.agreement(r.counts), agreeOther = QS.agreement(other.counts);
+    var seen = rates(r.counts), i;
+
+    var html = '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Slot (q1 q0)</th><th>Exact probability</th>';
+    if (r.branch) html += "<th>Branch 00</th><th>Branch 11</th>";
+    html += "<th>Counts in " + comma(SHOTS) + " shots</th><th>Estimate</th></tr></thead><tbody>";
+    for (i = 0; i < 4; i++) {
+      html += "<tr><td>" + LABELS[i] + "</td><td>" + r.p[i].toFixed(4) + "</td>";
+      if (r.branch) html += "<td>" + r.branch[0][i].toFixed(4) + "</td><td>" + r.branch[1][i].toFixed(4) + "</td>";
+      html += "<td><b>" + comma(r.counts[i]) + "</b></td><td>" + (r.counts[i] / SHOTS).toFixed(3) + "</td></tr>";
+    }
+    var pad = r.branch ? "<td></td><td></td>" : "";
+    html += "<tr><td>q0 reads 1</td><td>" + (r.p[1] + r.p[3]).toFixed(4) + "</td>" + pad + "<td></td><td>" + seen.q0.toFixed(3) + "</td></tr>";
+    html += "<tr><td>q1 reads 1</td><td>" + (r.p[2] + r.p[3]).toFixed(4) + "</td>" + pad + "<td></td><td>" + seen.q1.toFixed(3) + "</td></tr>";
+    html += "<tr><td>agreement</td><td>" + (r.p[0] + r.p[3]).toFixed(4) + "</td>" + pad + "<td></td><td><b>" + agree.toFixed(3) + "</b></td></tr>";
+    html += "</tbody></table></div>";
+    out.innerHTML = html;
+
+    var hereName = basis === "hh" ? "after H on both" : "as prepared";
+    var thereName = basis === "hh" ? "as prepared" : "after H on both";
+    var msg = "Agreement " + agree.toFixed(3) + " " + hereName + ", " + agreeOther.toFixed(3) + " " + thereName
+      + " (same seed). q0 reads 1 in " + seen.q0.toFixed(3) + " of shots, q1 in " + seen.q1.toFixed(3) + ". ";
+    if (state === "bell") {
+      msg += basis === "hh"
+        ? "H on both returned the Bell pair to itself: exact probabilities " + r.p.map(function (v) { return v.toFixed(2); }).join(", ") + ". The agreement survived the second question and each qubit is still uncertain on its own."
+        : "Only 00 and 11 drawn, each qubit near a half. Now switch the basis: this is the state that should keep its agreement.";
+    } else if (state === "product") {
+      msg += basis === "hh"
+        ? "Every shot reads " + LABELS[r.counts.indexOf(Math.max.apply(null, r.counts))] + ": H undid H and both qubits are certain. Agreement of " + agree.toFixed(3) + " here is two constants matching, not a link. Read it beside the margins."
+        : "Two independent fair coins: agreement near a half, as the baseline should be.";
+    } else {
+      msg += basis === "hh"
+        ? "Each branch spread to " + r.branch[0][0].toFixed(2) + " per slot, so the agreement fell to " + agree.toFixed(3) + ". The 00 and 11 pattern was the preparation, not a link between the qubits."
+        : "Only 00 and 11 drawn, exact probabilities " + r.p.map(function (v) { return v.toFixed(2); }).join(", ") + ": in this basis the coin-flip box is indistinguishable from the Bell pair. Switch the basis.";
+    }
+    msg += " A two-basis check, not a full entanglement witness.";
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the one that a Bell pair never reads 01 or 10. The simulator is exact; no real machine is."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  stateSel.addEventListener("change", render);
+  basisSel.addEventListener("change", render);
+  seedSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p3-corr .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p3-corr table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

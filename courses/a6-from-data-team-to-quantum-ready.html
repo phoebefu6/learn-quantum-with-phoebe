@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 6 of 6. The transfer map: what a data team already has that is worth more here, what it must learn, and the habits it must unlearn. Then the one quantum job a data team is certain to be handed, the post-quantum inventory, built as a data job on Brindle's constructed estate, and a 90-day ladder from free and official sources.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="From data team to quantum-ready: the transfer map - learn quantum with phoebe">
+<meta property="og:description" content="Leader session 6 of 6. Four skills carry over, four must be learned, four must be unlearned, and the encryption question becomes an inventory.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/a6-from-data-team-to-quantum-ready.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="From data team to quantum-ready: the transfer map - learn quantum with phoebe">
+<meta name="twitter:description" content="Carries over, must learn, must unlearn. Then the post-quantum inventory as a data job, and a 90-day ladder.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 6 · From data team to quantum-ready: the transfer map - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Leader session 6 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Leader session 6 of 6</div>
+    <h1>From data team to quantum-ready: <span class="accent">the transfer map</span></h1>
+    <p class="sub">Five sessions ago Brindle's board asked two questions: will this change our workload, and what do we have to do about the encryption. Tonight answers both, and the answers turn out to be about the data team rather than about the machine. Four skills the team already has are worth more here than in the warehouse. Four things are genuinely new. Four habits that serve the team well every day are actively dangerous on this hardware. And the encryption question, which sounds like a physics problem, is a data inventory with one extra column. Nothing here is investment advice, and no machine, vendor or roadmap is named.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone leading a data team toward this subject</span>
+      <span class="chip audience">Anyone handed the encryption question</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · The transfer map</span>
+      <span class="a3" style="flex:3">18-28 · The inventory as a data job</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Brindle's data team, sorting its own toolkit</h2>
+    </div>
+    <p class="lede">Brindle is a mid-sized retailer, constructed for these sessions: 12 million customer rows, 4 million order rows, twenty years of encrypted backups and an unnamed vendor's deck still on the board's table. Session 5 ended with the data team rewriting its own project template for a register it cannot look inside. Tonight the team sorts what it brought into three columns, then picks up the one quantum job it is certain to be handed. That job is not a pilot. It is an inventory, and inventories are what data teams are good at.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A transfer map you can hand to your own team: twelve named skills and habits, each with its method, the class of tool it uses and the session that taught it. A one-page answer to the board's two questions, with numbers you can defend and a disagreement you can state without resolving. The post-quantum inventory as a spec your analysts can start on Monday. And a 90-day reading ladder in which every source is free, and the ones that are official guidance are marked as such.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Six lines in, three columns out<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The homework from session 5 was the rewritten project plan: six lines, one per habit a data team brings to a new platform. Lay them on the table. Each line is about to land in one of three places. Some habits carry straight over and become more valuable, because the subject is built out of samples and matrices and benchmarks. Some knowledge is missing entirely and has to be brought in from outside the warehouse. And some habits have to be taken out of the toolkit on purpose, because on this hardware they produce confident wrong answers.</p>
+        <p>The sort matters more than it looks. A team that thinks everything carries over will run a pilot like a warehouse migration and misread every result. A team that thinks nothing carries over will hand the whole subject to a vendor and lose the ability to check the deck. The truth is twelve specific items, four per column, and they are the same twelve the landing page lists.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analytics lead (constructed, like every Brindle detail) brought the six lines and found that two of them, "add capacity when results are slow" and "print intermediate tables to debug", belonged in the column nobody wanted to fill. Both had been good habits for a decade. Both are wrong on a register, for reasons session 5 measured. The lead's comment was the right one: the habits are not bad, they are local.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Words for tonight<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Transfer map.</strong> The three-column sort: carries over, must learn, must unlearn. Part 1.</li>
+          <li><strong>Cryptographically relevant quantum computer.</strong> NIST's phrase for a machine able to break today's public-key schemes. No primary source gives it a date.</li>
+          <li><strong>Harvest now, decrypt later.</strong> Collecting encrypted data today to decrypt once such a machine exists. The factsheet also calls it "catch now, break later".</li>
+          <li><strong>Secrecy life.</strong> How long a dataset must stay secret, in years. The column a data team can fill and a security team usually cannot.</li>
+          <li><strong>Migration time.</strong> How long it takes to move a system from a vulnerable scheme to a standardised replacement.</li>
+          <li><strong>Cryptographic inventory.</strong> A catalogue of where which cryptography is used, and what it protects. The factsheet's central instruction.</li>
+          <li><strong>ML-KEM, ML-DSA, SLH-DSA.</strong> The schemes in FIPS 203, 204 and 205: one key-encapsulation mechanism and two signature schemes.</li>
+          <li><strong>Deprecated, disallowed.</strong> NIST's two stages for retiring an algorithm. The dates in NIST IR 8547 are proposed, because the report is a draft.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What tonight does not do<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Tonight builds the inventory and stops there. What happens to Brindle's keys afterwards, rotation, custody and access, belongs to the security courses and is named, not taught. Shor's algorithm is the published reason public-key schemes such as RSA and elliptic-curve key exchange are at risk from a large enough machine; it is named here and not run, because a ten-qubit simulator cannot factor anything worth the page. Hardware physics is out of scope across all sixteen sessions.</p>
+        <p>No year is given for a cryptographically relevant machine, because the primary sources disagree and none of them gives one. The only dated things on this page are standards and proposed policy dates. Where the pilot budget appears, nothing here is investment advice.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the transfer map</span>
+      <h2>Four cards cross, four arrive, four are pulled out</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">Draw the data team's toolkit as a column of cards and move them. The skills that carry over slide straight across and come out worth more. The knowledge that is missing does not come from the warehouse at all; it enters from outside, from papers and standards. And the habits that must be unlearned are not left behind by accident. They are pulled out of the column deliberately, because leaving them in is how a competent team produces a wrong answer with a straight face.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 742" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn transfer map. On the left, the warehouse column, what a data team holds today. Four carries-over cards, sampling and standard error, linear algebra, benchmark discipline, and data inventory and lineage, slide straight across on cyan arrows to the quantum-ready column, where they become shot counts with error bars, gates and registers, the expected number first, and the cryptographic inventory; each arrow is tagged with the sessions that taught it. In the middle, a box outside the warehouse holds four must-learn cards, amplitudes and interference, per-algorithm speedup factors, loading readout and noise, and the post-quantum standards, which enter the quantum-ready column with their sessions and readings; the warehouse has an empty dashed slot for them. At the bottom, four must-unlearn habits, debugging by printing state, more compute more answer, speedup read as wall-clock, and timeline treated as settled, each carry a red mark and are pulled on red arrows out of the warehouse column into a red panel that gives the reason each one is dangerous here.">
+        <defs>
+          <filter id="a6aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a6aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a6aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a6aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a6aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a6aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a6aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a6aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a6aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a6aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a6aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+          .a6aR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+        </style>
+
+        <text class="a6aH" x="30" y="26">FOUR CARDS CROSS, FOUR ARRIVE FROM OUTSIDE, FOUR ARE PULLED OUT OF THE WAREHOUSE COLUMN</text>
+
+        <g filter="url(#a6aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panels -->
+          <rect x="30" y="40" width="250" height="664" rx="10" transform="rotate(-0.3 155 372)" fill="#FFFFFF"/>
+          <rect x="590" y="40" width="260" height="430" rx="10" transform="rotate(0.3 720 255)" fill="#FFFFFF"/>
+          <rect x="306" y="254" width="268" height="212" rx="10" transform="rotate(-0.4 440 360)" fill="#EEEDF9" stroke="#3730A3"/>
+          <rect x="306" y="486" width="544" height="218" rx="10" transform="rotate(0.2 578 595)" fill="#FEF2F2" stroke="#FCA5A5"/>
+
+          <!-- band 1: carries over, left cards -->
+          <rect x="46" y="96" width="218" height="30" rx="6" transform="rotate(-0.6 155 111)" fill="#FFFFFF"/>
+          <rect x="46" y="136" width="218" height="30" rx="6" transform="rotate(0.5 155 151)" fill="#FFFFFF"/>
+          <rect x="46" y="176" width="218" height="30" rx="6" transform="rotate(-0.4 155 191)" fill="#FFFFFF"/>
+          <rect x="46" y="216" width="218" height="30" rx="6" transform="rotate(0.6 155 231)" fill="#FFFFFF"/>
+          <!-- band 1: the straight slide -->
+          <path d="M268 111 L598 111" stroke="#0E7490" marker-end="url(#a6aAr)"/>
+          <path d="M268 151 L598 151" stroke="#0E7490" marker-end="url(#a6aAr)"/>
+          <path d="M268 191 L598 191" stroke="#0E7490" marker-end="url(#a6aAr)"/>
+          <path d="M268 231 L598 231" stroke="#0E7490" marker-end="url(#a6aAr)"/>
+          <!-- band 1: arrived cards -->
+          <rect x="606" y="96" width="228" height="30" rx="6" transform="rotate(0.5 720 111)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="606" y="136" width="228" height="30" rx="6" transform="rotate(-0.5 720 151)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="606" y="176" width="228" height="30" rx="6" transform="rotate(0.4 720 191)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="606" y="216" width="228" height="30" rx="6" transform="rotate(-0.6 720 231)" fill="#E3F3F7" stroke="#0E7490"/>
+
+          <!-- band 2: empty warehouse slot -->
+          <rect x="46" y="304" width="218" height="150" rx="8" fill="none" stroke="#C9C9DF" stroke-dasharray="5 6"/>
+          <!-- band 2: must-learn cards outside the warehouse -->
+          <rect x="322" y="304" width="236" height="30" rx="6" transform="rotate(0.6 440 319)" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="322" y="344" width="236" height="30" rx="6" transform="rotate(-0.5 440 359)" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="322" y="384" width="236" height="30" rx="6" transform="rotate(0.4 440 399)" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="322" y="424" width="236" height="30" rx="6" transform="rotate(-0.6 440 439)" fill="#FFFFFF" stroke="#3730A3"/>
+          <path d="M562 319 L600 319" marker-end="url(#a6aAr)"/>
+          <path d="M562 359 L600 359" marker-end="url(#a6aAr)"/>
+          <path d="M562 399 L600 399" marker-end="url(#a6aAr)"/>
+          <path d="M562 439 L600 439" marker-end="url(#a6aAr)"/>
+          <rect x="606" y="304" width="228" height="30" rx="6" transform="rotate(-0.4 720 319)" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="606" y="344" width="228" height="30" rx="6" transform="rotate(0.5 720 359)" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="606" y="384" width="228" height="30" rx="6" transform="rotate(-0.5 720 399)" fill="#FFFFFF" stroke="#3730A3"/>
+          <rect x="606" y="424" width="228" height="30" rx="6" transform="rotate(0.4 720 439)" fill="#FFFFFF" stroke="#3730A3"/>
+          <!-- doodle anchor: a small dial -->
+          <circle cx="552" cy="276" r="9" fill="#FFFFFF"/>
+          <path d="M552 276 L557 270"/>
+
+          <!-- band 3: must-unlearn cards, red-marked, pulled out -->
+          <rect x="46" y="536" width="218" height="30" rx="6" transform="rotate(-0.5 155 551)" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="46" y="576" width="218" height="30" rx="6" transform="rotate(0.6 155 591)" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="46" y="616" width="218" height="30" rx="6" transform="rotate(-0.4 155 631)" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="46" y="656" width="218" height="30" rx="6" transform="rotate(0.5 155 671)" fill="#FFFFFF" stroke="#991B1B"/>
+          <path d="M53 542 L53 560" stroke="#991B1B" stroke-width="4"/>
+          <path d="M53 582 L53 600" stroke="#991B1B" stroke-width="4"/>
+          <path d="M53 622 L53 640" stroke="#991B1B" stroke-width="4"/>
+          <path d="M53 662 L53 680" stroke="#991B1B" stroke-width="4"/>
+          <path d="M268 551 L344 551" stroke="#991B1B" marker-end="url(#a6aAr)"/>
+          <path d="M268 591 L344 591" stroke="#991B1B" marker-end="url(#a6aAr)"/>
+          <path d="M268 631 L344 631" stroke="#991B1B" marker-end="url(#a6aAr)"/>
+          <path d="M268 671 L344 671" stroke="#991B1B" marker-end="url(#a6aAr)"/>
+        </g>
+
+        <!-- column headings -->
+        <text class="a6aH" x="46" y="62">WAREHOUSE COLUMN</text>
+        <text class="a6aS" x="46" y="78">what a data team holds today</text>
+        <text class="a6aH" x="296" y="62">CARRIES OVER</text>
+        <text class="a6aS" x="296" y="78">slides straight across, worth more here</text>
+        <text class="a6aH" x="606" y="62">QUANTUM-READY</text>
+        <text class="a6aS" x="606" y="78">what the team works with here</text>
+
+        <!-- band 1 text -->
+        <text class="a6aL" x="60" y="116">Sampling and standard error</text>
+        <text class="a6aL" x="60" y="156">Linear algebra</text>
+        <text class="a6aL" x="60" y="196">Benchmark discipline</text>
+        <text class="a6aL" x="60" y="236">Data inventory and lineage</text>
+        <text class="a6aB" x="296" y="102">taught in a1 · a5 · p1 · p3</text>
+        <text class="a6aB" x="296" y="142">taught in a1 · p1 · p2</text>
+        <text class="a6aB" x="296" y="182">taught in a2 · a4 · p5 · p10</text>
+        <text class="a6aB" x="296" y="222">taught tonight and in p9</text>
+        <text class="a6aL" x="618" y="116">shot counts with error bars</text>
+        <text class="a6aL" x="618" y="156">gates and registers</text>
+        <text class="a6aL" x="618" y="196">the expected number first</text>
+        <text class="a6aL" x="618" y="236">the cryptographic inventory</text>
+
+        <!-- band 2 text -->
+        <text class="a6aS" x="62" y="372">No slot in the warehouse.</text>
+        <text class="a6aS" x="62" y="388">These four arrive new.</text>
+        <text class="a6aH" x="322" y="278">MUST LEARN</text>
+        <text class="a6aS" x="322" y="294">enters from outside the warehouse</text>
+        <text class="a6aS" x="606" y="290">arrived from outside</text>
+        <text class="a6aL" x="334" y="324">Amplitudes and interference</text>
+        <text class="a6aL" x="334" y="364">Per-algorithm speedup factors</text>
+        <text class="a6aL" x="334" y="404">Loading, readout and noise</text>
+        <text class="a6aL" x="334" y="444">The post-quantum standards</text>
+        <text class="a6aL" x="618" y="324">a1 · a2 · p4 · Grover 1996</text>
+        <text class="a6aL" x="618" y="364">a2 · a4 · p8 · Tang 2018</text>
+        <text class="a6aL" x="618" y="404">a3 · a5 · p6 · p7 · GLM 2008</text>
+        <text class="a6aL" x="618" y="444">a6 · p9 · FIPS 203 to 205</text>
+
+        <!-- band 3 text -->
+        <text class="a6aR" x="46" y="508">MUST UNLEARN</text>
+        <text class="a6aS" x="46" y="524">habits pulled out of the column</text>
+        <text class="a6aR" x="356" y="508">PULLED OUT, NOT CARRIED ACROSS</text>
+        <text class="a6aS" x="356" y="524">right in the warehouse, dangerous on this hardware</text>
+        <text class="a6aL" x="64" y="556">Debugging by printing state</text>
+        <text class="a6aL" x="64" y="596">More compute, more answer</text>
+        <text class="a6aL" x="64" y="636">Speedup read as wall-clock</text>
+        <text class="a6aL" x="64" y="676">Timeline treated as settled</text>
+        <text class="a6aS" x="356" y="555">a mid-circuit read returns one draw and ends the run (a5)</text>
+        <text class="a6aS" x="356" y="595">at p = 0.005, every added qubit lowers success (a5, p7, modelled)</text>
+        <text class="a6aS" x="356" y="635">it counts oracle calls and assumes loading and readout are free (a2, a3)</text>
+        <text class="a6aS" x="356" y="675">three primary sources, three stances, no date; plan on secrecy life (a5)</text>
+
+        <text class="a6aN" x="30" y="726">Each card is expanded below with its method, the class of tool it uses and the session that taught it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - nothing in the bottom panel is carried across. The four red cards are good warehouse habits that produce confident wrong answers on a register.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Carries over: four skills worth more here<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>These four are not consolation prizes. The subject is made of samples, matrices, benchmarks and inventories, so a team that already does them well starts ahead of a team that knows the physics and none of the data practice.</p>
+        <ul>
+          <li><strong>Sampling and standard error.</strong> Method: treat every shot count as an estimate of a probability and attach its error, the square root of p times one minus p over the shots; at a half and a thousand shots that is 0.016. Report a probability with its interval, never an amplitude read off a count. Tool class: a statistics notebook or a spreadsheet. Taught in a1 (the 43 / 57 draw), a5 (952 of 1,000 with an error of about 0.007), p1 and p3. Reading: Aaronson 2015, whose fourth caveat is that reading one entry of a quantum output costs about n repetitions.</li>
+          <li><strong>Linear algebra.</strong> Method: a gate is a matrix and a register of n qubits is a vector of 2 to the n amplitudes; check the norm after every step, as the simulator's self test does. Tool class: a numerical array library and a statevector simulator. Taught in a1, p1 and p2. Reading: the standard textbook (Nielsen and Chuang, reported), for the gate set only; the matrices are stated from first principles and checked on the simulator.</li>
+          <li><strong>Benchmark discipline.</strong> Method: write the expected number before running anything, give the baseline the same assumptions as the challenger, and count queries rather than seconds. Tool class: a seeded bench and an experiment log. Taught in a2 (the committed guesses), a4 (the matched-assumption test), p5 and p10. Reading: Kerenidis and Prakash 2016 against Tang 2018, the cleanest published case of a baseline given the same data access and closing the gap.</li>
+          <li><strong>Data inventory and lineage.</strong> Method: catalogue systems, owners and retention, then add two columns, which cryptography protects the data and how long it must stay secret. Tool class: a data catalogue, an asset inventory and a lineage graph. Taught tonight in Part 2 and built in code in practitioner session 9. Reading: the CISA, NSA and NIST factsheet of 2023, whose inventory instructions are a data spec.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's data catalogue (constructed) already lists every system that holds customer data, with an owner and a retention period. It took the team one afternoon to see that the post-quantum inventory is that catalogue plus two columns. The security team had been planning to start from a blank sheet. The catalogue was the head start nobody had priced.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Must learn: four things no warehouse holds<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>None of these is hard once it is named. All four are absent from a data team's normal training, and each is the thing a vendor deck relies on the reader not knowing.</p>
+        <ul>
+          <li><strong>Amplitudes and interference.</strong> Method: follow the amplitude of the target iteration by iteration and expect it to fall past the optimum; on three qubits the second iteration peaks at 0.945 and the third falls to 0.330. Signs that cancel are where every speedup lives, and no sample shows them. Tool class: a statevector simulator. Taught in a1, a2 and p4. Reading: Grover 1996, whose abstract describes the mechanism as phases tuned so correct paths reinforce and the rest cancel.</li>
+          <li><strong>Per-algorithm speedup factors.</strong> Method: name the algorithm, then its factor. Unstructured search is a square root: 25 oracle calls against 512 lookups at ten qubits, assuming the oracle is free and the data is already inside the machine. Claimed exponentials elsewhere carry fine print, and one was matched classically. Ask Aaronson's two questions of every claim. Tool class: a claim checklist. Taught in a2, a3, a4, p5 and p8. Reading: Aaronson 2015, Kerenidis and Prakash 2016, Tang 2018.</li>
+          <li><strong>Loading, readout and noise arithmetic.</strong> Method: price three costs no deck prints. Loading is order N: on Brindle's 12 million rows one search costs 12,063,988 against 6,000,000 for classical brute force, under a declared model (load 1 per row, query cost log2 N per oracle call, one search per load). Readout costs about n repetitions per entry. Noise compounds per gate: ten qubits at 1,060 gates fall from 0.999461 to 0.346724 at one error per thousand gates, modelled as a global depolarising channel that flatters hardware, with a gate count that undercounts hardware. Tool class: a loading-tax calculator, a noise ladder, a spreadsheet. Taught in a3, a5, p6 and p7. Reading: Giovannetti, Lloyd and Maccone 2008 for the query cost, Aaronson 2015 for the load and readout, Preskill 2018 for noise.</li>
+          <li><strong>The post-quantum standards.</strong> Method: know the three FIPS of 13 August 2024, the dates NIST IR 8547 proposes, and what harvest now, decrypt later means for an archive. Tool class: a cryptographic discovery scanner and a certificate inventory. Taught tonight in Part 2 and in p9. Reading: the three FIPS pages, NIST IR 8547 initial public draft, and the factsheet.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Must unlearn: four habits that hurt here<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each of these is a good habit in a warehouse, which is exactly why it is dangerous. Nobody questions a habit that has worked for ten years.</p>
+        <ul>
+          <li><strong>Debugging by printing state.</strong> Why it hurts: a read mid-circuit returns one draw and ends the run, so there is no intermediate table to print. What replaces it: assertions on the final sample, properties checked on a simulator before anything else, and a self test that fails loudly when a gate is wrong. Tool class: a statevector simulator and a property-test suite. Taught in a5 and p1. Reading: the standard textbook (reported) for the measurement postulate; a5 for the operational consequence.</li>
+          <li><strong>More compute is more answer.</strong> Why it hurts: every added qubit doubles the space and lengthens the circuit, and at an error rate of 0.005 per gate success falls at every step, from 0.9562 on two qubits to 0.0059 on ten at an error rate of 0.005 per gate, modelled. What replaces it: ask how deep the circuit is before asking how wide. Tool class: a noise ladder. Taught in a5, p7 and p10. Reading: Preskill 2018, whose abstract says noise limits the size of circuit that can run reliably.</li>
+          <li><strong>Reading a speedup as a wall-clock claim.</strong> Why it hurts: Grover's figure is N/2 lookups against order square root of N oracle calls, a count of queries that assumes loading and readout cost nothing. What replaces it: translate the claim into calls, then add the load and the readout before comparing. Tool class: a loading-tax calculator. Taught in a2, a3, p5, p6 and p8. Reading: Grover 1996 and Aaronson 2015.</li>
+          <li><strong>Treating the timeline as settled.</strong> Why it hurts: a team that waits for a date waits forever, and a team that adopts a vendor's date has adopted a sales figure. What replaces it: plan on the data's secrecy life, which the team can measure, and state the disagreement about the machine without resolving it. Tool class: the inventory itself. Taught in a5 and tonight. Reading: Preskill 2018, NIST IR 8547 draft, Aaronson 2015.</li>
+        </ul>
+        <p>Sources: Grover, L. K. (1996). A fast quantum mechanical algorithm for database search. STOC 1996; arXiv quant-ph/9605043. Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293. Kerenidis, I. and Prakash, A. (2016). Quantum recommendation systems. arXiv 1603.08675; ITCS 2017. Tang, E. (2019). A quantum-inspired classical algorithm for recommendation systems. STOC 2019; arXiv 1807.04271. Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862. Giovannetti, V., Lloyd, S. and Maccone, L. (2008). Quantum random access memory. Physical Review Letters 100, 160501; arXiv 0708.1879. Nielsen, M. A. and Chuang, I. L. (2010). Quantum Computation and Quantum Information, 10th Anniversary Edition. Cambridge University Press. (reported)</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the post-quantum inventory</span>
+      <h2>The encryption question is an inventory with one extra column</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The board asked what Brindle has to do about the encryption. The honest answer does not start with the machine, because nobody can date the machine. It starts with four questions a data team can answer about every system it owns: what is it, which cryptography does it use, how long must its data stay secret, and does that row fail. The drawing is Brindle's constructed estate run through those four questions, with the planning inequality from the NIST draft underneath.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn inventory of Brindle's constructed estate, four rows flowing left to right through system, cryptography used, how long the data must stay secret, and a flag. Checkout and accounts use TLS key exchange, data secret for 10 years, flagged harvestable today. Till software updates use code signing, nothing secret but trusted for 8 years, flagged forgery not harvest. The backup archive, kept 20 years, uses encrypted backups, data secret for 20 years, flagged in cyan as already failing any short horizon. The customer database of 12 million rows uses supplier-embedded database encryption, secret for 10 years, flagged unknown, ask the supplier. Below, the planning inequality from the NIST IR 8547 draft in prose: migration time X plus secrecy life Y must not exceed Z, the time until a cryptographically relevant quantum computer exists. Two bars start at today: the backup archive, X of 4 years plus Y of 20, and checkout traffic, X of 4 plus Y of 10. Beneath them Z is drawn as a hatched dashed bar with no edges and no year, labelled contested, with three stances: Preskill eventually, the NIST draft even if a decade away, Aaronson supposing we had one. All durations constructed.">
+        <defs>
+          <filter id="a6bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a6bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a6bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a6bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a6bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a6bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a6bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a6bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a6bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a6bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a6bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a6bH" x="30" y="26">THE INVENTORY AS A DATA JOB: SYSTEM, CRYPTOGRAPHY, SECRECY LIFE, FLAG (BRINDLE, CONSTRUCTED)</text>
+
+        <g filter="url(#a6bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1 -->
+          <rect x="30" y="66" width="190" height="44" rx="7" transform="rotate(-0.5 125 88)" fill="#FFFFFF"/>
+          <rect x="250" y="66" width="220" height="44" rx="7" transform="rotate(0.4 360 88)" fill="#EEEDF9"/>
+          <rect x="500" y="66" width="150" height="44" rx="7" transform="rotate(-0.4 575 88)" fill="#FFFFFF"/>
+          <rect x="680" y="66" width="170" height="44" rx="7" transform="rotate(0.5 765 88)" fill="#FFFFFF"/>
+          <path d="M224 88 L246 88" marker-end="url(#a6bAr)"/>
+          <path d="M474 88 L496 88" marker-end="url(#a6bAr)"/>
+          <path d="M654 88 L676 88" marker-end="url(#a6bAr)"/>
+          <!-- row 2 -->
+          <rect x="30" y="120" width="190" height="44" rx="7" transform="rotate(0.4 125 142)" fill="#FFFFFF"/>
+          <rect x="250" y="120" width="220" height="44" rx="7" transform="rotate(-0.5 360 142)" fill="#EEEDF9"/>
+          <rect x="500" y="120" width="150" height="44" rx="7" transform="rotate(0.5 575 142)" fill="#FFFFFF"/>
+          <rect x="680" y="120" width="170" height="44" rx="7" transform="rotate(-0.4 765 142)" fill="#FFFFFF"/>
+          <path d="M224 142 L246 142" marker-end="url(#a6bAr)"/>
+          <path d="M474 142 L496 142" marker-end="url(#a6bAr)"/>
+          <path d="M654 142 L676 142" marker-end="url(#a6bAr)"/>
+          <!-- row 3: the archive -->
+          <rect x="30" y="174" width="190" height="44" rx="7" transform="rotate(-0.4 125 196)" fill="#FFFFFF"/>
+          <rect x="250" y="174" width="220" height="44" rx="7" transform="rotate(0.5 360 196)" fill="#EEEDF9"/>
+          <rect x="500" y="174" width="150" height="44" rx="7" transform="rotate(-0.5 575 196)" fill="#FFFFFF"/>
+          <rect x="680" y="174" width="170" height="44" rx="7" transform="rotate(0.4 765 196)" fill="#0E7490" stroke="#0E7490"/>
+          <path d="M224 196 L246 196" marker-end="url(#a6bAr)"/>
+          <path d="M474 196 L496 196" marker-end="url(#a6bAr)"/>
+          <path d="M654 196 L676 196" marker-end="url(#a6bAr)"/>
+          <!-- row 4 -->
+          <rect x="30" y="228" width="190" height="44" rx="7" transform="rotate(0.5 125 250)" fill="#FFFFFF"/>
+          <rect x="250" y="228" width="220" height="44" rx="7" transform="rotate(-0.4 360 250)" fill="#EEEDF9"/>
+          <rect x="500" y="228" width="150" height="44" rx="7" transform="rotate(0.4 575 250)" fill="#FFFFFF"/>
+          <rect x="680" y="228" width="170" height="44" rx="7" transform="rotate(-0.5 765 250)" fill="#FFFFFF" stroke-dasharray="5 5"/>
+          <path d="M224 250 L246 250" marker-end="url(#a6bAr)"/>
+          <path d="M474 250 L496 250" marker-end="url(#a6bAr)"/>
+          <path d="M654 250 L676 250" marker-end="url(#a6bAr)"/>
+
+          <!-- doodle anchor: an hourglass -->
+          <path d="M822 300 L842 300 L822 324 L842 324 Z"/>
+
+          <!-- the inequality -->
+          <path d="M80 362 L80 524"/>
+          <rect x="80" y="380" width="102" height="24" rx="5" transform="rotate(-0.3 131 392)" fill="#EEEDF9"/>
+          <rect x="186" y="380" width="518" height="24" rx="5" transform="rotate(0.2 445 392)" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="80" y="436" width="102" height="24" rx="5" transform="rotate(0.3 131 448)" fill="#EEEDF9"/>
+          <rect x="186" y="436" width="258" height="24" rx="5" transform="rotate(-0.3 315 448)" fill="#FFFFFF"/>
+          <rect x="150" y="492" width="690" height="30" rx="6" transform="rotate(-0.2 495 507)" fill="url(#a6bHc)" stroke="#9A97D4" stroke-dasharray="6 6"/>
+        </g>
+
+        <!-- column headings -->
+        <text class="a6bA" x="30" y="54">SYSTEM</text>
+        <text class="a6bA" x="250" y="54">CRYPTOGRAPHY IT USES</text>
+        <text class="a6bA" x="500" y="54">MUST STAY SECRET FOR</text>
+        <text class="a6bA" x="680" y="54">FLAG</text>
+
+        <!-- row 1 text -->
+        <text class="a6bL" x="42" y="85">Checkout and accounts</text>
+        <text class="a6bS" x="42" y="101">customer sessions</text>
+        <text class="a6bL" x="262" y="85">TLS key exchange</text>
+        <text class="a6bS" x="262" y="101">public-key, every session</text>
+        <text class="a6bV" x="512" y="88">10 years</text>
+        <text class="a6bS" x="512" y="104">customer records</text>
+        <text class="a6bL" x="692" y="85">harvestable today</text>
+        <text class="a6bS" x="692" y="101">copies taken now count</text>
+        <!-- row 2 text -->
+        <text class="a6bL" x="42" y="139">Till software updates</text>
+        <text class="a6bS" x="42" y="155">signed releases</text>
+        <text class="a6bL" x="262" y="139">Code signing</text>
+        <text class="a6bS" x="262" y="155">public-key signature</text>
+        <text class="a6bV" x="512" y="142">none</text>
+        <text class="a6bS" x="512" y="158">trusted for 8 years</text>
+        <text class="a6bL" x="692" y="139">forgery, not harvest</text>
+        <text class="a6bS" x="692" y="155">move to 204 or 205</text>
+        <!-- row 3 text -->
+        <text class="a6bL" x="42" y="193">Backup archive</text>
+        <text class="a6bS" x="42" y="209">nightly, kept 20 years</text>
+        <text class="a6bL" x="262" y="193">Encrypted backups</text>
+        <text class="a6bS" x="262" y="209">which algorithm: record it</text>
+        <text class="a6bV" x="512" y="196">20 years</text>
+        <text class="a6bS" x="512" y="212">the archive's term</text>
+        <text class="a6bW" x="692" y="193">already fails</text>
+        <text class="a6bW" x="692" y="209">any short horizon</text>
+        <!-- row 4 text -->
+        <text class="a6bL" x="42" y="247">Customer database</text>
+        <text class="a6bS" x="42" y="263">12 million rows</text>
+        <text class="a6bL" x="262" y="247">Database encryption</text>
+        <text class="a6bS" x="262" y="263">supplier-embedded</text>
+        <text class="a6bV" x="512" y="250">10 years</text>
+        <text class="a6bS" x="512" y="266">same records at rest</text>
+        <text class="a6bL" x="692" y="247">unknown</text>
+        <text class="a6bS" x="692" y="263">ask the supplier</text>
+
+        <!-- inequality text -->
+        <text class="a6bH" x="30" y="306">THE PLANNING INEQUALITY, IN PROSE (NIST IR 8547, INITIAL PUBLIC DRAFT)</text>
+        <text class="a6bN" x="30" y="326">Migration time X plus required secrecy life Y must not exceed Z,</text>
+        <text class="a6bN" x="30" y="344">the time until a cryptographically relevant quantum computer exists.</text>
+        <text class="a6bA" x="92" y="374">BACKUP ARCHIVE, ROW 3</text>
+        <text class="a6bL" x="94" y="397">X = 4 yrs</text>
+        <text class="a6bW" x="200" y="397">Y = 20 years the archive must stay secret</text>
+        <text class="a6bA" x="92" y="430">CHECKOUT TRAFFIC, ROW 1</text>
+        <text class="a6bL" x="94" y="453">X = 4 yrs</text>
+        <text class="a6bL" x="200" y="453">Y = 10 years</text>
+        <text class="a6bA" x="92" y="486">Z: TIME UNTIL A CRYPTOGRAPHICALLY RELEVANT MACHINE. CONTESTED, NO DATE</text>
+        <text class="a6bA" x="80" y="542" text-anchor="middle">today</text>
+        <text class="a6bS" x="150" y="542">Preskill 2018: fault tolerance arrives &quot;eventually&quot;</text>
+        <text class="a6bS" x="150" y="558">NIST IR 8547 draft: start now &quot;even if quantum computers are a decade away&quot;</text>
+        <text class="a6bS" x="150" y="574">Aaronson 2015: &quot;supposing we had a quantum computer&quot;</text>
+
+        <text class="a6bN" x="30" y="604">Every Brindle duration is constructed. The inventory needs X and Y, which a team can collect. It never needs Z.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the bar for Z has no edges and no year because no primary source gives one. Read where each row ends, not where Z ends.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Harvest now, decrypt later, in the sources' own terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The CISA, NSA and NIST factsheet of August 2023 names the threat as "catch now, break later or harvest now, decrypt later": an adversary copies encrypted data today and keeps it until a machine exists that can break the public-key algorithms protecting it. It names RSA, ECDH and ECDSA as the public-key algorithms that will need updating. NIST IR 8547, the November 2024 draft, says the same thing in substance: sensitive data often keeps its value for many years, so the transition is urgent before any such computer exists.</p>
+        <p>The consequence for a data team is precise. The risk to a dataset does not start on the day a machine arrives. It started on the day the data was first sent or stored under a vulnerable scheme, and it lasts as long as the data must stay secret. That is why the inventory's most important column is not the algorithm. It is the secrecy life, and the secrecy life is a retention question, which data teams answer every week.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's archive (constructed) holds twenty years of nightly encrypted backups, and the board's retention policy says each backup must stay secret for twenty years. Put Y = 20 into the inequality and the row needs X + 20 years of safety from today. Under any horizon shorter than that, the row already fails, and none of the three primary sources gives a date that rules a shorter one out. The backups being written tonight are already inside the window.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The factsheet's inventory, read as a data spec<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The factsheet tells organisations to set up a project team, run cryptographic discovery and prepare a cryptographic inventory. Read its instructions as a data team would read a requirements document and they become columns and sources:</p>
+        <ul>
+          <li><strong>Network protocols.</strong> Which protocols use quantum-vulnerable public-key cryptography. Source: network and service configuration.</li>
+          <li><strong>End-user systems and servers.</strong> Assets on both, including the paths by which software and firmware updates arrive. Source: the asset inventory.</li>
+          <li><strong>CI/CD pipelines.</strong> Cryptographic code in the build and release path, where signing usually lives. Source: the pipeline definitions.</li>
+          <li><strong>Sensitive datasets and how long.</strong> When and where vulnerable cryptography protects the most sensitive data, with an estimate of how long each dataset needs protecting. Source: the data catalogue and the retention policy.</li>
+          <li><strong>Correlation.</strong> Join the result to existing asset, identity and endpoint inventories. Source: whatever the organisation already keeps; this is a join, not a new store.</li>
+          <li><strong>Suppliers.</strong> Ask suppliers for lists of the cryptography embedded in their products, because discovery tools may miss it. Brindle's database encryption is that row.</li>
+        </ul>
+        <p>Practitioner session 9 builds this inventory in code, row by row, in <a href="p9-the-post-quantum-inventory.html">The post-quantum inventory</a>. What happens to the keys once the inventory exists, rotation, custody and access, belongs to <a href="https://phoebefu6.github.io/learn-cyber-security-with-phoebe/">learn-cyber-security-with-phoebe</a> and is not taught here. The data team's deliverable is the list; the security team's is what it does with it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What NIST standardised, and what it only proposed<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>On 13 August 2024 NIST published three final standards, and encouraged administrators to begin transitioning "as soon as possible":</p>
+        <ul>
+          <li><strong>FIPS 203, ML-KEM.</strong> The Module-Lattice-Based Key-Encapsulation Mechanism Standard, with parameter sets ML-KEM-512, 768 and 1024. It is how two parties agree a key, the job TLS key exchange does in Brindle's row 1. Its security rests on the Module Learning With Errors problem.</li>
+          <li><strong>FIPS 204, ML-DSA.</strong> The Module-Lattice-Based Digital Signature Standard. A signature scheme, the replacement path for row 2's code signing.</li>
+          <li><strong>FIPS 205, SLH-DSA.</strong> The Stateless Hash-Based Digital Signature Standard, derived from SPHINCS+, which the release describes as a backup signature scheme.</li>
+        </ul>
+        <p>If signatures as a mechanism are new to your team, the clearest walk-through on the hub is in <a href="https://phoebefu6.github.io/learn-blockchain-with-phoebe/">learn-blockchain-with-phoebe</a>.</p>
+        <p>NIST IR 8547 is different in kind: it is an initial public draft, so its dates are proposals. It proposes that RSA, ECDSA, finite-field and elliptic-curve Diffie-Hellman and the related schemes at 112 bits of security be deprecated after 2030 and disallowed after 2035, and that the same families at 128 bits or more be disallowed after 2035. Those are policy dates for retiring algorithms. They are not a forecast of when a machine will exist, and a board paper that presents them as one has misread the draft.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree: the right-hand side<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The inequality has three terms, and only one of them is contested. X is a project estimate the team can make. Y is a retention figure the business can supply. Z is the time until a cryptographically relevant quantum computer exists, and the three primary sources read for these sessions take three different stances without giving a date.</p>
+        <p><strong>Preskill 2018</strong> describes noisy devices of 50 to 100 qubits as the near term and fault tolerance as arriving "eventually". <strong>The NIST draft</strong> plans as if the machine may arrive within the secrecy life of data encrypted today, and says the migration must begin now even if such computers are a decade away. <strong>Aaronson 2015</strong> writes "supposing we had a quantum computer", and his essay is about what one would be for, not when. None of the three resolves the others, and this page does not either.</p>
+        <p>The useful observation is that the inventory does not need Z resolved. A row with Y = 20 fails under every short horizon anyone has argued for, and a row with Y = 1 fails under almost none. The ordering of the rows is the same whichever stance turns out right, which is why the work can start before the argument ends.</p>
+        <p>Sources: NIST (2024). FIPS 203, Module-Lattice-Based Key-Encapsulation Mechanism Standard. 13 August 2024. NIST (2024). FIPS 204, Module-Lattice-Based Digital Signature Standard. 13 August 2024. NIST (2024). FIPS 205, Stateless Hash-Based Digital Signature Standard. 13 August 2024. NIST (2024). NIST Releases First 3 Finalized Post-Quantum Encryption Standards. News release, 13 August 2024. Moody, D., Perlner, R., Regenscheid, A., Robinson, A. and Cooper, D. (2024). Transition to Post-Quantum Cryptography Standards. NIST IR 8547 ipd, initial public draft, November 2024. CISA, NSA and NIST (2023). Quantum-Readiness: Migration to Post-Quantum Cryptography. Factsheet, 17 August 2023. Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862. Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Your 90-day ladder</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps: five rungs of reading and doing over ninety days, then the page you hand the board. Every source on the ladder is free. Each step says whether a source is official guidance or a free primary paper, because a board will ask which is which, and the difference matters: official guidance is what an auditor will hold you to, and a primary paper is what the claim in a deck should be checked against.</p>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Days 1-15: re-run the first three sessions, then read Grover at source</h4>
+        <p>Work through leader sessions 1 to 3 again at your own pace, moving the register by hand, until the three sentences, the square-root count and the loading tax come without notes. Then read Grover 1996 on arXiv (quant-ph/9605043), the abstract first. Free primary paper, not official guidance. Check that its classical figure is N/2 lookups for a one-half chance and that its mechanism sentence is about phases.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Days 16-30: read Aaronson's fine print</h4>
+        <p>Read Aaronson 2015 from the author's own copy of the Nature Physics essay. Free primary paper, not official guidance. List his four caveats in your own words, loading, applying the matrix, conditioning and readout, and write down his two closing questions. Those two questions are the checklist every later claim goes through.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Days 31-60: read the dequantization and the noise paper, then drive the bench</h4>
+        <p>Read Tang 2018 (arXiv 1807.04271) beside Kerenidis and Prakash 2016 (arXiv 1603.08675), and Preskill 2018 (arXiv 1801.00862). All three are free primary papers, not official guidance. Then open <a href="p10-the-fine-print-bench.html">the fine-print bench</a> and reproduce three numbers yourself: 25 oracle calls against 512, the one-search loss on 12 million rows with the three loading parameters printed beside it, and the fall to 0.346724 at one error per thousand gates, modelled.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Days 61-75: read the official guidance</h4>
+        <p>Read the FIPS 203, 204 and 205 pages on NIST's site, the CISA, NSA and NIST "Quantum-Readiness" factsheet, and the NIST IR 8547 initial public draft. All five are official. Three of them are final standards; the factsheet is joint guidance; IR 8547 is a draft, so mark its 2030 and 2035 as proposed in every note you take, and check NIST's site for a final version before quoting it.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Days 76-90: draft the first inventory of three systems</h4>
+        <p>Pick three systems you own, one that carries data in transit, one that signs something, and one that stores data for a long time. Fill the four columns from Part 2: system, cryptography used, secrecy life with its reason, flag. Mark every unknown as a finding with the name of the person who would know, and send one supplier the factsheet's question about embedded cryptography. Use the practitioner session 9 template if you want the rows built in code.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Day 90: write the board's one page</h4>
+        <p><strong>Will this change our workload?</strong> Not the analytics workload, on any evidence the primary sources support today. The one outright quantum win measured here is a square-root cut in oracle calls for unstructured search, 25 against 512 at ten qubits, and it assumes the data is already inside the machine. On Brindle's 12 million customer rows a single search costs 12,063,988 against 6,000,000 for classical brute force once loading is paid (declared model: load 1 per row, query cost log2 N per oracle call, one search per load), and a classical index wins beyond 4,224 searches per load. The recommender speedup in the deck's family was matched classically in 2018. Recommendation on the pilot budget: hold it until a specific claim survives Aaronson's two questions; nothing here is investment advice.</p>
+        <p><strong>What do we do about the encryption?</strong> Start now, as an inventory, not as a bet on a date. The standards exist (FIPS 203, 204 and 205, August 2024). The retirement dates for RSA and elliptic-curve schemes in NIST IR 8547 are proposed, not final. Our backup archive (constructed, twenty-year secrecy life) already fails the planning inequality under any short horizon, so it is first in the queue. The data team delivers the inventory; the security team owns the keys afterwards.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Inventory first, timeline argument never. When a meeting turns to when the machine will arrive, bring it back to the two numbers the team can actually collect, migration time and secrecy life, for every system it owns. The argument about the date can run for another decade without changing which row goes first.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Brindle's engineers want to keep "debugging by printing state" in their quantum plan, since it served them well in the warehouse. Which column does it belong in, and why?</p>
+      <div class="qopt">A · Carries over, because the simulator in the page can print every amplitude</div>
+      <div class="qopt">B · Must learn, because the team needs a new printing tool for registers</div>
+      <div class="qopt">C · Must unlearn, because on hardware a read mid-circuit returns one draw and ends the run; the only output is the sample at the end, so checks move to assertions on that sample and to tests on a simulator</div>
+      <q class="qwhy">The simulator can print because it is not hardware, which is exactly the trap: a habit that works on the simulator teaches the wrong instinct for the machine. No tool fixes it, because the constraint is the measurement itself.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">The planning inequality says migration time plus secrecy life must not exceed the time until a cryptographically relevant quantum computer exists. What does it need that nobody can supply, and why does the inventory proceed anyway?</p>
+      <div class="qopt">A · It needs the date of such a machine, which no primary source gives; the inventory proceeds because migration time and secrecy life can be collected, and a row like the twenty-year archive fails under any short horizon whichever stance turns out right</div>
+      <div class="qopt">B · It needs the 2035 date from NIST IR 8547, which settles the question</div>
+      <div class="qopt">C · It needs the secrecy life, which only the security team can supply, so the inventory waits for them</div>
+      <q class="qwhy">2030 and 2035 are proposed policy dates for retiring algorithms, not a forecast of hardware. The secrecy life is a retention question the data team answers routinely. Only the date is missing, and the row ordering does not depend on it.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">What does FIPS 203 standardise?</p>
+      <div class="qopt">A · ML-DSA, a lattice-based digital signature scheme</div>
+      <div class="qopt">B · ML-KEM, a module-lattice-based key-encapsulation mechanism, published 13 August 2024, which is how two parties agree a key</div>
+      <div class="qopt">C · SLH-DSA, a stateless hash-based signature scheme</div>
+      <q class="qwhy">FIPS 203 is ML-KEM, with parameter sets 512, 768 and 1024, resting on the Module Learning With Errors problem. ML-DSA is FIPS 204 and SLH-DSA is FIPS 205; all three were published the same day.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">After the course</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">An hour, with your own estate in mind rather than Brindle's. The list you brought to session 6 is the starting point.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Draft the inventory of three real systems you own</h4>
+        <p>Four columns: system, cryptography used, how long its data must stay secret with the reason, and the flag. If you would rather build it in code, use the practitioner session 9 template. Mark every unknown as a finding with an owner beside it; an unknown is a result, not a gap.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Order the rows by the inequality, not by the date</h4>
+        <p>Give each row a migration estimate X and a secrecy life Y, and sort by X + Y, longest first. Write one sentence under the table saying that the right-hand side is contested and undated, and naming the three stances. Then hand the top row to whoever owns the keys.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Put the transfer map in front of your team</h4>
+        <p>Read the twelve items aloud and ask each person which red card they still hold. Expect "more compute, more answer" to be the most common. Keep the map; it is the agenda for the next time a deck arrives.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The transfer map</span><span class="note">Four carry over, four must be learned, four must be unlearned, each with method, tool class and session.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The post-quantum inventory</span><span class="note">System, cryptography, secrecy life, flag; the factsheet's instructions read as a data spec.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Harvest now, decrypt later</span><span class="note">In the factsheet's and the NIST draft's terms; the risk starts when the data is stored.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">FIPS 203, 204 and 205</span><span class="note">ML-KEM, ML-DSA and SLH-DSA, all final, all 13 August 2024.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">NIST IR 8547 proposed dates</span><span class="note">112-bit RSA and elliptic-curve schemes deprecated after 2030, disallowed after 2035; a draft, so proposed.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The 90-day ladder</span><span class="note">Free sources only, each marked official or free primary paper, ending in the board's one page.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Key management after the inventory</span><span class="note">Rotation, custody and access are named and handed to learn-cyber-security-with-phoebe.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Shor's algorithm</span><span class="note">Named as the reason public-key schemes are at risk; not run, since ten qubits factor nothing worth the page.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Hardware physics</span><span class="note">How any machine realises a qubit is out of scope; nobody on the hub teaches it.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>Carries over.</strong> Sampling and standard error, linear algebra, benchmark discipline, data inventory and lineage. Each is worth more here than in the warehouse.</div>
+      <div class="cheat-item"><strong>Must learn.</strong> Amplitudes and interference, per-algorithm speedup factors, loading, readout and noise arithmetic, the post-quantum standards.</div>
+      <div class="cheat-item"><strong>Must unlearn.</strong> Debugging by printing state, more compute is more answer, a speedup as wall-clock, the timeline as settled.</div>
+      <div class="cheat-item"><strong>The inequality.</strong> Migration time plus secrecy life must not exceed the time until a cryptographically relevant machine exists. Only the last term is contested.</div>
+      <div class="cheat-item"><strong>Harvest now, decrypt later.</strong> The risk starts when vulnerable data is sent or stored, and lasts as long as it must stay secret.</div>
+      <div class="cheat-item"><strong>The standards.</strong> FIPS 203 ML-KEM, 204 ML-DSA, 205 SLH-DSA, all 13 August 2024. Official and final.</div>
+      <div class="cheat-item"><strong>The proposed dates.</strong> NIST IR 8547 draft: 112-bit RSA and elliptic-curve schemes deprecated after 2030, disallowed after 2035. Policy, not a forecast.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Inventory first, timeline argument never. The twenty-year archive goes first whichever stance on the date turns out right.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 6 of 6 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a5-why-the-data-team-playbook-breaks-here.html">← Leader session 5 · Why the data-team playbook breaks here</a>
+        <a href="../index.html">All sessions →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 2 of 6. The deck says the machine evaluates all possibilities at once; Grover's 1996 abstract says the mechanism is phases tuned so the correct path reinforces and the rest cancel. Tonight watches one amplitude climb, iteration by iteration, on the register in the page, and checks the two numbers everyone guessed in session 1.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Where the speedup actually comes from - learn quantum with phoebe">
+<meta property="og:description" content="Leader session 2 of 6. Interference, not parallelism. 25 oracle calls against 512 lookups at ten qubits, measured in the page.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/a2-where-the-speedup-comes-from.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Where the speedup actually comes from - learn quantum with phoebe">
+<meta name="twitter:description" content="One vector, one sign flip, one reflection, one read. The wrong answers cancel, and the factor is a square root, not an exponential.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 2 · Where the speedup actually comes from - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Leader session 2 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Leader session 2 of 6</div>
+    <h1>Where the speedup <span class="accent">actually comes from</span></h1>
+    <p class="sub">The deck on Brindle's table says the machine "evaluates all possibilities at once". Grover's own 1996 abstract, the paper every quantum search claim descends from, says something narrower and checkable: the operations are tuned so that the correct path reinforces and the rest cancel. Those are not two ways of saying the same thing. One is a picture, the other is a mechanism with a number attached. Tonight watches one amplitude climb, iteration by iteration, on the register in this page, and then checks the two numbers everyone wrote down at the end of session 1: classical lookups for an even chance over 1,024 items, which is 512, against quantum oracle calls, which is 25. Brindle is constructed, and nothing here is investment advice.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone asked to fund or read a quantum pitch</span>
+      <span class="chip audience">Anyone who signs off a data team's roadmap</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · Not every answer at once</span>
+      <span class="a3" style="flex:3">18-28 · Watch the amplitude climb</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Brindle, and the one sentence in the deck that sounds like a mechanism</h2>
+    </div>
+    <p class="lede">Brindle is a mid-sized retailer, constructed for these sessions, with a 12-million-row customer table, a 4-million-row order table and twenty years of encrypted backups. The vendor deck the board forwarded has one sentence that the data team keeps returning to, because it is the only sentence that sounds like it explains anything: "harnesses superposition to evaluate all possibilities simultaneously". Session 1 sorted it as decoration, since it names no vector, no matrix and no sample. Tonight is the harder job, which is to say what the real mechanism is in words a board can repeat, and then to show it happening, number by number, on a register the page actually holds.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The mechanism in one sentence you can defend: one vector, one sign flip, one reflection, one read, and the wrong answers cancel. The two numbers from session 1 checked against the register, not against a slide: 512 classical lookups for an even chance over 1,024 items, against 25 quantum oracle calls, a factor of about 20. And the shape of that factor, which is a square root and not an exponential, so that when a deck says "exponential" about a search you know which word to circle.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The sentence in the deck and the sentence in the paper<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The deck's sentence is about evaluating everything at once. The paper's sentence, in substance, is this. Any classical method for finding one entry in an unsorted directory of N entries, whether it checks them in order or at random, needs at least N over 2 lookups to find the target with a one-half chance. The quantum algorithm needs on the order of the square root of N steps. And the way it does that is not by looking at every entry: it tunes the phases, which session 1 called the signs, so that the correct path reinforces and the others cancel. Grover's abstract also claims the method is within a small constant factor of the fastest possible quantum search, which is a sentence the end of Part 2 returns to.</p>
+        <p>Three things in that paragraph are checkable tonight. N over 2 is arithmetic. The square root of N is a count the register can produce. And "reinforce and cancel" is something the register can show, one amplitude at a time, if the drawing is honest about signs. The deck's sentence offers nothing to check, which is the difference between a mechanism and a picture.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analytics lead, in the constructed version of this story, put the two sentences side by side in an email to the board and asked a single question: if the machine evaluates all possibilities at once, why does the paper that invented the method say it needs about the square root of N steps rather than one? The vendor's reply took four days and did not answer it. That gap is the most useful thing the data team learned from the pilot proposal, and it cost nothing.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Six words for tonight<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Amplitude.</strong> One of the 2 to the n numbers in the register. It carries a sign. Its square is the probability of reading that slot. Session 1.</li>
+          <li><strong>Interference.</strong> What happens when amplitudes are added: same sign and they grow, opposite sign and they cancel. The whole mechanism lives here.</li>
+          <li><strong>Oracle.</strong> The gate that flips the sign of the one slot being searched for. It is the question the team asks the register, encoded as a gate, and it is counted as one gate tonight.</li>
+          <li><strong>Diffusion.</strong> The gate that reflects every amplitude about their mean. It is the move that turns one flipped sign into a taller bar.</li>
+          <li><strong>Iteration.</strong> One oracle flip followed by one diffusion. The amplitude of the marked slot climbs a fixed step per iteration, then keeps turning past the top.</li>
+          <li><strong>Optimum.</strong> The iteration at which the marked slot's probability peaks. About pi over 4 times the square root of N, read off the curve rather than quoted; the floor of that, or one below, at every size from 2 to 10 qubits.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers interference, not parallelism</span>
+      <h2>Not every answer at once</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">The picture the deck sells is a crowd of workers, 2 to the n of them, each computing its own answer, with the machine then reading them all. The mechanism the paper describes is one vector of 2 to the n amplitudes, two moves applied to that vector, and one read that returns one outcome. The drawing below puts the two side by side with the signs visible, because the signs are the entire difference.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn before and after pair. Left panel, drawn in the universal wrong-way reds: the deck's picture of eight parallel workers on three qubits, each with its own answer below it, with the instruction read all eight at once struck through, and the note that one read returns one worker's answer with probability one over N, which is 0.125 on three qubits and 0.000977 on ten. Right panel: the mechanism as one vector of eight amplitudes drawn as bars. Stage one, all eight bars equal at 0.354. Stage two, the oracle flips the sign of the marked slot, so its bar points down while a dashed line marks the mean. Stage three, the diffusion reflects every bar about that mean, so the marked bar rises to 0.884, drawn in cyan, and the other seven shrink to 0.177. A measure arrow leads to a box reading one outcome, slot 8, with probability 0.781. A band underneath reads not every answer at once, one vector, one sign flip, one reflection, one read.">
+        <defs>
+          <filter id="a2aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a2aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a2aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a2aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a2aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a2aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a2aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a2aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a2aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a2aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a2aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+          .a2aR { font: 800 12px Inter, sans-serif; fill: #991B1B; }
+          .a2aX { font: 700 12px Inter, sans-serif; fill: #991B1B; text-decoration: line-through; }
+        </style>
+
+        <text class="a2aH" x="30" y="26">THE DECK'S PICTURE AGAINST THE PAPER'S MECHANISM, ON THREE QUBITS</text>
+
+        <g filter="url(#a2aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel: the wrong way, in the universal reds -->
+          <rect x="30" y="44" width="380" height="250" rx="10" transform="rotate(-0.3 220 169)" fill="#FEF2F2" stroke="#FCA5A5"/>
+          <rect x="54" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="96" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="138" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="180" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="222" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="264" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="306" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <rect x="348" y="100" width="34" height="34" rx="5" fill="#FFFFFF" stroke="#991B1B"/>
+          <path d="M71 140 L71 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M113 140 L113 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M155 140 L155 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M197 140 L197 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M239 140 L239 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M281 140 L281 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M323 140 L323 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <path d="M365 140 L365 158" stroke="#991B1B" marker-end="url(#a2aAr)"/>
+          <rect x="54" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="96" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="138" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="180" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="222" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="264" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="306" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+          <rect x="348" y="164" width="34" height="26" rx="4" fill="#FFFFFF" stroke="#FCA5A5"/>
+
+          <!-- right panel: the mechanism -->
+          <rect x="440" y="44" width="410" height="250" rx="10" transform="rotate(0.3 645 169)" fill="#FFFFFF"/>
+          <!-- stage 1: uniform, eight bars of 0.354 at 100 px per unit -->
+          <path d="M460 196 L572 196" stroke="#C9C9DF"/>
+          <rect x="466" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="478" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="490" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="502" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="514" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="526" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="538" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="550" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <path d="M574 178 L584 178" marker-end="url(#a2aAr)"/>
+          <!-- stage 2: the oracle flips one sign; dashed line is the mean -->
+          <path d="M585 196 L697 196" stroke="#C9C9DF"/>
+          <rect x="591" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="603" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="615" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="627" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="639" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="651" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="663" y="161" width="8" height="35" fill="#C9C7EA"/>
+          <rect x="675" y="196" width="8" height="35" fill="#FFFFFF" stroke="#0E7490"/>
+          <path d="M587 170 L697 170" stroke="#9A97D4" stroke-dasharray="3 4" stroke-width="1.6"/>
+          <path d="M699 178 L709 178" marker-end="url(#a2aAr)"/>
+          <!-- stage 3: the diffusion reflects every bar about the mean -->
+          <path d="M710 196 L822 196" stroke="#C9C9DF"/>
+          <rect x="716" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="728" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="740" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="752" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="764" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="776" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="788" y="178" width="8" height="18" fill="#C9C7EA"/>
+          <rect x="800" y="108" width="8" height="88" fill="#0E7490" stroke="#0E7490"/>
+          <!-- the one read -->
+          <path d="M760 202 L760 232" stroke="#0E7490" marker-end="url(#a2aAr)"/>
+          <rect x="700" y="238" width="140" height="44" rx="6" transform="rotate(0.5 770 260)" fill="#E3F3F7" stroke="#0E7490"/>
+
+          <!-- band -->
+          <rect x="30" y="318" width="820" height="64" rx="10" transform="rotate(0.15 440 350)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a tiny coin, heads up -->
+          <circle cx="830" cy="64" r="9" fill="#FFFFFF"/>
+          <path d="M830 58 L830 70 M825 64 L835 64"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="a2aR" x="50" y="68">THE DECK'S PICTURE: 2 TO THE n WORKERS</text>
+        <text class="a2aS" x="50" y="84">each computes its own answer, in parallel</text>
+        <text class="a2aS" x="71" y="182" text-anchor="middle">a1</text>
+        <text class="a2aS" x="113" y="182" text-anchor="middle">a2</text>
+        <text class="a2aS" x="155" y="182" text-anchor="middle">a3</text>
+        <text class="a2aS" x="197" y="182" text-anchor="middle">a4</text>
+        <text class="a2aS" x="239" y="182" text-anchor="middle">a5</text>
+        <text class="a2aS" x="281" y="182" text-anchor="middle">a6</text>
+        <text class="a2aS" x="323" y="182" text-anchor="middle">a7</text>
+        <text class="a2aS" x="365" y="182" text-anchor="middle">a8</text>
+        <text class="a2aX" x="150" y="220">READ ALL EIGHT AT ONCE</text>
+        <text class="a2aS" x="50" y="244">One read returns ONE worker's answer, with odds 1 / N.</text>
+        <text class="a2aS" x="50" y="260">Three qubits: 0.125. Ten qubits: 0.000977.</text>
+        <text class="a2aS" x="50" y="276">The other answers are not read. They are gone.</text>
+
+        <!-- right panel text -->
+        <text class="a2aL" x="460" y="68">ONE VECTOR OF 8 AMPLITUDES, TWO MOVES, ONE READ</text>
+        <text class="a2aB" x="460" y="92">1 uniform</text>
+        <text class="a2aS" x="460" y="106">all 0.354</text>
+        <text class="a2aB" x="585" y="92">2 flip one sign</text>
+        <text class="a2aS" x="585" y="106">the oracle</text>
+        <text class="a2aB" x="710" y="92">3 reflect</text>
+        <text class="a2aS" x="710" y="106">about mean</text>
+        <text class="a2aA" x="586" y="166">mean</text>
+        <text class="a2aA" x="766" y="222">read</text>
+        <text class="a2aL" x="712" y="256">one outcome: slot 8</text>
+        <text class="a2aB" x="712" y="272">p = 0.781, one move pair</text>
+        <text class="a2aS" x="460" y="252">One read returns ONE outcome,</text>
+        <text class="a2aS" x="460" y="268">drawn with the squares as odds.</text>
+
+        <text class="a2aH" x="46" y="342">Not every answer at once. One vector, one sign flip, one reflection, one read, and the wrong answers cancel.</text>
+        <text class="a2aN" x="46" y="362">Grover 1996, in substance: phases tuned so the right path reinforces and the rest cancel. 0.125 to 0.781.</text>
+        <text class="a2aN" x="30" y="406">Eight amplitudes on three qubits, slot 8 marked: 0.354 each at the start, 0.884 after one flip and one reflection.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the workers on the left are never read together; the bars on the right are never read at all, only their squares, after the signs have done the work.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why a sample of a uniform register is useless<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Start where every search starts: a Hadamard on each qubit, which turns the certain zero of session 1 into a register in which every slot has the same amplitude. On three qubits that is eight amplitudes of 0.354 each, and 0.354 squared is 0.125. On ten qubits it is 1,024 amplitudes, each with a square of 0.000977. The deck would call this state "all possibilities at once", and in the narrow sense that every slot has a non-zero amplitude, it is.</p>
+        <p>Now read it. A measurement returns one slot, drawn with the squares as odds, and every square is the same. So the read returns a random slot, and the chance it is the one being searched for is 1 over N: 0.125 on three qubits, 0.000977 on ten, straight from the canon the page computes. That is exactly the odds of guessing, and guessing did not need a quantum register. A uniform superposition, on its own, is worth nothing to a search. Every bit of value has to be added afterwards, by making the signs do something, and that is what the next card is about.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analyst, in the constructed story, tried the deck's sentence against this fact in one line: "if the register already holds every possibility, why does a read return a one-in-1,024 guess?" She then read Grover's abstract and found the answer in its own words, which is that the work is in the phases. The deck had described the starting line and called it the finish.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The two moves: flip one sign, reflect about the mean<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Move one is the oracle. It is a gate that knows the question and answers it the only way a gate can: it flips the sign of the amplitude on the one slot that matches, and leaves every other amplitude alone. Nothing about the probabilities has changed yet, since a square throws the sign away. If you read the register now you would still get a 1 in N guess. What has changed is invisible to a read and visible to the next gate.</p>
+        <p>Move two is the diffusion, and it does not know the answer. It takes the mean of all the amplitudes and reflects every one of them about that mean: each amplitude becomes twice the mean minus itself. Because one amplitude is now negative, the mean has dropped slightly below where the others sit, so each of them lands a little lower than it was. The flipped one, being far below the mean, lands far above it. On three qubits the marked slot goes from 0.354 to 0.884 in that single reflection, and 0.884 squared is the 0.781 in the canon table. The other seven shrink to 0.177 each, and their squares still add up with the marked one to exactly one, because nothing was created, only moved.</p>
+        <p>That is the whole mechanism, and it is worth saying in the board's language. The oracle marks one answer with a sign nobody can see. The diffusion converts that sign into height, taking a little from every wrong answer and giving it to the right one. The wrong answers cancel each other down; the right one reinforces. Do it again and the marked slot climbs again. There is no step at which all the answers are evaluated, and no step at which more than one is read.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree: the word parallelism<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Physicists do use the word. Some describe the amplitudes as evolving in parallel, every one of the 2 to the n of them updated by every gate, and the description is faithful to the arithmetic: the simulator in this page does update all 1,024 amplitudes on every gate. Others refuse the word on the grounds that it invites exactly the reading the deck sells, that the machine computes 2 to the n answers and hands them all over. The dispute is partly about language and partly about what the vector is, which session 1 flagged as a century-old argument with no settling experiment.</p>
+        <p>Nothing tonight resolves it, and a data leader does not have to. The operational fact that every camp accepts is narrower: a measurement returns one outcome, drawn with the squares as odds, and the number of oracle calls a search needs is about the square root of N, not one. Whichever word a physicist prefers, the count is the same, and the count is what the board is being asked to pay for. If a deck says "parallel", ask for the count of oracle calls; if it gives one, the word was harmless; if it cannot, the word was doing the work the number should have done.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the curve and the square root</span>
+      <h2>Watch the one amplitude climb</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">One iteration took the marked slot from 0.125 to 0.781. The natural question is what a second iteration does, and the natural guess, more, is right once and then wrong. The curve below is the engine's own run on three qubits, iteration by iteration, and the widget under it runs the same curve at any size from two qubits to ten so that the two numbers from session 1 can be checked rather than believed.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 408" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn line chart of the success probability on three qubits after each Grover iteration, from the engine. Six points: iteration zero at 0.125, one at 0.781, two at 0.945, three at 0.330, four at 0.012, five at 0.548. The point at iteration two is drawn in cyan and labelled the optimum at k equals 2; the region covering iterations three to five is tinted and labelled past it, the amplitude keeps rotating. A side panel reads the same curve at other sizes: on two qubits iteration one reads exactly 1.000000; on three qubits iteration two reads 0.945 and three reads 0.330; on ten qubits iteration 25 reads 0.9995 after 1,060 gates, with the oracle counted as one gate, which undercounts hardware. Pi over four times the square root of N is 1.57, 2.22 and 25.13 for those sizes, and the optimum is the floor of that or one below. A band underneath reads more iterations is not more certainty.">
+        <defs>
+          <filter id="a2bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a2bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a2bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a2bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a2bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a2bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a2bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a2bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a2bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a2bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a2bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a2bH" x="30" y="26">THE SUCCESS PROBABILITY CLIMBS, PEAKS, AND KEEPS TURNING: THREE QUBITS, FROM THE ENGINE</text>
+
+        <g filter="url(#a2bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- chart panel -->
+          <rect x="30" y="44" width="560" height="262" rx="10" transform="rotate(-0.3 310 175)" fill="#FFFFFF"/>
+          <!-- past-it region, iterations 3 to 5 -->
+          <rect x="320" y="92" width="258" height="188" rx="6" fill="#EEEDF9" stroke="#C9C9DF" stroke-dasharray="4 5"/>
+          <!-- axes -->
+          <path d="M80 280 L80 96" marker-end="url(#a2bAr)"/>
+          <path d="M80 280 L572 280" marker-end="url(#a2bAr)"/>
+          <!-- the optimum marker -->
+          <path d="M276 280 L276 116" stroke="#0E7490" stroke-dasharray="3 4" stroke-width="1.6"/>
+          <!-- the curve: p scaled at 180 px per unit from a baseline of 280 -->
+          <path d="M100 257.5 L188 139.4 L276 109.9 L364 220.6 L452 277.8 L540 181.4" stroke="#3730A3" stroke-width="2.4"/>
+          <circle cx="100" cy="257.5" r="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="188" cy="139.4" r="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="276" cy="109.9" r="7" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="364" cy="220.6" r="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="452" cy="277.8" r="5" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="540" cy="181.4" r="5" fill="#FFFFFF" stroke="#3730A3"/>
+
+          <!-- side panel -->
+          <rect x="610" y="44" width="240" height="262" rx="10" transform="rotate(0.4 730 175)" fill="#FFFFFF"/>
+          <!-- band -->
+          <rect x="30" y="328" width="820" height="56" rx="10" transform="rotate(-0.15 440 356)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a tiny dial with its needle past the top -->
+          <circle cx="834" cy="290" r="8" fill="#FFFFFF"/>
+          <path d="M834 290 L839 284"/>
+        </g>
+
+        <!-- chart text -->
+        <text class="a2bL" x="50" y="68">THREE QUBITS, 8 SLOTS, TARGET SLOT 8</text>
+        <text class="a2bS" x="50" y="84">probability of reading the target after k iterations</text>
+        <text class="a2bB" x="110" y="272">0.125</text>
+        <text class="a2bB" x="188" y="127" text-anchor="middle">0.781</text>
+        <text class="a2bB" x="276" y="98" text-anchor="middle">0.945</text>
+        <text class="a2bB" x="254" y="98" text-anchor="end">optimum, k = 2</text>
+        <text class="a2bB" x="374" y="214">0.330</text>
+        <text class="a2bB" x="462" y="294">0.012</text>
+        <text class="a2bB" x="540" y="169" text-anchor="middle">0.548</text>
+        <text class="a2bA" x="330" y="108">PAST IT: the amplitude keeps rotating</text>
+        <text class="a2bS" x="100" y="296" text-anchor="middle">0</text>
+        <text class="a2bS" x="188" y="296" text-anchor="middle">1</text>
+        <text class="a2bS" x="276" y="296" text-anchor="middle">2</text>
+        <text class="a2bS" x="364" y="296" text-anchor="middle">3</text>
+        <text class="a2bS" x="452" y="296" text-anchor="middle">4</text>
+        <text class="a2bS" x="540" y="296" text-anchor="middle">5</text>
+        <text class="a2bS" x="50" y="296">k</text>
+
+        <!-- side panel text -->
+        <text class="a2bL" x="626" y="72">THE SAME CURVE AT OTHER SIZES</text>
+        <text class="a2bB" x="626" y="100">2 qubits</text>
+        <text class="a2bS" x="626" y="116">k = 1 reads exactly 1.000000</text>
+        <text class="a2bB" x="626" y="144">3 qubits</text>
+        <text class="a2bS" x="626" y="160">k = 2: 0.945 · k = 3: 0.330</text>
+        <text class="a2bB" x="626" y="188">10 qubits</text>
+        <text class="a2bS" x="626" y="204">k = 25: 0.9995, after 1,060 gates</text>
+        <text class="a2bS" x="626" y="220">oracle counted as one gate,</text>
+        <text class="a2bS" x="626" y="236">which undercounts hardware</text>
+        <text class="a2bA" x="626" y="264">pi/4 sqrt N: 1.57 · 2.22 · 25.13</text>
+        <text class="a2bS" x="626" y="280">optimum = the floor, or one below</text>
+
+        <text class="a2bH" x="46" y="352">More iterations is not more certainty: past k = 2 the amplitude keeps rotating and the odds fall to 0.012.</text>
+        <text class="a2bN" x="46" y="372">Every point is the engine's run on three qubits, target slot 8; the closed form agrees to within 1e-9.</text>
+        <text class="a2bN" x="30" y="400">The two-qubit and ten-qubit values are from the same engine; the widget below prints them again at render time.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the marked amplitude is rotating, not filling up. Stop at the top and read; go one further and the odds fall from 0.945 to 0.330.</figcaption>
+    </figure>
+
+    <div class="wk" id="a2-climb">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Grover's search on the real register in this page, two to ten qubits. Every probability and gate count below is computed by the simulator on each change; nothing is looked up. The oracle is counted as one gate, which undercounts hardware.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a2-n">Qubits, so the search space is 2 to the n slots</label>
+        <select class="sql-code" id="a2-n">
+          <option value="2">2 qubits, 4 slots</option>
+          <option value="3" selected>3 qubits, 8 slots</option>
+          <option value="4">4 qubits, 16 slots</option>
+          <option value="5">5 qubits, 32 slots</option>
+          <option value="6">6 qubits, 64 slots</option>
+          <option value="7">7 qubits, 128 slots</option>
+          <option value="8">8 qubits, 256 slots</option>
+          <option value="9">9 qubits, 512 slots</option>
+          <option value="10">10 qubits, 1,024 slots</option>
+        </select>
+        <div id="a2-out"></div>
+        <p class="sql-note" id="a2-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a2-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Read the box<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Pick two qubits first, because it is the one size where the answer is clean: after a single iteration the marked slot reads 1.000000, certainty, and the second iteration takes it straight back down to 0.25. Then three qubits, the figure above: 0.945 at iteration two, then 0.330 at iteration three. The amplitude is not filling a bucket; it is rotating, and the diffusion keeps turning it whether or not it has passed the top. The engine's self test checks every point on five qubits against the closed form sin squared of (2k + 1) theta, and the worst gap is in the fifteenth decimal place.</p>
+        <p>Now ten qubits, which is the size session 1 asked you to guess for. The optimum is 25 iterations, and the marked slot reads 0.999461 there. A classical search over 1,024 items needs 512 lookups for an even chance; the quantum run made 25 oracle calls, and it did so after 1,060 gates. That gate count is the number to be careful with. The engine counts the oracle as one gate and the multi-controlled flip inside the diffusion as one gate, and real hardware pays many more for each of those, so 1,060 undercounts anything physical. The 25 is honest. The 1,060 is a floor.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>A square root, not an exponential<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>At ten qubits the factor is 512 against 25, about 20. It is tempting to call that exponential, and the deck will. It is not. The number of oracle calls grows as the square root of N, so doubling the search space multiplies the quantum count by about 1.4 while it doubles the classical one. Read the widget's optimum column from two qubits to ten and the growth is plain: 1, 2, 3, 4, 6, 8, 12, 17, 25, roughly pi over 4 times the square root of N at every size.</p>
+        <p>Carry that to Brindle's scale. The 12-million-row customer table needs a 24-qubit index, since 2 to the 24th is 16,777,216 slots. Half of that is 8,388,608 classical lookups for an even chance. Pi over 4 times the square root of 16,777,216 is about 3,217 oracle calls. That is a factor of about 2,600, and it is arithmetic from the closed form, not a simulation, since the register in this page stops at ten qubits. A factor of 2,600 is real and is nothing like 2 to the 24th. Grover's abstract also says the method is within a small constant factor of the fastest possible quantum search, which means no better unstructured search is coming to change that shape. Square root is what there is.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>In the constructed Brindle story the deck's headline said "exponential speedup on customer search". The analyst rewrote it on the whiteboard as "about 3,217 oracle calls against about 8.4 million lookups, assuming the oracle is free and the data is already loaded", and the room went quiet in a useful way. The second sentence is still a good number. It is just a different claim, with a different fine print, and session 3 is that fine print.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The oracle is the question, not the answer<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The oracle has been counted as one gate all night, and it is worth being precise about what it is. It is a predicate: a gate that, given a slot, flips its sign if and only if that slot satisfies the condition being searched for. It does not know where the answer is. It knows how to recognise one when applied to it. Somebody on the team would have to implement that predicate as a circuit, which means the condition "this customer matches the fraud pattern" has to be expressible as gates acting on an index, and the cost of that circuit is a real cost every honest count pays.</p>
+        <p>There is a second cost hiding under the first. The oracle reads the data it is testing, and that data has to be inside the register, which means it had to be written there, row by row, before the first oracle call. Tonight assumed that was free. Session 3 removes the assumption and prices the load, and practitioner session 5 counts the queries with the same engine. The headline from tonight survives both, but it arrives with a condition attached, and the condition is the point.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Check the two numbers, then rewrite the sentence</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps with the widget above and the two numbers you wrote down at the end of session 1. The aim is to leave with the mechanism in one sentence of your own, and a headline for the board that carries its own assumption.</p>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Check your two numbers at ten qubits</h4>
+        <p>Set the widget to ten qubits. Find the row marked the optimum. Beside your session 1 guess for classical lookups write 512, and beside your guess for oracle calls write 25. Note which guess was closer and by how much, and which of the two you were more confident about.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Stop at the top on three qubits, then go one further</h4>
+        <p>Set three qubits. Read iteration 2, which is 0.945, and then iteration 3, which is 0.330. Say what happened in one sentence that uses the word rotation. If your sentence uses the word "overfilled" or "overflowed", it is the wrong picture; nothing spilled, the arrow kept turning.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Drop to two qubits and read certainty</h4>
+        <p>Set two qubits and read iteration 1: 1.000000. This is the one size at which the search is exact, and it is why every quantum search demo starts here. Then read iteration 2 and note that certainty did not survive one more move.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Take ten qubits past the optimum</h4>
+        <p>Back to ten qubits. The table runs to 28 iterations. Watch the probability fall from 0.9995 at iteration 25 across the three rows past it, and note the gate count still climbing. Every row past the optimum costs more and returns less, and no amount of hardware changes that direction.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Rewrite the deck's sentence</h4>
+        <p>Take "evaluates all possibilities simultaneously" and rewrite it as a sentence about one vector, one sign flip, one reflection and one sample. It should be longer, duller, and checkable against the widget. Read it to the person next to you and ask them which number in the widget it predicts.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Write the two-number headline, and underline the assumption</h4>
+        <p>For the board: "25 oracle calls against 512 lookups at ten qubits, under the assumption that the oracle is free and the data is already loaded." Underline the assumption. Session 3 removes it, and the headline will need to be rewritten, which is the reason to write it down tonight in a form that shows where it bends.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When a claim says the machine does everything at once, ask for the count of oracle calls and the iteration at which the probability peaks. A mechanism has both numbers; a picture has neither. And when the count arrives, ask what it assumed about the data, because the next session shows that the assumption is where the headline is quietly paid for.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A ten-qubit register has been put into a uniform superposition and nothing else. The deck calls this "all 1,024 possibilities at once". What does one read of it return?</p>
+      <div class="qopt">A · All 1,024 answers, which the machine then filters</div>
+      <div class="qopt">B · The correct slot, since it is in the superposition</div>
+      <div class="qopt">C · One random slot, with a 0.000977 chance of being the target, which is exactly the odds of guessing without a register at all</div>
+      <q class="qwhy">A uniform register has equal squares everywhere, so a read is a uniform draw. The value of a search is added afterwards by the oracle's sign flip and the diffusion's reflection; the starting superposition on its own is worth nothing.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">On three qubits the marked slot reads 0.945 after two iterations. Brindle's analyst runs a third iteration to be safe and reads 0.330. What happened?</p>
+      <div class="qopt">A · Noise crept in, which is why real hardware is unreliable</div>
+      <div class="qopt">B · The amplitude is rotating, and the third iteration turned it past the top; the optimum is about pi over 4 times the square root of N, and more iterations beyond it lower the odds</div>
+      <div class="qopt">C · The oracle was applied to the wrong slot on the third pass</div>
+      <q class="qwhy">The simulator is exact and has no noise. Each iteration turns the marked amplitude by the same fixed angle, so past the peak it keeps turning and the probability falls, then rises again later. The optimum is a stopping point to be computed, not a limit the machine finds on its own.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">At ten qubits the widget prints 25 oracle calls against 512 lookups. The deck calls this an exponential speedup. Which reading is honest?</p>
+      <div class="qopt">A · The factor grows as the square root of N: about 20 at 1,024 items and about 2,600 at Brindle's 16.8 million slots, under the assumption that the oracle is free and the data is already loaded; it is real, bounded, and not exponential</div>
+      <div class="qopt">B · The factor doubles with every added qubit, which is what exponential means</div>
+      <div class="qopt">C · The factor is unlimited, since Grover's abstract says the method is the fastest possible</div>
+      <q class="qwhy">Doubling N doubles the classical count and multiplies the quantum one by about 1.4, so the ratio grows as the square root of N. Grover's abstract says the method is within a constant factor of the best possible quantum search, which bounds the gain rather than removing the bound. And the whole count assumes the data is already inside the machine, which session 3 prices.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 3</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, with the widget in this page and a calculator.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Run every size and write the optimum beside the closed form</h4>
+        <p>Two qubits to ten, one at a time. For each, write the optimum iteration the widget marks beside pi over 4 times the square root of N from the verdict line. Note that the optimum is the floor of that number, or one below, every time. That pairing is the square-root law seen nine times, and it is the fact to hold when a deck says exponential.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Bring a guess for the loading cost</h4>
+        <p>Tonight assumed Brindle's 12 million rows were already inside the register. Write down a guess, in operations, for what it costs to put them there, one row at a time, before the first oracle call. Single number, unhedged. Session 3 prices it with a declared model and puts your guess beside the 3,217 oracle calls the search would then need.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Interference, not parallelism</span><span class="note">A uniform register reads as a 1 in N guess; the value is added by the signs.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The two moves</span><span class="note">Oracle flips one sign; diffusion reflects every amplitude about the mean.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The curve, measured</span><span class="note">0.125, 0.781, 0.945, 0.330, 0.012, 0.548 on three qubits, from the engine, checked against the closed form.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The square-root factor and optimality</span><span class="note">Oracle calls grow as the square root of N; Grover's abstract bounds any unstructured search near it.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The two numbers, checked</span><span class="note">512 lookups against 25 oracle calls at ten qubits, 0.999461, after 1,060 undercounted gates.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The oracle's cost</span><span class="note">Counted as one gate tonight. Session 3 prices the load it reads; practitioner session 5 counts the queries.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Noise</span><span class="note">The simulator is exact. Session 5 shows what one error per thousand gates does to 0.9995.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">The physics of the hardware</span><span class="note">How any machine realises the rotation is out of scope; nobody on the hub teaches it.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Vendors, machines, roadmaps, prices</span><span class="note">None named anywhere, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The mechanism.</strong> One vector, one sign flip, one reflection, one read. The wrong answers cancel; the right one reinforces.</div>
+      <div class="cheat-item"><strong>The starting line.</strong> A uniform register reads as a 1 in N guess: 0.125 on three qubits, 0.000977 on ten. Superposition alone is worth nothing.</div>
+      <div class="cheat-item"><strong>Move one.</strong> The oracle flips the sign of the matching slot. Invisible to a read, visible to the next gate.</div>
+      <div class="cheat-item"><strong>Move two.</strong> The diffusion reflects every amplitude about the mean. On three qubits, 0.354 becomes 0.884, whose square is 0.781.</div>
+      <div class="cheat-item"><strong>The curve.</strong> 0.125, 0.781, 0.945, 0.330, 0.012, 0.548. Stop at the top. Past it the amplitude keeps rotating.</div>
+      <div class="cheat-item"><strong>The optimum.</strong> About pi over 4 times the square root of N: the floor, or one below, at every size from 2 to 10 qubits. Two qubits, one iteration, certainty.</div>
+      <div class="cheat-item"><strong>The two numbers.</strong> 512 lookups against 25 oracle calls at ten qubits, 0.999461, 1,060 gates with the oracle counted as one, which undercounts hardware.</div>
+      <div class="cheat-item"><strong>The shape.</strong> Square root, not exponential. About 2,600 at Brindle's scale, by arithmetic, assuming the oracle is free and the data is loaded. Session 3 charges for both.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 2 of 6 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a1-a-qubit-is-a-vector.html">← Leader session 1 · A qubit is a vector, a gate is a matrix</a>
+        <a href="a3-the-data-loading-fine-print.html">Leader session 3 · The data-loading fine print →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var sel = document.getElementById("a2-n");
+  var out = document.getElementById("a2-out");
+  var verdict = document.getElementById("a2-verdict");
+  var self = document.getElementById("a2-self");
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function f6(v) { return v.toFixed(6); }
+
+  function render() {
+    var n = Number(sel.value), N = 1 << n;
+    var o = QS.optimalK(n);
+    var kmax = o.kTheory + 3;
+    var curve = QS.successCurve(n, N - 1, kmax);
+    var theory = Math.PI / 4 * Math.sqrt(N);
+
+    var html = '<table class="sql-table"><thead><tr><th>Iteration</th><th>Success probability</th><th>Gates so far</th><th>Note</th></tr></thead><tbody>';
+    for (var i = 0; i <= kmax; i++) {
+      var note = "";
+      if (i === 0) note = "uniform, 1 / N";
+      else if (i === o.k) note = "the optimum";
+      else if (i > o.k) note = "past it";
+      var mark = i === o.k ? ' style="font-weight:800"' : "";
+      html += "<tr" + mark + "><td>" + i + "</td><td>" + f6(curve.p[i]) + "</td><td>" + comma(curve.gates[i]) + "</td><td>" + note + "</td></tr>";
+    }
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    verdict.textContent = "On " + n + " qubits the optimum is k = " + o.k + " iteration" + (o.k === 1 ? "" : "s") + " at " + f6(o.p)
+      + ", after " + comma(o.gates) + " gates with the oracle counted as one. A classical search needs N / 2 = " + comma(N / 2)
+      + " lookups for an even chance; this run made " + o.k + " oracle call" + (o.k === 1 ? "" : "s") + ". pi/4 sqrt N = " + theory.toFixed(2)
+      + ", and the optimum is the floor of that" + (o.k === o.kTheory ? "." : " less one.")
+      + (o.k + 1 <= kmax ? " One iteration further reads " + f6(curve.p[o.k + 1]) + ": past the top, the amplitude keeps rotating." : "");
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The simulator's seven properties pass in this browser, including the five-qubit match to the closed form and the oracle-removal property, so the curve above is the curve any correct run gives. The simulator is exact; no real machine is."
+    : "The simulator's self test did not pass in this browser, so nothing above should be believed.";
+
+  sel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #a2-climb .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 16rem; }
+  #a2-climb table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #a2-climb #a2-out { max-height: 22rem; overflow-y: auto; }
+</style>
+</body>
+</html>

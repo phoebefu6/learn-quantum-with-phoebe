@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 5 of 10. Count oracle calls, quantum against classical, from 4 items to 1,024, on the page's engine and again in numpy. 512 lookups against 25 calls is a factor of about 20, it grows as sqrt N, and every row assumes the oracle is free and the data is already loaded.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Counting queries - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 5 of 10. One chart for the board: oracle calls, quantum against classical, as the search space doubles. Then the three footnotes the chart cannot ship without.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p5-counting-queries.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Counting queries - learn quantum with phoebe">
+<meta name="twitter:description" content="512 against 25 at 1,024 items. A factor of about 20, not 1,024, and the reason is a square root.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 5 · Counting queries - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 5 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 5 of 10</div>
+    <h1>Counting <span class="accent">queries</span></h1>
+    <p class="sub">Brindle's board has asked its engineer for one chart: oracle calls, quantum against classical, as the search space grows. The chart is easy to draw and easy to get wrong, because the two bars count different things at different success levels under an assumption neither bar shows. Today you count the queries from two qubits to ten on the page's engine, rebuild the table in numpy, extend it to twenty-four qubits with the closed form, and write the three footnotes the chart cannot ship without.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone asked to put a quantum speedup on one slide</span>
+      <span class="chip audience">Has the numpy Grover from session 4</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · What a query is</span>
+      <span class="a3" style="flex:2">15-25 · The measured table</span>
+      <span class="a4" style="flex:4">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The board asks for one chart</h2>
+    </div>
+    <p class="lede">Session 4 built Grover's search and found the iteration where it peaks. This session asks the question a board actually asks: how many times does each side have to look, and how does that number grow? The answer is a count of oracle calls, which is the unit the literature uses, and it is a fair unit only when you say out loud what one call costs and what it leaves out. The table is short, nine rows from 4 items to 1,024, and every row is measured on the register in this page.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> A table you can defend row by row: oracle calls at the optimum for two to ten qubits, recomputed in numpy and equal to the page's engine, beside Grover's own classical figure of N/2. A one-line definition of a query. The reason the factor at 1,024 items is about 20 and not 1,024. A twenty-four-qubit row from the closed form, labelled as arithmetic. And the three footnotes every version of the chart needs: two success levels, a free oracle, and data that is already loaded.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The chart the board asked for<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The request is one sentence: show us oracle calls, quantum against classical, as the search space grows. It sounds like a plotting job. It is a definitions job, because "oracle call" means something different on each side of the chart, and the two sides reach different levels of certainty for their count. Before the first point is plotted, the y axis needs a label that a sceptical reader could check, and a footnote that says what the count does not include.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle is a constructed retailer, and its engineer and board are constructed too. The board's question came straight from the unnamed vendor deck, which had one bar labelled "classical" and one labelled "quantum" and nothing on the y axis. The engineer's first move was not to open a plotting library. It was to write, at the top of an empty file, the sentence "one query is ..." and refuse to draw anything until she could finish it for both bars.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in counting terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Query complexity.</strong> The number of oracle calls an algorithm makes, as a function of the search space N. It counts calls and nothing else.</li>
+          <li><strong>Oracle call.</strong> One use of the black box that answers "is this the target". Classically: read one row and compare. In Grover's loop: one phase flip on the whole register, followed by a diffusion that costs gates but no queries.</li>
+          <li><strong>N/2.</strong> Grover's own classical figure: the lookups any classical method needs to find the target in an unsorted list of N with probability one half.</li>
+          <li><strong>sqrt N.</strong> The order of oracle calls quantum search needs. At the optimum it is about pi/4 sqrt N, measured as 25 at N = 1,024.</li>
+          <li><strong>Black-box model.</strong> The oracle's inside is hidden and treated as free; only the number of times it is consulted is counted. Every speedup claim about search is a claim inside this model.</li>
+          <li><strong>Success probability.</strong> The chance that one run returns the target. N/2 classical lookups buy 0.5. The quantum optimum buys between 0.9453 and 1.0000 on the nine rows here.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers what is being counted</span>
+      <h2>A query is one look at the oracle, and nothing else</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">On the classical side a query is a hand reaching into an unsorted pile, pulling one row and checking it. On the quantum side a query is one oracle call: a sign flip that touches the whole register, followed by a diffusion step that the query count does not see. The figure draws both, at 1,024 items, with what one query costs written on each arrow.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic in two panels at N equals 1,024. Left panel, the classical scan: an unsorted pile of rows drawn as twelve hatched cards in no order; one card is lifted out and an arrow labelled one query equals one lookup carries it to a box that checks one row, match yes or no; if no, take the next row. Underneath: 512 lookups for a one-half chance, which is N over 2, and a note that near certainty needs about N, 1,024 lookups. Right panel, the quantum loop: the whole register of 1,024 amplitudes drawn as a strip of bars with the target bar highlighted; an arrow goes to an oracle call box that negates the target, then down to a diffusion box that inverts about the mean, then back to the register. The arrow is labelled one query equals one oracle call, and the diffusion is not a query. Underneath: 25 oracle calls at the optimum, success 0.9995. A band underneath says the two sides sit at different success levels, and a note says the black-box model counts queries only, not the load, the gates or the seconds.">
+        <defs>
+          <filter id="p5aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="51" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p5aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p5aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p5aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p5aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p5aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p5aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p5aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p5aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p5aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p5aH" x="30" y="26">LEFT: ONE QUERY READS ONE ROW. RIGHT: ONE QUERY IS ONE ORACLE CALL ON THE WHOLE REGISTER.</text>
+
+        <g filter="url(#p5aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panels -->
+          <rect x="30" y="44" width="400" height="266" rx="10" transform="rotate(-0.3 230 177)" fill="#FFFFFF"/>
+          <rect x="450" y="44" width="400" height="266" rx="10" transform="rotate(0.3 650 177)" fill="#FFFFFF"/>
+
+          <!-- the pile: rows in no order -->
+          <rect x="60" y="108" width="36" height="24" rx="3" transform="rotate(-3 78 120)" fill="url(#p5aHc)"/>
+          <rect x="104" y="108" width="36" height="24" rx="3" transform="rotate(2 122 120)" fill="url(#p5aHc)"/>
+          <rect x="148" y="108" width="36" height="24" rx="3" transform="rotate(-1.5 166 120)" fill="url(#p5aHc)"/>
+          <rect x="192" y="108" width="36" height="24" rx="3" transform="rotate(3 210 120)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="60" y="148" width="36" height="24" rx="3" transform="rotate(2.5 78 160)" fill="url(#p5aHc)"/>
+          <rect x="104" y="148" width="36" height="24" rx="3" transform="rotate(-2 122 160)" fill="url(#p5aHc)"/>
+          <rect x="148" y="148" width="36" height="24" rx="3" transform="rotate(3.5 166 160)" fill="url(#p5aHc)"/>
+          <rect x="192" y="148" width="36" height="24" rx="3" transform="rotate(-2.5 210 160)" fill="url(#p5aHc)"/>
+          <rect x="60" y="188" width="36" height="24" rx="3" transform="rotate(-1 78 200)" fill="url(#p5aHc)"/>
+          <rect x="104" y="188" width="36" height="24" rx="3" transform="rotate(3 122 200)" fill="url(#p5aHc)"/>
+          <rect x="148" y="188" width="36" height="24" rx="3" transform="rotate(-3 166 200)" fill="url(#p5aHc)"/>
+          <rect x="192" y="188" width="36" height="24" rx="3" transform="rotate(1.5 210 200)" fill="url(#p5aHc)"/>
+
+          <!-- the classical query arrow -->
+          <path d="M232 120 C 250 112, 262 116, 276 124" stroke="#0E7490" marker-end="url(#p5aAr)"/>
+          <!-- check box -->
+          <rect x="280" y="106" width="130" height="54" rx="8" transform="rotate(-0.6 345 133)" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a tally dial -->
+          <circle cx="404" cy="64" r="10" fill="#FFFFFF"/>
+          <path d="M404 64 L410 57"/>
+
+          <!-- the register: N amplitudes as bars -->
+          <rect x="470" y="104" width="170" height="46" rx="6" transform="rotate(-0.4 555 127)" fill="#FFFFFF"/>
+          <path d="M482 142 L482 124 M492 142 L492 124 M502 142 L502 124 M512 142 L512 124 M522 142 L522 124 M532 142 L532 124 M542 142 L542 124 M552 142 L552 124 M562 142 L562 124 M572 142 L572 124 M582 142 L582 124 M592 142 L592 124 M602 142 L602 124 M622 142 L622 124 M632 142 L632 124" stroke="#9A97D4"/>
+          <rect x="609" y="112" width="6" height="30" fill="#0E7490" stroke="#0E7490"/>
+
+          <!-- the loop -->
+          <path d="M644 122 L676 120" stroke="#0E7490" marker-end="url(#p5aAr)"/>
+          <rect x="680" y="98" width="160" height="44" rx="8" transform="rotate(0.5 760 120)" fill="#E3F3F7"/>
+          <path d="M760 144 L760 166" marker-end="url(#p5aAr)"/>
+          <rect x="680" y="170" width="160" height="44" rx="8" transform="rotate(-0.5 760 192)" fill="#EEEDF9"/>
+          <path d="M678 194 C 652 196, 634 184, 630 156" marker-end="url(#p5aAr)"/>
+
+          <!-- band -->
+          <rect x="30" y="326" width="820" height="38" rx="10" transform="rotate(-0.15 440 345)" fill="#EEEDF9"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="p5aL" x="50" y="70">CLASSICAL SCAN</text>
+        <text class="p5aS" x="50" y="88">an unsorted pile of N = 1,024 rows, no index</text>
+        <text class="p5aL" x="292" y="128">check one row</text>
+        <text class="p5aS" x="292" y="146">match? yes or no</text>
+        <text class="p5aB" x="280" y="182">1 query = 1 lookup</text>
+        <text class="p5aS" x="280" y="200">no: take the next row</text>
+        <text class="p5aS" x="60" y="234">the pile: rows in no order</text>
+        <text class="p5aV" x="50" y="272">512</text>
+        <text class="p5aS" x="94" y="272">lookups for a one-half chance, N/2</text>
+        <text class="p5aS" x="50" y="294">near certainty needs about N = 1,024</text>
+
+        <!-- right panel text -->
+        <text class="p5aL" x="470" y="70">QUANTUM LOOP</text>
+        <text class="p5aS" x="470" y="88">the whole register, N = 1,024 amplitudes, every call</text>
+        <text class="p5aL" x="694" y="116">oracle call</text>
+        <text class="p5aS" x="694" y="132">negate the target</text>
+        <text class="p5aL" x="694" y="188">diffusion</text>
+        <text class="p5aS" x="694" y="204">invert about the mean</text>
+        <text class="p5aS" x="470" y="170">the register, all N</text>
+        <text class="p5aB" x="470" y="236">1 query = 1 oracle call; the diffusion is not a query</text>
+        <text class="p5aV" x="470" y="272">25</text>
+        <text class="p5aS" x="500" y="272">oracle calls at the optimum, N = 1,024</text>
+        <text class="p5aS" x="470" y="294">success 0.9995: near certainty</text>
+
+        <text class="p5aH" x="46" y="350">Two success levels: N/2 buys a one-half chance; 25 oracle calls buy 0.9995. Footnote it.</text>
+        <text class="p5aN" x="30" y="388">The black-box model counts queries only: not the load, the gates or the seconds. Session 6 prices the load.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two arrows are the only things the query count sees. A lookup on the left, an oracle call on the right; the diffusion, the load and the clock are all outside the count.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>N/2 is Grover's own classical figure<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The classical number on the chart is not a strawman picked to flatter the quantum side. It is the figure in the abstract of the paper the quantum side descends from. Grover's setting is a phone directory of N entries in no particular order, and the abstract states that any classical method, deterministic or randomised, needs at least N/2 lookups to find the target with probability one half. With no order and no index, there is nothing better to do than look, and every look rules out one row.</p>
+        <p>Grover, L. K. (1996). A fast quantum mechanical algorithm for database search. STOC 1996; arXiv quant-ph/9605043.</p>
+        <p>At 1,024 items that is 512 lookups. The phrase that matters is "with probability one half". Grover's classical figure is the cost of a coin-flip chance, and it is the honest figure to quote because it is the one the source quotes. What it does not give you is the cost of near certainty, which is the next card.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The quantum count, and the two success levels<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>On the quantum side the count is k, the number of iterations at the optimum, because each iteration makes exactly one oracle call. From session 4 you know k is computed from N before running, and the canon run measures it at 1, 2, 3, 4, 6, 8, 12, 17 and 25 for two to ten qubits. At ten qubits that is 25 oracle calls, and the target comes out with probability 0.9995.</p>
+        <p>So the two bars are not at the same success level. 512 classical lookups buy a 0.5 chance; 25 quantum calls buy 0.9995. A classical scan that wants near certainty has to be willing to look at almost every row, which is about N, 1,024 lookups. The page keeps Grover's N/2 because it is the figure the source states, and it says beside every comparison that the two sides are compared at different success levels. The mismatch here happens to work against the quantum side, which is a reason to state it, not a reason to hide it.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>The engineer's first draft (Brindle is constructed) had two bars, 512 and 25, and the title "20x faster". The analyst from session 1 asked three questions in the review: faster at what success level, counted in what unit, and including what? The bars survived. The title became "oracle calls to find one item in an unsorted list that is already loaded", and two footnotes appeared under it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The black-box model counts queries, not gates or seconds<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Query complexity treats the oracle as a sealed box: you may hand it an input and read its answer, and the only cost recorded is how many times you did. That is what makes the comparison clean, and it is also exactly what makes it incomplete. In the simulator an oracle call is one line that negates one amplitude; on a real problem it is a reversible circuit that recognises the target, and session 4 noted that its cost appears in no count on these pages.</p>
+        <p>The diffusion step costs gates and no queries. By the engine's count each iteration is 4n + 2 gates, so the ten-qubit optimum of 25 calls is 1,060 gates, and that number treats the oracle and the multi-controlled flip as one gate each, which undercounts hardware. None of it is time: a query count says nothing about how long a gate takes, how many shots a run needs, or how long it took to put the data where the oracle can see it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>No black-box search goes below about sqrt N<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Grover's abstract claims the algorithm is within a small constant factor of the fastest possible quantum algorithm for this problem. The result behind that claim is the Bennett-Bernstein-Brassard-Vazirani bound on black-box search, and Aaronson's essay names it as the bound Grover's algorithm sits at: any quantum algorithm that only learns about the target through oracle calls needs on the order of sqrt N of them.</p>
+        <p>Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293.</p>
+        <p>This session names the bound and does not prove it. What it buys you is a sentence you can use in any review: for unstructured search the quantum gain is quadratic, and no cleverer quantum search will make it exponential, because the floor is already reached. Structure in the data changes the problem; it also usually hands the classical side an index, which is where session 6 picks up.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the measured table, n = 2 to 10</span>
+      <h2>Nine rows, and a factor that grows as sqrt N</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">Doubling the search space doubles the classical count and multiplies the quantum count by about 1.4. On a chart with both axes doubling per step, that is a line of slope one against a line of slope one half, and the gap between them at 1,024 items is 512 against 25. The widget under the figure recomputes every row on the page's engine as you slide.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn chart of oracle calls against the search space N, both axes on a doubling scale. The x axis runs N equals 4, 8, 16, 32, 64, 128, 256, 512, 1,024, which is two to ten qubits. The classical line, N over 2 lookups, climbs one doubling per step through 2, 4, 8, 16, 32, 64, 128, 256 and 512. The quantum line, oracle calls at the optimum, climbs more slowly through 1, 2, 3, 4, 6, 8, 12, 17 and 25. At N equals 1,024 a dashed bracket between the two points is labelled 512 over 25, about 20. A note says the classical count doubles with N while the quantum count grows about 1.4 times per doubling, which is the square root of 2.">
+        <defs>
+          <filter id="p5bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p5bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p5bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p5bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p5bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p5bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p5bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p5bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p5bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p5bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p5bH" x="30" y="26">ORACLE CALLS AS N DOUBLES: CLASSICAL N/2 AGAINST QUANTUM k AT THE OPTIMUM, n = 2 TO 10</text>
+
+        <g filter="url(#p5bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axes -->
+          <path d="M100 60 L100 322 L812 322"/>
+          <!-- y ticks at 1, 2, 4, ..., 512 -->
+          <path d="M100 290 L106 290 M100 266 L106 266 M100 242 L106 242 M100 218 L106 218 M100 194 L106 194 M100 170 L106 170 M100 146 L106 146 M100 122 L106 122 M100 98 L106 98 M100 74 L106 74" stroke-width="1.6"/>
+          <!-- x ticks -->
+          <path d="M130 322 L130 328 M212 322 L212 328 M294 322 L294 328 M376 322 L376 328 M458 322 L458 328 M540 322 L540 328 M622 322 L622 328 M704 322 L704 328 M786 322 L786 328" stroke-width="1.6"/>
+          <!-- classical: N/2 -->
+          <path d="M130 266 L212 242 L294 218 L376 194 L458 170 L540 146 L622 122 L704 98 L786 74" stroke="#3730A3"/>
+          <!-- quantum: k at the optimum -->
+          <path d="M130 290 L212 266 L294 252 L376 242 L458 228 L540 218 L622 204 L704 192 L786 178.5" stroke="#0E7490" stroke-width="2.4"/>
+          <!-- classical points -->
+          <circle cx="130" cy="266" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="212" cy="242" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="294" cy="218" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="376" cy="194" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="458" cy="170" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="540" cy="146" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="622" cy="122" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="704" cy="98" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <circle cx="786" cy="74" r="4" fill="#FFFFFF" stroke="#3730A3"/>
+          <!-- quantum points -->
+          <circle cx="130" cy="290" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="212" cy="266" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="294" cy="252" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="376" cy="242" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="458" cy="228" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="540" cy="218" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="622" cy="204" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="704" cy="192" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="786" cy="178.5" r="4" fill="#0E7490" stroke="#0E7490"/>
+          <!-- the factor at n = 10 -->
+          <path d="M786 86 L786 168" stroke="#0E7490" stroke-dasharray="4 5"/>
+          <path d="M780 86 L792 86 M780 168 L792 168" stroke="#0E7490"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="846" cy="290" r="9" fill="#FFFFFF"/>
+          <path d="M846 290 L851 284"/>
+        </g>
+
+        <text class="p5bS" x="30" y="50">queries, log scale (each step doubles)</text>
+
+        <!-- y tick labels -->
+        <text class="p5bS" x="94" y="294" text-anchor="end">1</text>
+        <text class="p5bS" x="94" y="270" text-anchor="end">2</text>
+        <text class="p5bS" x="94" y="246" text-anchor="end">4</text>
+        <text class="p5bS" x="94" y="222" text-anchor="end">8</text>
+        <text class="p5bS" x="94" y="198" text-anchor="end">16</text>
+        <text class="p5bS" x="94" y="174" text-anchor="end">32</text>
+        <text class="p5bS" x="94" y="150" text-anchor="end">64</text>
+        <text class="p5bS" x="94" y="126" text-anchor="end">128</text>
+        <text class="p5bS" x="94" y="102" text-anchor="end">256</text>
+        <text class="p5bS" x="94" y="78" text-anchor="end">512</text>
+
+        <!-- x tick labels -->
+        <text class="p5bS" x="130" y="342" text-anchor="middle">4</text>
+        <text class="p5bS" x="212" y="342" text-anchor="middle">8</text>
+        <text class="p5bS" x="294" y="342" text-anchor="middle">16</text>
+        <text class="p5bS" x="376" y="342" text-anchor="middle">32</text>
+        <text class="p5bS" x="458" y="342" text-anchor="middle">64</text>
+        <text class="p5bS" x="540" y="342" text-anchor="middle">128</text>
+        <text class="p5bS" x="622" y="342" text-anchor="middle">256</text>
+        <text class="p5bS" x="704" y="342" text-anchor="middle">512</text>
+        <text class="p5bS" x="786" y="342" text-anchor="middle">1,024</text>
+        <text class="p5bS" x="456" y="362" text-anchor="middle">N, the search space (n = 2 to 10 qubits)</text>
+
+        <!-- classical point labels, above-left of each point -->
+        <text class="p5bA" x="122" y="256" text-anchor="end">2</text>
+        <text class="p5bA" x="204" y="232" text-anchor="end">4</text>
+        <text class="p5bA" x="286" y="208" text-anchor="end">8</text>
+        <text class="p5bA" x="368" y="184" text-anchor="end">16</text>
+        <text class="p5bA" x="450" y="160" text-anchor="end">32</text>
+        <text class="p5bA" x="532" y="136" text-anchor="end">64</text>
+        <text class="p5bA" x="614" y="112" text-anchor="end">128</text>
+        <text class="p5bA" x="696" y="88" text-anchor="end">256</text>
+        <text class="p5bA" x="778" y="64" text-anchor="end">512</text>
+
+        <!-- quantum point labels, below-right of each point -->
+        <text class="p5bB" x="138" y="307">1</text>
+        <text class="p5bB" x="220" y="283">2</text>
+        <text class="p5bB" x="302" y="269">3</text>
+        <text class="p5bB" x="384" y="259">4</text>
+        <text class="p5bB" x="466" y="245">6</text>
+        <text class="p5bB" x="548" y="235">8</text>
+        <text class="p5bB" x="630" y="221">12</text>
+        <text class="p5bB" x="712" y="209">17</text>
+        <text class="p5bB" x="794" y="196">25</text>
+
+        <!-- series labels -->
+        <text class="p5bA" x="196" y="110">classical: N/2 lookups, doubles when N doubles</text>
+        <text class="p5bB" x="430" y="284">quantum: k at the optimum, about pi/4 sqrt N</text>
+
+        <!-- the factor -->
+        <text class="p5bB" x="800" y="120">512 / 25</text>
+        <text class="p5bB" x="800" y="136">about 20</text>
+
+        <text class="p5bN" x="30" y="388">Each step doubles N. The classical count doubles with it; the quantum count grows about 1.4 times, which is sqrt 2.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a slope of one against a slope of one half. The gap at 1,024 items is a factor of about 20, and it widens by about 1.4 with every doubling, never faster.</figcaption>
+    </figure>
+
+    <div class="wk" id="p5-q">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The query table, computed on the page's engine every time you move the slider. For each size the engine runs Grover, scans the iterations and takes the best k; nothing below is typed in.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p5-n">Largest register in the table: <b id="p5-n-val">10</b> qubits, <b id="p5-N-val">1,024</b> items</label>
+        <input class="sql-code" id="p5-n" type="range" min="2" max="10" step="1" value="10">
+        <div id="p5-out"></div>
+        <p class="sql-note" id="p5-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p5-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The factor grows as sqrt N<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Read the last column as you slide. The factor is N/2 divided by k, and since k is about pi/4 sqrt N, the factor is about (2 / pi) sqrt N: roughly 0.64 times 32 at 1,024 items, which is why the widget prints a number near 20 and not 1,024. Doubling N doubles the classical count and multiplies k by about 1.4, the square root of 2, so the factor also grows by about 1.4 per doubling. To make it ten times larger you need a search space a hundred times larger.</p>
+        <ul>
+          <li><strong>Slide to 2.</strong> Four items, 2 lookups against 1 call at success 1.0000. The only row where the quantum side is exact.</li>
+          <li><strong>Slide to 3.</strong> Eight items, 4 against 2 at 0.9453, the lowest success in the table. Every row's success is printed because none of them is 1 by assumption.</li>
+          <li><strong>Slide to 10.</strong> 512 against 25 at 0.9995. The widget prints the ratio to one decimal; the honest sentence is "about 20".</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The twenty-four-qubit row, from the closed form<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Twenty-four qubits give 16,777,216 indices. The closed form puts pi/4 sqrt N at 3216.99, so about 3,217 oracle calls, against 8,388,608 classical lookups for a one-half chance: a factor of about 2,600. Those numbers are arithmetic from the closed form sin^2((2k + 1) theta) that the engine is checked against, not a simulation. A twenty-four-qubit register is two arrays of about 16.8 million doubles, past the ten-qubit simulator in this page, and the row is labelled that way wherever it appears.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>In session 4 the engineer wrote this row on a whiteboard (Brindle is constructed, and so is its 12-million-row customer table). For the board's chart she drew it as a single hollow point to the right of the measured line, with the label "closed form, not run" beside it, and kept the measured nine rows solid. A reader who skips every footnote still sees which point was measured and which was computed.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The assumption under every row<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every row in the table assumes two things it does not show. The oracle is free, so its circuit and its cost per call are outside the count. And the data is already inside the machine, in a form the oracle can consult. Kerenidis and Prakash state the second assumption plainly for their own algorithm and say it is the same memory model as any quantum query algorithm, Grover's included; they also say that building that structure from a plain array takes linear time.</p>
+        <p>Kerenidis, I. and Prakash, A. (2016). Quantum recommendation systems. arXiv 1603.08675; ITCS 2017.</p>
+        <p>Even the best proposed quantum memory makes a query cost about log N, and nothing in it makes writing N classical values cost less than N writes. Loading N rows is therefore order N, which is more than the N/2 lookups a classical scan needed for its one-half chance. Session 6 prices that load with a declared model and shows how many searches per load it takes before the table on this page means anything.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Recompute the table from an empty file</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">One file, five steps, run in order; each step uses what the one before defined. The Grover function is session 4's, folded into a loop that records the target's probability after every iteration. Nothing here is sampled, so every number is exact and yours will match the outputs below, which were printed by this exact code on numpy 1.26.4. Step 4 asserts the table equals the canon; if it raises, the build is wrong, not the canon.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn flow of the build-along as one loop. Four boxes in a row: first, build a uniform register of N equals 2 to the n amplitudes with target N minus 1; second, iterate oracle then diffusion and record the target probability after each k, for k from 1 to floor plus 3; third, take the best k, highest probability wins and ties go to the smaller k because fewer calls is the point; fourth, compare against N over 2 lookups, against sine squared of 2k plus 1 theta, and against the canon with an assertion. A curved arrow returns from the fourth box to the first, labelled next n, 2 to 10. A band underneath shows what the loop prints: k equals 1, 2, 3, 4, 6, 8, 12, 17, 25, success at least 0.9453 on every row. A dashed box at the bottom is step 5: n equals 24 from the closed form only, no register built, about 3,217 oracle calls against 8,388,608 lookups, a factor of about 2,600.">
+        <defs>
+          <filter id="p5cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="57" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p5cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p5cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p5cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p5cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p5cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p5cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p5cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p5cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p5cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p5cH" x="30" y="26">THE BUILD-ALONG AS ONE LOOP: FOR EACH n, BUILD, ITERATE, TAKE THE BEST k, COMPARE.</text>
+
+        <g filter="url(#p5cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- four steps -->
+          <rect x="30" y="52" width="180" height="90" rx="10" transform="rotate(-0.4 120 97)" fill="#FFFFFF"/>
+          <rect x="236" y="52" width="180" height="90" rx="10" transform="rotate(0.3 326 97)" fill="#FFFFFF"/>
+          <rect x="442" y="52" width="180" height="90" rx="10" transform="rotate(-0.3 532 97)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="648" y="52" width="202" height="90" rx="10" transform="rotate(0.4 749 97)" fill="#EEEDF9"/>
+          <path d="M212 97 L232 97" marker-end="url(#p5cAr)"/>
+          <path d="M418 97 L438 97" marker-end="url(#p5cAr)"/>
+          <path d="M624 97 L644 97" marker-end="url(#p5cAr)"/>
+          <!-- the loop back to the next n -->
+          <path d="M750 146 C 750 192, 120 192, 120 148" marker-end="url(#p5cAr)"/>
+          <!-- what the loop prints -->
+          <rect x="30" y="222" width="820" height="70" rx="10" transform="rotate(0.15 440 257)" fill="#EEEDF9"/>
+          <!-- step 5: closed form only -->
+          <rect x="30" y="310" width="820" height="58" rx="10" transform="rotate(-0.15 440 339)" fill="#FFFFFF" stroke-dasharray="6 5"/>
+          <!-- doodle anchor: a die -->
+          <rect x="826" y="12" width="18" height="18" rx="4" transform="rotate(4 835 21)" fill="#FFFFFF"/>
+          <circle cx="831" cy="17" r="1.5" fill="#16153A"/>
+          <circle cx="839" cy="25" r="1.5" fill="#16153A"/>
+        </g>
+
+        <text class="p5cL" x="44" y="76">1 · build</text>
+        <text class="p5cS" x="44" y="96">uniform register</text>
+        <text class="p5cS" x="44" y="114">N = 2^n amplitudes</text>
+        <text class="p5cS" x="44" y="132">target = N - 1</text>
+
+        <text class="p5cL" x="250" y="76">2 · iterate</text>
+        <text class="p5cS" x="250" y="96">oracle, then diffusion</text>
+        <text class="p5cS" x="250" y="114">record p after each k</text>
+        <text class="p5cS" x="250" y="132">k = 1 to floor + 3</text>
+
+        <text class="p5cL" x="456" y="76">3 · take the best k</text>
+        <text class="p5cS" x="456" y="96">highest p wins</text>
+        <text class="p5cS" x="456" y="114">ties go to the smaller k</text>
+        <text class="p5cB" x="456" y="132">fewer calls is the point</text>
+
+        <text class="p5cL" x="662" y="76">4 · compare</text>
+        <text class="p5cS" x="662" y="96">against N/2 lookups</text>
+        <text class="p5cS" x="662" y="114">against sin^2((2k+1) theta)</text>
+        <text class="p5cS" x="662" y="132">against canon: assert</text>
+
+        <text class="p5cA" x="435" y="208" text-anchor="middle">next n: 2, 3, 4, ..., 10</text>
+
+        <text class="p5cS" x="46" y="244">what the loop prints, n = 2 to 10, equal to canon</text>
+        <text class="p5cV" x="46" y="274">k = 1, 2, 3, 4, 6, 8, 12, 17, 25</text>
+        <text class="p5cS" x="420" y="274">success at least 0.9453 on every row</text>
+
+        <text class="p5cL" x="46" y="334">step 5 · n = 24, closed form only: no register is built</text>
+        <text class="p5cB" x="46" y="354">about 3,217 oracle calls against 8,388,608 lookups, factor about 2,600</text>
+
+        <text class="p5cN" x="30" y="394">Twenty-four qubits is past the simulator: the bottom row is arithmetic from the closed form, not a run.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four boxes and one arrow back. The loop is short on purpose: the point of the build-along is that every number in Part 2 falls out of it, and the assertion says so.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Grover as a curve</h4>
+        <p>Session 4's two moves, folded into one function that returns the target's probability after every iteration. The target is the last index, N - 1, as in the page's tables. Print three qubits first: the five numbers must be session 4's.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import numpy as np
+
+def grover_curve(n, kmax, target=None):
+    N = 2 ** n
+    target = N - 1 if target is None else target
+    psi = np.full(N, 1 / np.sqrt(N), dtype=complex)
+    curve = [abs(psi[target]) ** 2]
+    for _ in range(kmax):
+        psi[target] *= -1                 # oracle: one call
+        psi = 2 * psi.mean() - psi        # diffusion: inversion about the mean
+        curve.append(abs(psi[target]) ** 2)
+    return np.array(curve)
+
+c = grover_curve(3, 4)
+print("step 1: n = 3 curve", [f"{p:.7f}" for p in c])
+# step 1: n = 3 curve ['0.1250000', '0.7812500', '0.9453125', '0.3300781', '0.0122070']</div>
+      </div>
+      <div class="step">
+        <h4>Scan k and take the best, for n = 2 to 10</h4>
+        <p>Scan one past floor(pi/4 sqrt N) by three, the same window the page's engine scans, and take the highest probability. A tie within 1e-12 goes to the smaller k, because fewer oracle calls is the whole point; on two qubits k = 1 and k = 4 both read 1.0000.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def best_k(n):
+    N = 2 ** n
+    k_cap = int(np.floor(np.pi / 4 * np.sqrt(N))) + 3
+    c = grover_curve(n, k_cap)
+    top = c[1:].max()
+    k = 1 + int(np.argmax(c[1:] &gt;= top - 1e-12))   # ties go to the smaller k
+    return k, c[k], k_cap
+
+rows = []
+for n in range(2, 11):
+    N = 2 ** n
+    k, p, k_cap = best_k(n)
+    rows.append((n, N, N // 2, k, p))
+    print(f"n = {n:2d}  N = {N:5d}  scanned k = 1..{k_cap:2d}  best k = {k:2d}  success = {p:.4f}")
+# n =  2  N =     4  scanned k = 1.. 4  best k =  1  success = 1.0000
+# n =  3  N =     8  scanned k = 1.. 5  best k =  2  success = 0.9453
+# n =  4  N =    16  scanned k = 1.. 6  best k =  3  success = 0.9613
+# n =  5  N =    32  scanned k = 1.. 7  best k =  4  success = 0.9992
+# n =  6  N =    64  scanned k = 1.. 9  best k =  6  success = 0.9966
+# n =  7  N =   128  scanned k = 1..11  best k =  8  success = 0.9956
+# n =  8  N =   256  scanned k = 1..15  best k = 12  success = 0.9999
+# n =  9  N =   512  scanned k = 1..20  best k = 17  success = 0.9994
+# n = 10  N =  1024  scanned k = 1..28  best k = 25  success = 0.9995</div>
+      </div>
+      <div class="step">
+        <h4>Set N/2 and the closed form beside each row</h4>
+        <p>The comparison table: Grover's classical figure, the measured k, the closed form at that k, and the factor. The worst gap to sin^2((2k + 1) theta) is floating point, the same check the page's engine runs on itself at every load.</p>
+        <div class="prompt-box good"><span class="label">Python</span>print(" n      N   N/2  k_opt  success  closed form  N/2 / k")
+worst = 0.0
+for n, N, half, k, p in rows:
+    theta = np.arcsin(1 / np.sqrt(N))
+    closed = np.sin((2 * k + 1) * theta) ** 2
+    worst = max(worst, abs(p - closed))
+    print(f"{n:2d} {N:6d} {half:5d} {k:6d}   {p:.4f}   {closed:.4f}      {half / k:6.1f}")
+print(f"worst gap to sin^2((2k+1) theta): {worst:.1e}")
+#  n      N   N/2  k_opt  success  closed form  N/2 / k
+#  2      4     2      1   1.0000   1.0000         2.0
+#  3      8     4      2   0.9453   0.9453         2.0
+#  4     16     8      3   0.9613   0.9613         2.7
+#  5     32    16      4   0.9992   0.9992         4.0
+#  6     64    32      6   0.9966   0.9966         5.3
+#  7    128    64      8   0.9956   0.9956         8.0
+#  8    256   128     12   0.9999   0.9999        10.7
+#  9    512   256     17   0.9994   0.9994        15.1
+# 10   1024   512     25   0.9995   0.9995        20.5
+# worst gap to sin^2((2k+1) theta): 2.9e-15</div>
+      </div>
+      <div class="step">
+        <h4>Measure the growth, then assert the canon</h4>
+        <p>Divide each k by the one before. The small sizes jump about because k is a whole number; from six qubits on, the ratio settles near the square root of 2. Then assert both columns against the canon. If either assertion raises, stop and find the bug before quoting anything.</p>
+        <div class="prompt-box good"><span class="label">Python</span>ks = [r[3] for r in rows]
+growth = [ks[i + 1] / ks[i] for i in range(len(ks) - 1)]
+print("k(n+1) / k(n):", [round(g, 2) for g in growth])
+print("mean growth per doubling, n = 6 to 10:", round(float(np.mean(growth[4:])), 2), "| sqrt 2 =", round(float(np.sqrt(2)), 2))
+
+canon_k = [1, 2, 3, 4, 6, 8, 12, 17, 25]
+canon_p = [1.0000, 0.9453, 0.9613, 0.9992, 0.9966, 0.9956, 0.9999, 0.9994, 0.9995]
+assert ks == canon_k
+assert [round(float(r[4]), 4) for r in rows] == canon_p
+print("matches canon: k and success, n = 2 to 10")
+# k(n+1) / k(n): [2.0, 1.5, 1.33, 1.5, 1.33, 1.5, 1.42, 1.47]
+# mean growth per doubling, n = 6 to 10: 1.43 | sqrt 2 = 1.41
+# matches canon: k and success, n = 2 to 10</div>
+      </div>
+      <div class="step">
+        <h4>The twenty-four-qubit row, from the closed form only</h4>
+        <p>No statevector here: two arrays of 16.8 million doubles would run, but the point is that the row does not need one and the board needs to know it was not built. pi/4 sqrt N, N/2 and their ratio, and a line in the output that says what kind of number this is.</p>
+        <div class="prompt-box good"><span class="label">Python</span>n24 = 24
+N24 = 2 ** n24
+k24 = np.pi / 4 * np.sqrt(N24)
+half24 = N24 // 2
+print(f"n = {n24}  N = {N24:,}  pi/4 sqrt N = {k24:.2f} -&gt; about {round(k24):,} oracle calls")
+print(f"classical N/2 = {half24:,}  factor about {round(half24 / round(k24), -2):,.0f}")
+print("arithmetic from the closed form; no statevector was built")
+# n = 24  N = 16,777,216  pi/4 sqrt N = 3216.99 -&gt; about 3,217 oracle calls
+# classical N/2 = 8,388,608  factor about 2,600
+# arithmetic from the closed form; no statevector was built</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Count queries, and say what a query costs, before you quote a factor. "512 against 25" is a true sentence only with its unit (oracle calls), its success levels (0.5 against 0.9995) and its exclusions (the load, the gates, the clock) attached. A factor quoted without them is a slide; with them it is a measurement.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">At 1,024 items the table shows 512 classical lookups against 25 oracle calls. Why is the factor about 20, and not 1,024?</p>
+      <div class="qopt">A · Because the simulator stops at ten qubits; on a real machine the factor at 1,024 items would be the full 1,024</div>
+      <div class="qopt">B · Because the gain is quadratic: classical needs N/2 lookups for a one-half chance and quantum needs about pi/4 sqrt N calls, so the factor is about (2 / pi) sqrt N, roughly 0.64 x 32</div>
+      <div class="qopt">C · Because 25 iterations is a safety margin, and the true quantum count at 1,024 items is one call</div>
+      <q class="qwhy">The factor is N/2 over k, and k grows as sqrt N, so the factor grows as sqrt N too. At N = 1,024 that is about 20, measured. The simulator is exact, so a machine cannot do better on query count; and k is computed from N, never padded, because extra iterations make the answer worse.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A manager reads "25 oracle calls" as "25 steps of work". What does the query count leave out?</p>
+      <div class="qopt">A · Nothing; in the black-box model a query is the whole cost of the search</div>
+      <div class="qopt">B · Only the classical lookups, which are counted on the other bar</div>
+      <div class="qopt">C · Loading the data where the oracle can see it, every gate in the diffusion and inside the oracle, and wall-clock time; it counts calls to the black box and nothing else</div>
+      <q class="qwhy">Query complexity counts oracle calls by design. The ten-qubit optimum is 1,060 gates by the engine's count, which treats the oracle and the multi-controlled flip as one gate each and so undercounts hardware, and none of that is time. Loading N rows costs order N, which session 6 prices.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A deck says quantum computers give "an exponential speedup on search". Why is that wrong for unstructured black-box search?</p>
+      <div class="qopt">A · The gain is quadratic: k grows as sqrt N, so each doubling of N widens the gap by about 1.4, and the BBBV bound says no quantum black-box search needs fewer than about sqrt N queries</div>
+      <div class="qopt">B · It is right, because the register holds 2 to the n amplitudes and the oracle touches all of them in one call</div>
+      <div class="qopt">C · It is wrong only because today's machines are noisy; on an ideal machine the gain would be exponential</div>
+      <q class="qwhy">The table is measured on an ideal simulator and still shows a square root: 1, 2, 3, 4, 6, 8, 12, 17, 25 against 2 up to 512. Touching every amplitude is not the same as reading every answer, and the black-box bound Grover's algorithm sits at rules out doing better without structure.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 6</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with the file from Part 3.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Put gates beside queries</h4>
+        <p>Add a column n + k(4n + 2) to the table and print it for two to ten qubits. Ten qubits should read 1,060. Write under the table that the count treats the oracle and the multi-controlled flip as one gate each, which undercounts hardware, and notice how much faster the gate column grows than the query column.</p>
+      </div>
+      <div class="step">
+        <h4>Price near certainty on the classical side</h4>
+        <p>Write a classical scan in numpy that visits rows in a random order until it hits the target. Run it many times at each N and record how many lookups it takes for half the runs to succeed, and for nearly all of them. Compare with N/2 and with N. The counts are sampled, so yours will differ from anyone else's; the shape will not.</p>
+      </div>
+      <div class="step">
+        <h4>Draw Brindle's one chart, with its footnotes</h4>
+        <p>Two lines on doubling axes, the success column printed beside the quantum line, the twenty-four-qubit point hollow and labelled "closed form, not run", and a list of what one query leaves out. Bring the list to session 6, which prices its first item.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Query counting</span><span class="note">One query is one oracle call: one lookup classically, one flip on the whole register in Grover's loop.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">N/2 classical</span><span class="note">Grover's own figure for a one-half chance; near certainty costs about N.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">k at the optimum</span><span class="note">1, 2, 3, 4, 6, 8, 12, 17, 25 for n = 2 to 10, success 0.9453 or better, measured and rebuilt in numpy.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">sqrt N growth</span><span class="note">Doubling N multiplies k by about 1.4; the factor at 1,024 items is about 20.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The 24-qubit closed-form row</span><span class="note">About 3,217 calls against 8,388,608 lookups, factor about 2,600; arithmetic, not a simulation.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The BBBV bound</span><span class="note">Named as the floor Grover's algorithm sits at; not proved here.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Loading cost</span><span class="note">Every row assumes the data is already loaded; session 6 prices the load with a declared model.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Wall-clock time</span><span class="note">No query or gate count says how long anything takes; not measured in these sessions.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The unit.</strong> A query is one oracle call. Classically: read one row and compare. In Grover's loop: one sign flip on the whole register.</div>
+      <div class="cheat-item"><strong>The classical figure.</strong> N/2 lookups for a one-half chance, from Grover's abstract. Near certainty costs about N.</div>
+      <div class="cheat-item"><strong>The quantum count.</strong> k at the optimum: 1, 2, 3, 4, 6, 8, 12, 17, 25 for n = 2 to 10, success 0.9453 or better.</div>
+      <div class="cheat-item"><strong>The factor.</strong> 512 / 25 at 1,024 items: about 20, roughly (2 / pi) sqrt N. About 1.4 more per doubling of N.</div>
+      <div class="cheat-item"><strong>The mismatch.</strong> The two sides sit at different success levels, 0.5 against near 1. Footnote it every time.</div>
+      <div class="cheat-item"><strong>The 24-qubit row.</strong> About 3,217 calls against 8,388,608 lookups, factor about 2,600. Closed-form arithmetic, never called a simulation.</div>
+      <div class="cheat-item"><strong>The floor.</strong> BBBV: no black-box quantum search goes below about sqrt N queries. Quadratic, never exponential.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Say what a query costs and what it leaves out (load, gates, seconds) before you quote a factor.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 5 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p4-grover-step-by-step.html">← Practitioner session 4 · Grover step by step</a>
+        <a href="p6-the-loading-tax-calculator.html">Practitioner session 6 · The loading-tax calculator →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var nIn = document.getElementById("p5-n");
+  var nVal = document.getElementById("p5-n-val");
+  var NVal = document.getElementById("p5-N-val");
+  var out = document.getElementById("p5-out");
+  var verdict = document.getElementById("p5-verdict");
+  var self = document.getElementById("p5-self");
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function render() {
+    var nMax = Number(nIn.value);
+    var rows = QS.queryTable(2, 10);
+    var shown = rows.filter(function (r) { return r.n <= nMax; });
+    var last = shown[shown.length - 1];
+    nVal.textContent = nMax;
+    NVal.textContent = comma(last.N);
+
+    var html = '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>n</th><th>N</th><th>Classical lookups, N/2 (one-half chance)</th><th>Quantum oracle calls, k</th><th>Quantum success</th><th>N/2 / k</th></tr></thead><tbody>';
+    for (var i = 0; i < shown.length; i++) {
+      var r = shown[i], b = r.n === nMax;
+      var ratio = (r.classicalHalf / r.quantumK).toFixed(1);
+      html += "<tr><td>" + r.n + "</td><td>" + comma(r.N) + "</td><td>" + comma(r.classicalHalf) + "</td><td>" + (b ? "<b>" + r.quantumK + "</b>" : r.quantumK) + "</td><td>" + r.pSuccess.toFixed(4) + "</td><td>" + (b ? "<b>" + ratio + "</b>" : ratio) + "</td></tr>";
+    }
+    html += "</tbody></table></div>";
+    out.innerHTML = html;
+
+    var msg = "At " + nMax + " qubits, " + comma(last.N) + " items: " + comma(last.classicalHalf) + " classical lookups for a one-half chance against " + last.quantumK + " oracle call" + (last.quantumK === 1 ? "" : "s") + " at success " + last.pSuccess.toFixed(4) + ", a factor of " + (last.classicalHalf / last.quantumK).toFixed(1) + ". The two sides sit at different success levels; classical near certainty costs about N = " + comma(last.N) + " lookups.";
+    if (shown.length > 1) {
+      var prev = shown[shown.length - 2];
+      msg += " From " + prev.n + " to " + nMax + " qubits N doubled and k went from " + prev.quantumK + " to " + last.quantumK + ", times " + (last.quantumK / prev.quantumK).toFixed(2) + "; sqrt 2 is " + Math.SQRT2.toFixed(2) + ".";
+    }
+    msg += " Every row assumes a free oracle and data already loaded; session 6 prices the load.";
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the closed-form check on five qubits and the property that fails on a silent oracle. The simulator is exact; no real machine is."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  nIn.addEventListener("input", render);
+  render();
+})();
+</script>
+<style>
+  #p5-q .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p5-q input[type="range"] { max-width: 20rem; padding: 0; }
+  #p5-q table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

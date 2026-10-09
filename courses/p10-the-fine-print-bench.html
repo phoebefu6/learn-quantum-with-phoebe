@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 10 of 10. Four benches on a real statevector simulator, every input exposed. Grover's amplitude climbing up to ten qubits, oracle calls against classical lookups, the loading tax with its crossing points, and a noise ladder where adding qubits makes the number worse.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The fine-print bench - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 10 of 10. 25 oracle calls against 512 lookups on ten qubits, then one error per thousand gates turns 0.9995 into 0.3467.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p10-the-fine-print-bench.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The fine-print bench - learn quantum with phoebe">
+<meta name="twitter:description" content="Remove the oracle and the search finds nothing. Add a qubit under noise and the answer gets worse. Both measured, in the page.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 10 · The fine-print bench - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 10 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 10 of 10</div>
+    <h1>The fine-print <span class="accent">bench</span></h1>
+    <p class="sub">Nine sessions built the simulator, the gates, the search, the loading arithmetic and the noise model one piece at a time. This one puts all four benches in front of you with every input exposed. Move the qubit count, the iteration count, the searches per load, the per-gate error, and watch the numbers recompute on the real register in this page. Two things are built in on purpose: a break button that removes the oracle and leaves the search finding nothing, and a lever that makes the answer worse, which is adding qubits under realistic noise (every step at p = 0.005 and above). No machine, vendor or roadmap is named; the only hardware here is exact, and the page says where that flatters the result.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Hardest</span>
+      <span class="chip audience">Anyone who will have to check a quantum claim with numbers</span>
+      <span class="chip audience">Anyone who has to brief the board on the Brindle pilot</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Search and queries</span>
+      <span class="a3" style="flex:4">18-34 · The load and the noise</span>
+      <span class="a4" style="flex:3">34-45 · Write the brief and close</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where this lands</h2>
+    </div>
+    <p class="lede">Sessions 1 to 3 built the register, the gates and a measured Bell pair. Session 4 built Grover's search and session 5 counted its queries. Session 6 put a price on loading the data and session 7 put a price on every gate. Sessions 8 and 9 turned those prices into a checklist and an inventory. Everything below runs from the same <span class="mono">assets/qs-live.js</span>, whose seven properties are checked on load, two of which fail the moment the oracle stops flipping or the diffusion loses its X layer. The noise model is the one declared in session 7: a single global depolarising parameter per gate, which is kinder than any hardware, and it says so on the widget.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> Four numbers you can quote from memory because you moved a control to get each one: 25 oracle calls against 512 lookups at ten qubits; a loading cost of 12,000,000 against a brute-force search of 6,000,000 on Brindle's table; a success probability of 0.3467 at one error per thousand gates where the ideal is 0.9995; and the uniform floor of 0.000977 that the search returns the moment the oracle is removed. A feel for which inputs move each answer and which do nothing. And a short written brief for the Brindle pilot that somebody else could check.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the four benches recompute on every press<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The first bench builds a uniform superposition over 2 to the n slots, marks one slot with a phase flip, and runs the diffusion step as five layers of gates, recording the target's squared amplitude after every iteration. It also counts gates, with the oracle and the multi-controlled flip counted as one each, which undercounts hardware. The second bench reads the optimum off that curve for every n from 2 to 10 and sets it beside the N over 2 lookups a classical search needs for an even chance, which is the figure Grover's own abstract uses.</p>
+        <p>The third bench is arithmetic on three declared parameters: a cost per row to load, a cost per oracle query, and a number of searches per load. It prints the quantum total, the brute-force classical total and the indexed classical total, and the two crossing points between them. The fourth bench applies a global depolarising channel to the ideal curve: after G gates a fraction (1 - p) to the G of the ideal survives and the rest is uniform. That is exact for the channel as declared and is a simplification of hardware, where noise is per qubit and structured.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · benches A and B</span>
+      <h2>Search and queries</h2>
+      <span class="tag build">15 min hands on</span>
+    </div>
+    <p class="lede">Two inputs and a break button. Change the qubit count and the iteration count one at a time and predict the direction before you press. Then switch the oracle off and watch what the diffusion step does on its own, which is nothing.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of Grover's amplitude climbing on three qubits. Four panels left to right, one per iteration from zero to three. Each panel shows eight bars, one per slot, with the target slot 111 drawn in cyan. At iteration zero all eight bars are equal at 0.354 and the target's square is 0.125. At iteration one the target bar is 0.884 and the others 0.177, square 0.781. At iteration two the target is 0.972 and the others 0.088, square 0.945, marked as the optimum. At iteration three the target has fallen to 0.575 and the others risen to 0.309, square 0.330, marked as past the optimum. Between panels two small notes explain the mechanism: the oracle flips the target's sign, then the diffusion reflects every amplitude about the mean, which raises the one that was flipped and lowers the rest. A band underneath says the amplitude keeps rotating, so more iterations past the optimum make the answer worse, and that on two qubits the first iteration gives certainty.">
+        <defs>
+          <filter id="p10aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p10aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p10aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p10aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p10aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p10aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p10aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p10aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p10aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p10aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p10aH" x="30" y="26">THREE QUBITS, EIGHT AMPLITUDES. THE ORACLE FLIPS ONE SIGN; THE DIFFUSION REFLECTS ABOUT THE MEAN. WATCH SLOT 111.</text>
+
+        <g filter="url(#p10aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- baseline per panel at y=300; bar height = amp * 200 -->
+          <!-- panel 0: x 40..230 ; all 0.354 -> 71 -->
+          <rect x="30" y="44" width="200" height="300" rx="10" transform="rotate(-0.3 130 194)" fill="#FFFFFF"/>
+          <path d="M44 300 L216 300" stroke="#C9C9DF"/>
+          <rect x="48" y="229" width="14" height="71" fill="#EEEDF9"/><rect x="69" y="229" width="14" height="71" fill="#EEEDF9"/><rect x="90" y="229" width="14" height="71" fill="#EEEDF9"/><rect x="111" y="229" width="14" height="71" fill="#EEEDF9"/><rect x="132" y="229" width="14" height="71" fill="#EEEDF9"/><rect x="153" y="229" width="14" height="71" fill="#EEEDF9"/><rect x="174" y="229" width="14" height="71" fill="#EEEDF9"/>
+          <rect x="195" y="229" width="14" height="71" fill="#0E7490" stroke="#0E7490"/>
+          <!-- panel 1: 0.884 -> 177 ; others 0.177 -> 35 -->
+          <rect x="240" y="44" width="200" height="300" rx="10" transform="rotate(0.3 340 194)" fill="#FFFFFF"/>
+          <path d="M254 300 L426 300" stroke="#C9C9DF"/>
+          <rect x="258" y="265" width="14" height="35" fill="#EEEDF9"/><rect x="279" y="265" width="14" height="35" fill="#EEEDF9"/><rect x="300" y="265" width="14" height="35" fill="#EEEDF9"/><rect x="321" y="265" width="14" height="35" fill="#EEEDF9"/><rect x="342" y="265" width="14" height="35" fill="#EEEDF9"/><rect x="363" y="265" width="14" height="35" fill="#EEEDF9"/><rect x="384" y="265" width="14" height="35" fill="#EEEDF9"/>
+          <rect x="405" y="123" width="14" height="177" fill="#0E7490" stroke="#0E7490"/>
+          <!-- panel 2: 0.972 -> 194 ; others 0.088 -> 18 -->
+          <rect x="450" y="44" width="200" height="300" rx="10" transform="rotate(-0.2 550 194)" fill="#E3F3F7" stroke="#0E7490"/>
+          <path d="M464 300 L636 300" stroke="#C9C9DF"/>
+          <rect x="468" y="282" width="14" height="18" fill="#EEEDF9"/><rect x="489" y="282" width="14" height="18" fill="#EEEDF9"/><rect x="510" y="282" width="14" height="18" fill="#EEEDF9"/><rect x="531" y="282" width="14" height="18" fill="#EEEDF9"/><rect x="552" y="282" width="14" height="18" fill="#EEEDF9"/><rect x="573" y="282" width="14" height="18" fill="#EEEDF9"/><rect x="594" y="282" width="14" height="18" fill="#EEEDF9"/>
+          <rect x="615" y="106" width="14" height="194" fill="#0E7490" stroke="#0E7490"/>
+          <!-- panel 3: 0.575 -> 115 ; others 0.309 -> 62 -->
+          <rect x="660" y="44" width="190" height="300" rx="10" transform="rotate(0.25 755 194)" fill="#FFFFFF"/>
+          <path d="M674 300 L836 300" stroke="#C9C9DF"/>
+          <rect x="678" y="238" width="13" height="62" fill="#EEEDF9"/><rect x="698" y="238" width="13" height="62" fill="#EEEDF9"/><rect x="718" y="238" width="13" height="62" fill="#EEEDF9"/><rect x="738" y="238" width="13" height="62" fill="#EEEDF9"/><rect x="758" y="238" width="13" height="62" fill="#EEEDF9"/><rect x="778" y="238" width="13" height="62" fill="#EEEDF9"/><rect x="798" y="238" width="13" height="62" fill="#EEEDF9"/>
+          <rect x="818" y="185" width="13" height="115" fill="#0E7490" stroke="#0E7490"/>
+          <!-- arrows between panels -->
+          <path d="M232 170 L238 170" marker-end="url(#p10aAr)"/>
+          <path d="M442 170 L448 170" marker-end="url(#p10aAr)"/>
+          <path d="M652 170 L658 170" marker-end="url(#p10aAr)"/>
+          <!-- band -->
+          <rect x="30" y="366" width="820" height="54" rx="10" transform="rotate(-0.15 440 393)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a tiny dial -->
+          <circle cx="836" cy="26" r="9" fill="#FFFFFF"/>
+          <path d="M836 26 L841 21"/>
+        </g>
+
+        <text class="p10aL" x="46" y="68">ITERATION 0</text>
+        <text class="p10aS" x="46" y="86">after H on every qubit</text>
+        <text class="p10aS" x="46" y="104">eight equal bars, 0.354 each</text>
+        <text class="p10aV" x="46" y="140">p = 0.125</text>
+        <text class="p10aS" x="46" y="158">one in eight, no better than a guess</text>
+        <text class="p10aS" x="46" y="322">000 001 010 011 100 101 110</text>
+        <text class="p10aB" x="194" y="322">111</text>
+
+        <text class="p10aL" x="256" y="68">ITERATION 1</text>
+        <text class="p10aS" x="256" y="86">flip 111, reflect about the mean</text>
+        <text class="p10aS" x="256" y="104">target 0.884, the rest 0.177</text>
+        <text class="p10aV" x="256" y="140">p = 0.781</text>
+        <text class="p10aS" x="256" y="158">the flipped one rose, the rest fell</text>
+        <text class="p10aB" x="404" y="322">111</text>
+
+        <text class="p10aL" x="466" y="68">ITERATION 2, THE OPTIMUM</text>
+        <text class="p10aS" x="466" y="86">flip again, reflect again</text>
+        <text class="p10aS" x="466" y="104">target 0.972, the rest 0.088</text>
+        <text class="p10aV" x="466" y="140">p = 0.945</text>
+        <text class="p10aB" x="466" y="158">pi/4 sqrt 8 is 2.22; stop here</text>
+        <text class="p10aB" x="614" y="322">111</text>
+
+        <text class="p10aL" x="676" y="68">ITERATION 3, PAST IT</text>
+        <text class="p10aS" x="676" y="86">one more flip and reflection</text>
+        <text class="p10aS" x="676" y="104">target 0.575, the rest 0.309</text>
+        <text class="p10aV" x="676" y="140">p = 0.330</text>
+        <text class="p10aS" x="676" y="158">the amplitude kept rotating</text>
+        <text class="p10aB" x="816" y="322">111</text>
+
+        <text class="p10aH" x="46" y="388">One sign flipped, then one reflection about the mean: the target climbs. Past the optimum it rotates back down.</text>
+        <text class="p10aN" x="46" y="408">On two qubits the first iteration gives p = 1.000 exactly. On ten, the twenty-fifth gives 0.9995. The bench prints every point of every curve.</text>
+        <text class="p10aN" x="30" y="440">Bar heights are the real amplitudes from the engine, rounded to three decimals; squares are the probabilities the register would be sampled at.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - nothing is tried in parallel. One sign is flipped and one reflection moves every amplitude at once, and the only thing that grows is the one that was flipped.</figcaption>
+    </figure>
+
+    <div class="wk" id="p10-a">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Grover's search on the real register in this page, up to ten qubits. The curve, the optimum and the gate count are computed on every press, not quoted.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p10a-n">Qubits, so the search space is 2 to the n: <b id="p10a-n-val">10</b> qubits, <b id="p10a-N-val">1,024</b> slots</label>
+        <input class="sql-code" id="p10a-n" type="range" min="2" max="10" step="1" value="10">
+        <label class="sql-label" for="p10a-k">Iterations to run: <b id="p10a-k-val">25</b></label>
+        <input class="sql-code" id="p10a-k" type="range" min="0" max="28" step="1" value="25">
+        <label class="sql-label" for="p10a-oracle">The break button: the oracle's phase flip</label>
+        <select class="sql-code" id="p10a-oracle">
+          <option value="1">On: the marked slot's sign is flipped each iteration</option>
+          <option value="0">Off: no flip, the diffusion runs alone</option>
+        </select>
+        <div id="p10a-out"></div>
+        <p class="sql-note" id="p10a-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p10a-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four runs worth doing first<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave everything alone.</strong> Ten qubits, 25 iterations, oracle on. Success 0.999461 at 1,060 gates, against a classical N over 2 of 512 lookups. The quantum run made 25 oracle calls. That is the only table in the sixteen sessions where quantum wins outright, and it assumes the oracle is free and the data is already in the register.</li>
+          <li><strong>Drag the iterations to 28.</strong> Success falls to 0.9562 and keeps falling. The amplitude is a rotation and the optimum is a point on it, not a floor. "Run more iterations to be sure" is the wrong instinct and the bench shows it.</li>
+          <li><strong>Drop to two qubits and one iteration.</strong> Success 1.000000. Four slots, one query, certainty. Then three qubits: iteration 2 is 0.945 and iteration 3 is 0.330, which is the figure above with the numbers live.</li>
+          <li><strong>Switch the oracle off.</strong> At any n and any k the success reads exactly 1 over N: 0.000977 at ten qubits, 0.25 at two. The diffusion step maps the uniform state to itself, so with nothing flipped nothing climbs. The bench is measuring the oracle, not an artifact of the code.</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="wk" id="p10-b">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Bench B. The optimum read off the curve for every n, beside the N over 2 lookups a classical search needs for an even chance. Computed on load.</span>
+      </div>
+      <div class="wk-body">
+        <div id="p10b-out"></div>
+        <p class="sql-note" id="p10b-verdict">...</p>
+      </div>
+      <div class="wk-foot">N over 2 is Grover's own classical figure. The quantum column counts oracle calls only; the gate column counts the oracle and the multi-controlled flip as one gate each, which undercounts any hardware.</div>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the factor is sqrt N and why that is the whole story<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each iteration rotates the state by a fixed angle, twice the angle whose sine is 1 over the square root of N, so reaching the target takes about pi over 4 times the square root of N iterations. At ten qubits that is 25.13, and the bench finds 25. At twenty-four qubits, enough to index Brindle's 12 million customers, it would be about 3,217 oracle calls against 8,388,608 lookups: a factor of about 2,600, and growing as the square root of N.</p>
+        <p>That is a quadratic advantage, and it is the honest headline for unstructured search. It is not an exponential one, and Grover's own abstract says the algorithm is within a constant factor of the best possible, so no better search over unstructured data is coming. Every larger claim about search is a claim about structure in the data, and structure is exactly what a classical index exploits for free, which is bench C.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · benches C and D</span>
+      <h2>The load and the noise</h2>
+      <span class="tag build">16 min hands on</span>
+    </div>
+    <p class="lede">Bench C is arithmetic on three parameters that every speedup claim leaves out and that you must declare. Bench D is the ideal curve with one error rate applied per gate, and it carries the one lever in these sessions that always makes the number worse.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 432" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of the loading tax on Brindle's twelve million rows. Top row, the quantum path: a stack of twelve million rows on the left, hatched, flows one row at a time into a box labelled quantum memory, with the cost twelve million writes written on the arrow; from the memory a short arrow labelled about 2,721 oracle calls at log2 N each, 63,988 in all, leads to an answer box. Middle row, the classical brute force path: the same stack with a single arrow labelled N over 2, six million lookups, straight to an answer box. Bottom row, the classical index path: the stack flows into an index box with the cost N log2 N, 282,198,373, written once, then a tiny arrow labelled log2 N, 23.5 lookups per search, to the answer of 282,198,396. A band underneath states that for one search the load alone costs twice the brute force lookups, that quantum beats brute force only from three searches per load, and that the index beats quantum again past 4,224 searches per load.">
+        <defs>
+          <filter id="p10bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p10bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p10bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p10bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p10bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p10bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p10bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p10bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p10bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p10bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p10bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p10bH" x="30" y="26">BRINDLE'S 12,000,000 ROWS, ONE SEARCH, THREE WAYS. THE LOAD IS THE FINE PRINT.</text>
+
+        <g filter="url(#p10bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the pile, shared -->
+          <rect x="40" y="60" width="110" height="250" rx="8" transform="rotate(-0.6 95 185)" fill="url(#p10bHc)"/>
+          <!-- row 1 quantum -->
+          <path d="M156 100 L300 100" stroke="#0E7490" marker-end="url(#p10bAr)"/>
+          <rect x="310" y="72" width="170" height="56" rx="8" transform="rotate(-0.4 395 100)" fill="#E3F3F7" stroke="#0E7490"/>
+          <path d="M486 100 L690 100" stroke="#0E7490" marker-end="url(#p10bAr)"/>
+          <rect x="690" y="72" width="150" height="56" rx="8" fill="#FFFFFF"/>
+          <!-- row 2 brute -->
+          <path d="M156 190 L690 190" marker-end="url(#p10bAr)"/>
+          <rect x="690" y="162" width="150" height="56" rx="8" fill="#FFFFFF"/>
+          <!-- row 3 index -->
+          <path d="M156 280 L300 280" stroke="#3730A3" marker-end="url(#p10bAr)"/>
+          <rect x="310" y="252" width="170" height="56" rx="8" transform="rotate(0.4 395 280)" fill="#EEEDF9" stroke="#3730A3"/>
+          <path d="M486 280 L690 280" stroke="#3730A3" marker-end="url(#p10bAr)"/>
+          <rect x="690" y="252" width="150" height="56" rx="8" fill="#FFFFFF"/>
+          <!-- band -->
+          <rect x="30" y="334" width="820" height="64" rx="10" transform="rotate(0.15 440 366)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a coin with a slot -->
+          <circle cx="836" cy="40" r="9" fill="#FFFFFF"/>
+          <path d="M832 40 L840 40"/>
+        </g>
+
+        <text class="p10bL" x="52" y="48">12,000,000 rows</text>
+        <text class="p10bS" x="52" y="326">classical, on disk</text>
+
+        <text class="p10bA" x="160" y="90">load: one write per row</text>
+        <text class="p10bB" x="160" y="118">12,000,000</text>
+        <text class="p10bL" x="326" y="94">quantum memory</text>
+        <text class="p10bS" x="326" y="112">24 qubits of address</text>
+        <text class="p10bA" x="494" y="90">about 2,721 oracle calls at log2 N each</text>
+        <text class="p10bB" x="494" y="118">63,988</text>
+        <text class="p10bS" x="765" y="90" text-anchor="middle">answer</text>
+        <text class="p10bV" x="765" y="116" text-anchor="middle">12,063,988</text>
+
+        <text class="p10bA" x="160" y="180">brute force: N over 2 lookups, no load at all</text>
+        <text class="p10bB" x="160" y="208">6,000,000</text>
+        <text class="p10bS" x="765" y="180" text-anchor="middle">answer</text>
+        <text class="p10bV" x="765" y="206" text-anchor="middle">6,000,000</text>
+
+        <text class="p10bA" x="160" y="270">build an index once: N log2 N</text>
+        <text class="p10bB" x="160" y="298">282,198,373</text>
+        <text class="p10bL" x="326" y="274">classical index</text>
+        <text class="p10bS" x="326" y="292">sorted, or a hash</text>
+        <text class="p10bA" x="494" y="270">then log2 N, 23.5 lookups a search</text>
+        <text class="p10bB" x="494" y="298">23.5</text>
+        <text class="p10bS" x="765" y="270" text-anchor="middle">answer</text>
+        <text class="p10bV" x="765" y="296" text-anchor="middle">282,198,396</text>
+
+        <text class="p10bH" x="46" y="356">For one search the load alone costs twice the brute-force lookups. The sqrt N gain never gets a turn.</text>
+        <text class="p10bN" x="46" y="374">Quantum beats brute force from 3 searches per load. Past 4,224 searches per load the index, built once, beats quantum again.</text>
+        <text class="p10bN" x="46" y="390">Every number moves if the cost per query moves, which is the parameter no claim prints. The bench exposes it.</text>
+        <text class="p10bN" x="30" y="420">A declared model, not a measurement: load 1 per row, query cost log2 N per oracle call, k = round(pi/4 sqrt N). The totals are the bench's own.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the top row is the claim, the middle row is what it is compared against in the deck, and the bottom row is what it should be compared against. Only the middle one is ever shown.</figcaption>
+    </figure>
+
+    <div class="wk" id="p10-c">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Bench C, the loading tax. Three declared parameters, three totals, two crossing points. A model with its assumptions printed, not a measurement of any machine.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p10c-N">Rows to search</label>
+        <select class="sql-code" id="p10c-N">
+          <option value="1000">1,000</option>
+          <option value="10000">10,000</option>
+          <option value="100000">100,000</option>
+          <option value="1000000">1,000,000</option>
+          <option value="10000000">10,000,000</option>
+          <option value="12000000" selected>12,000,000, Brindle's customer table</option>
+        </select>
+        <label class="sql-label" for="p10c-R">Searches run against one load</label>
+        <select class="sql-code" id="p10c-R">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="10">10</option>
+          <option value="100">100</option>
+          <option value="1000">1,000</option>
+          <option value="4224">4,224</option>
+          <option value="10000">10,000</option>
+        </select>
+        <label class="sql-label" for="p10c-load">Cost to load one row into the quantum memory</label>
+        <select class="sql-code" id="p10c-load">
+          <option value="1" selected>1 write per row, the kindest possible</option>
+          <option value="2">2 per row</option>
+          <option value="10">10 per row</option>
+        </select>
+        <label class="sql-label" for="p10c-q">Cost of one oracle query</label>
+        <select class="sql-code" id="p10c-q">
+          <option value="1">1, a free oracle, the deck's assumption</option>
+          <option value="log" selected>log2 N, one memory read per query</option>
+          <option value="10log">10 x log2 N, a read plus a predicate</option>
+        </select>
+        <div id="p10c-out"></div>
+        <p class="sql-note" id="p10c-verdict">...</p>
+      </div>
+      <div class="wk-foot">Modelled, every term. Quantum = load x N + R x k x query cost with k = round(pi/4 sqrt N). Brute force = R x N / 2. Index = N log2 N + R log2 N. Nothing here is a hardware figure.</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three runs on the loading tax<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Brindle's table, one search, kindest load, one read per query.</strong> Quantum 12,063,988 against brute force 6,000,000. The load alone is twice the lookups it was supposed to beat. The index is 282 million and would be absurd for one search, which is the point: nobody builds an index for one search, and nobody should load a quantum memory for one either.</li>
+          <li><strong>Take searches per load to 3, then 100.</strong> At 3 quantum edges past brute force. At 100 it is well ahead of brute force and still ahead of the index, which has not amortised. This is the window a claim lives in, and it is real.</li>
+          <li><strong>Take searches to 4,224, then 10,000.</strong> The index catches quantum at 4,224 on this table and wins from there, because log2 N lookups per search is 24 and the quantum per-search cost is about 64,000. Now set the oracle to free and watch the window stretch, then set the load to 10 per row and watch it close. The deck prints none of these three parameters.</li>
+        </ul>
+      </div>
+    </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of the noise model and the anti-lever. Left panel, the mechanism: a circuit of G gates drawn as a row of small boxes; after each gate a fork, with probability one minus p the register continues and with probability p it is replaced by a hatched box labelled uniform mixture. After G gates the surviving fraction is one minus p to the G, written as 0.347 for p of 0.001 and 1,060 gates, and 0.00002 for p of 0.01. Right panel, the anti-lever: a staircase of qubit counts from two to ten with the success at p equals 0.01 written on each step, falling from 0.915 at two qubits through 0.564 at four, 0.208 at six, 0.019 at eight, to 0.001 at ten, with the gate count rising from 12 to 1,060 alongside. A band underneath says every added qubit lengthens the circuit, so at this noise level the answer gets worse at every step, and that the uniform floor at ten qubits is 0.000977.">
+        <defs>
+          <filter id="p10cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p10cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p10cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p10cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p10cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p10cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p10cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p10cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p10cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p10cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p10cH" x="30" y="26">LEFT: EVERY GATE IS A COIN TOSS AGAINST THE REGISTER. RIGHT: MORE QUBITS IS MORE GATES, SO MORE TOSSES.</text>
+
+        <g filter="url(#p10cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel -->
+          <rect x="30" y="44" width="400" height="286" rx="10" transform="rotate(-0.3 230 187)" fill="#FFFFFF"/>
+          <!-- gate row -->
+          <rect x="54" y="104" width="34" height="34" rx="5" fill="#EEEDF9"/>
+          <rect x="118" y="104" width="34" height="34" rx="5" fill="#EEEDF9"/>
+          <rect x="182" y="104" width="34" height="34" rx="5" fill="#EEEDF9"/>
+          <rect x="310" y="104" width="34" height="34" rx="5" fill="#EEEDF9"/>
+          <path d="M88 121 L114 121" marker-end="url(#p10cAr)"/>
+          <path d="M152 121 L178 121" marker-end="url(#p10cAr)"/>
+          <path d="M216 121 L240 121" marker-end="url(#p10cAr)"/>
+          <path d="M254 121 L262 121 M272 121 L280 121 M290 121 L298 121" stroke="#C9C9DF"/>
+          <path d="M344 121 L384 121" marker-end="url(#p10cAr)"/>
+          <!-- the forks down to the mixture -->
+          <path d="M104 142 L104 176" stroke="#0E7490" stroke-dasharray="4 3" marker-end="url(#p10cAr)"/>
+          <path d="M168 142 L168 176" stroke="#0E7490" stroke-dasharray="4 3" marker-end="url(#p10cAr)"/>
+          <path d="M232 142 L232 176" stroke="#0E7490" stroke-dasharray="4 3" marker-end="url(#p10cAr)"/>
+          <path d="M360 142 L360 176" stroke="#0E7490" stroke-dasharray="4 3" marker-end="url(#p10cAr)"/>
+          <rect x="54" y="184" width="330" height="40" rx="6" transform="rotate(0.4 219 204)" fill="url(#p10cHc)"/>
+          <!-- result boxes -->
+          <rect x="54" y="256" width="150" height="54" rx="8" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="230" y="256" width="150" height="54" rx="8" fill="#FEF2F2" stroke="#FCA5A5"/>
+
+          <!-- right panel: staircase -->
+          <rect x="450" y="44" width="400" height="286" rx="10" transform="rotate(0.3 650 187)" fill="#FFFFFF"/>
+          <path d="M470 300 L830 300" stroke="#C9C9DF"/>
+          <!-- steps: heights proportional to success at p=0.01: 0.915,0.726,0.564,0.411,0.208,0.090,0.019,0.003,0.001 -> *200 -->
+          <rect x="474" y="117" width="36" height="183" fill="#EEEDF9"/>
+          <rect x="514" y="155" width="36" height="145" fill="#EEEDF9"/>
+          <rect x="554" y="187" width="36" height="113" fill="#EEEDF9"/>
+          <rect x="594" y="218" width="36" height="82" fill="#EEEDF9"/>
+          <rect x="634" y="258" width="36" height="42" fill="#EEEDF9"/>
+          <rect x="674" y="282" width="36" height="18" fill="#EEEDF9"/>
+          <rect x="714" y="296" width="36" height="4" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="754" y="299" width="36" height="1" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="794" y="299" width="36" height="1" fill="#0E7490" stroke="#0E7490"/>
+
+          <!-- band -->
+          <rect x="30" y="352" width="820" height="36" rx="10" transform="rotate(-0.15 440 370)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a coin mid-toss -->
+          <circle cx="836" cy="26" r="8" fill="#FFFFFF"/>
+          <path d="M836 12 L836 16"/>
+        </g>
+
+        <text class="p10cL" x="50" y="68">THE CHANNEL, ONE PARAMETER p</text>
+        <text class="p10cS" x="50" y="86">after every gate: keep with 1 - p, scramble with p</text>
+        <text class="p10cA" x="71" y="125" text-anchor="middle">g1</text>
+        <text class="p10cA" x="135" y="125" text-anchor="middle">g2</text>
+        <text class="p10cA" x="199" y="125" text-anchor="middle">g3</text>
+        <text class="p10cA" x="327" y="125" text-anchor="middle">gG</text>
+        <text class="p10cA" x="390" y="118">ideal</text>
+        <text class="p10cB" x="112" y="160">p</text>
+        <text class="p10cB" x="176" y="160">p</text>
+        <text class="p10cB" x="240" y="160">p</text>
+        <text class="p10cB" x="368" y="160">p</text>
+        <text class="p10cL" x="120" y="209">the uniform mixture, 1 / N on every slot</text>
+        <text class="p10cS" x="50" y="246">surviving fraction after G gates: (1 - p) to the G</text>
+        <text class="p10cB" x="66" y="276">p = 0.001, G = 1,060</text>
+        <text class="p10cV" x="66" y="298">0.347</text>
+        <text class="p10cB" x="242" y="276">p = 0.01, G = 1,060</text>
+        <text class="p10cV" x="242" y="298">0.00002</text>
+
+        <text class="p10cL" x="470" y="68">THE ANTI-LEVER: ADD QUBITS AT p = 0.01</text>
+        <text class="p10cS" x="470" y="86">success at the ideal optimum, bars; gates below</text>
+        <text class="p10cB" x="492" y="110" text-anchor="middle">0.915</text>
+        <text class="p10cB" x="532" y="148" text-anchor="middle">0.726</text>
+        <text class="p10cB" x="572" y="180" text-anchor="middle">0.564</text>
+        <text class="p10cB" x="612" y="211" text-anchor="middle">0.411</text>
+        <text class="p10cB" x="652" y="251" text-anchor="middle">0.208</text>
+        <text class="p10cB" x="692" y="275" text-anchor="middle">0.090</text>
+        <text class="p10cB" x="732" y="289" text-anchor="middle">0.019</text>
+        <text class="p10cB" x="772" y="289" text-anchor="middle">0.003</text>
+        <text class="p10cB" x="812" y="289" text-anchor="middle">0.001</text>
+        <text class="p10cS" x="492" y="316" text-anchor="middle">n2</text>
+        <text class="p10cS" x="532" y="316" text-anchor="middle">n3</text>
+        <text class="p10cS" x="572" y="316" text-anchor="middle">n4</text>
+        <text class="p10cS" x="612" y="316" text-anchor="middle">n5</text>
+        <text class="p10cS" x="652" y="316" text-anchor="middle">n6</text>
+        <text class="p10cS" x="692" y="316" text-anchor="middle">n7</text>
+        <text class="p10cS" x="732" y="316" text-anchor="middle">n8</text>
+        <text class="p10cS" x="772" y="316" text-anchor="middle">n9</text>
+        <text class="p10cS" x="812" y="316" text-anchor="middle">n10</text>
+        <text class="p10cS" x="470" y="236">12 gates at two qubits, 1,060 at ten</text>
+
+        <text class="p10cH" x="46" y="375">Each added qubit lengthens the circuit; at p = 0.01 every step is worse. Ten qubits sits on the floor.</text>
+        <text class="p10cN" x="30" y="408">Global depolarising, declared. Real hardware noise is per qubit and structured, and the oracle here is one gate, so this model flatters every number it prints.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the channel is one coin per gate and the circuit is the number of coins. Adding qubits adds coins faster than it adds anything else.</figcaption>
+    </figure>
+
+    <div class="wk" id="p10-d">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Bench D, the noise ladder. The ideal curve from bench A with one error rate per gate applied. The anti-lever is the qubit slider: it never raises the number.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p10d-n">Qubits: <b id="p10d-n-val">10</b></label>
+        <input class="sql-code" id="p10d-n" type="range" min="2" max="10" step="1" value="10">
+        <label class="sql-label" for="p10d-p">Error per gate, global depolarising</label>
+        <select class="sql-code" id="p10d-p">
+          <option value="0">0, the exact simulator</option>
+          <option value="0.001" selected>0.001, one in a thousand</option>
+          <option value="0.005">0.005, one in two hundred</option>
+          <option value="0.01">0.01, one in a hundred</option>
+          <option value="0.02">0.02, one in fifty</option>
+        </select>
+        <div class="sql-label">The anti-lever</div>
+        <button class="btn primary" id="p10d-more" type="button">Add a qubit and see what noise does</button>
+        <div id="p10d-out"></div>
+        <p class="sql-note" id="p10d-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p10d-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Four runs on the noise ladder<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Ten qubits, p = 0.001.</strong> The ideal 0.999461 becomes 0.346724 at the optimum depth of 25 iterations and 1,060 gates. The best any depth can do under this noise is 0.3932, at 19 iterations: the optimum moved earlier, because a shorter circuit tosses fewer coins.</li>
+          <li><strong>p = 0.005, then 0.01.</strong> 0.005895, then 0.001000, against a floor of 0.000977. At one error per hundred gates the ten-qubit search returns the uniform distribution to three decimals, and the best any depth can do is 0.0137 at four iterations, fourteen times the floor and nothing like an answer.</li>
+          <li><strong>Set p = 0.01 and drop to two qubits.</strong> 0.9148. Twelve gates, so twelve coins, and most of the time none of them lands wrong. Now press the anti-lever nine times and read the column: 0.7257, 0.5643, 0.4114, 0.2082, 0.0903, 0.0191, 0.0033, 0.0010. Every press is worse. No press is ever better.</li>
+          <li><strong>Set p = 0.</strong> Every number returns to the ideal and the anti-lever stops hurting, which is the honest statement of what the exact simulator in these pages is: hardware with p = 0, which does not exist.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the model leaves out, and in which direction<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A global depolarising channel says that when an error happens the whole register is scrambled to uniform. Real errors are smaller and more structured: one qubit flips, one phase drifts, and the register ends up in a state that is wrong in a specific way rather than uniformly wrong. That sounds kinder, and in one sense it is, since a single flipped qubit can sometimes be corrected. In the sense that matters for this bench it is harsher, because the model's oracle costs one gate and a hardware oracle over a loaded dataset costs many, so G here is a floor on the real depth, and every surviving fraction printed above is an overestimate.</p>
+        <p>The direction of the error is the point to carry. The bench's noise numbers are optimistic at every setting. The only way to get a larger success probability than it prints is to assume less noise per gate than the model, not more structure in it. That is the question to ask of any claim that a search of real size runs on real hardware: what p per gate, and what G, and the product of those two things is the whole answer.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the brief</span>
+      <h2>What you write down for Brindle</h2>
+      <span class="tag demo">11 min live</span>
+    </div>
+    <p class="lede">All four benches point at the same discipline: a speedup number has to arrive with the three parameters that bound it and the noise that erodes it. Ten minutes, on the Brindle pilot, in the form somebody else could check.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>State the algorithm and its honest factor</h4>
+        <p>Not "quantum search" but "unstructured search with a square-root advantage in oracle calls: 25 against 512 at ten qubits, about 3,217 against 8,388,608 at the 24 qubits our table needs". If the claim is not a named algorithm with a known factor, it is not yet a claim.</p>
+      </div>
+      <div class="step">
+        <h4>State the load, the query cost and the searches per load</h4>
+        <p>"Loading our 12 million rows costs at least 12 million writes, twice the brute-force lookups; we would need at least 3 searches per load to beat brute force and would be beaten by an index past 4,224." Three numbers, declared, with the model named. Then say which of the three the vendor has not printed, which is usually all three.</p>
+      </div>
+      <div class="step">
+        <h4>State the noise and the depth</h4>
+        <p>"At one error per thousand gates, the ten-qubit search returns the right answer 35 percent of the time; at one per hundred, it returns noise. Our table needs 24 qubits and a far deeper circuit, so the per-gate error the pilot assumes is the number that decides everything." Ask for it in writing.</p>
+      </div>
+      <div class="step">
+        <h4>Say what would change your mind</h4>
+        <p>A per-gate error rate and a circuit depth, measured, for a search at the size you care about. A per-query cost, printed. A reason the data cannot be indexed classically. Write the triggers now, while nothing is on fire, because the version written during a budget meeting will protect the pilot rather than the reader.</p>
+      </div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four numbers, on one card<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Search.</strong> 25 oracle calls against 512 lookups at ten qubits, success 0.9995, in a circuit of 1,060 gates with the oracle counted as one. A square-root factor, and Grover's abstract says no better unstructured search exists.</p>
+        <p><strong>Load.</strong> 12,000,000 writes against 6,000,000 brute-force lookups for one search over Brindle's table. Quantum ahead from 3 searches per load; the classical index ahead again past 4,224. Three declared parameters, none of them printed in any deck.</p>
+        <p><strong>Noise.</strong> 0.9995 becomes 0.3467 at one error per thousand gates and 0.0010 at one per hundred, where the floor is 0.000977. At p = 0.01 each added qubit makes it worse, every step, from 0.9148 at two qubits to 0.0010 at ten.</p>
+        <p><strong>The oracle.</strong> Remove it and every success probability reads exactly 1 over N. The bench measures the thing it says it measures.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">After the course</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About an hour, on something real.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find the three parameters in one real claim</h4>
+        <p>Take any published speedup claim about search or machine learning on classical data. Find the load cost, the per-query cost and the searches per load, or record that each one is absent. The absences are the finding.</p>
+      </div>
+      <div class="step">
+        <h4>Re-derive one crossing point</h4>
+        <p>With your own build from session 1 and the loading arithmetic from session 6, reproduce the 4,224 on Brindle's table. Then change the per-query cost to 10 times log2 N and report where the window goes.</p>
+      </div>
+      <div class="step">
+        <h4>Break your own bench</h4>
+        <p>Remove the oracle flip in your build and confirm the search returns 1 over N. Then remove the X layer from the diffusion instead and confirm the closed-form check fails. A bench you have never broken is a bench you have never tested.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">At ten qubits the bench reports 25 oracle calls against 512 classical lookups. Brindle's analyst extends this to the 12-million-row table and reports "quantum search is 2,600 times faster". What is missing?</p>
+      <div class="qopt">A · Nothing: 8,388,608 over 3,217 is about 2,600</div>
+      <div class="qopt">B · The factor should be 512 over 25, about 20, at every size</div>
+      <div class="qopt">C · The 2,600 counts oracle calls only; loading 12 million rows costs at least 12 million writes, twice the brute-force lookups, so for one search the quantum total is larger, and the factor only appears if the load is amortised over at least 3 searches and the data cannot be indexed</div>
+      <q class="qwhy">The arithmetic in A is right and the sentence is wrong. The square-root factor is real for oracle calls and vanishes for a single search once the load is counted; bench C prints 12,063,988 against 6,000,000. The window where it holds is 3 to 4,224 searches per load on this table, under declared costs.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Under p = 0.01 per gate, the ten-qubit bench reports 0.0010 at the ideal optimum of 25 iterations and 0.0137 as the best any depth can do, at 4 iterations. What does the second number tell you?</p>
+      <div class="qopt">A · Under noise the optimum moves earlier, because a shorter circuit tosses fewer coins; but even the best depth is fourteen times a floor of 0.000977 and nothing like an answer, so the honest headline is still that the search fails at this error rate</div>
+      <div class="qopt">B · Running 4 iterations instead of 25 fixes the noise problem</div>
+      <div class="qopt">C · The two numbers contradict each other, so the bench has a bug</div>
+      <q class="qwhy">Both numbers come from the same curve with the same channel applied; they differ because fewer gates survive the channel better. The best-depth figure is the honest nuance and it does not rescue the result. Thirteen in a thousand is not a search.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">With the oracle switched off, the bench reports exactly 1 over N at every qubit count and every iteration. Why does that matter for trusting the other numbers?</p>
+      <div class="qopt">A · It shows the diffusion step is broken</div>
+      <div class="qopt">B · It shows the success probability is produced by the oracle's phase flip and not by an artifact of the code, because removing the one thing that is supposed to do the work removes the whole effect and leaves the uniform distribution the maths predicts</div>
+      <div class="qopt">C · It shows the simulator cannot search without a target</div>
+      <q class="qwhy">A bench that cannot report a worse number measures nothing. The break button produces the worst possible number, 1 over N, exactly, and the self test checks the same property on every load. The diffusion step is doing precisely what it should: mapping the uniform state to itself.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Grover on the real register, 2 to 10 qubits</span><span class="note">Curve, optimum and gate count recomputed on every press; 0.999461 at 25 iterations on ten qubits.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Oracle calls against N over 2</span><span class="note">25 against 512 at ten qubits; the square-root factor and Grover's own optimality statement.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The loading tax with its crossing points</span><span class="note">12,063,988 against 6,000,000 for one search; quantum ahead from 3 searches per load, the index ahead past 4,224.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The noise ladder and the anti-lever</span><span class="note">0.3467 at p = 0.001, the floor at p = 0.01; adding qubits always worse.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The break button</span><span class="note">Oracle off returns exactly 1 over N at every setting.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">A written brief with four required lines</span><span class="note">Algorithm and factor, the three load parameters, noise and depth, and what would change your mind.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Structured, per-qubit noise</span><span class="note">Declared as left out, with the direction of the error: the model flatters every number.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any hardware, vendor, roadmap or date</span><span class="note">None named. The timeline is contested evidence, taught as a disagreement in the leader track.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management after the inventory</span><span class="note">learn-cyber-security-with-phoebe. Nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>Search.</strong> 25 oracle calls against 512 lookups at ten qubits, success 0.9995. A square-root factor, and no better unstructured search exists.</div>
+      <div class="cheat-item"><strong>Past the optimum.</strong> The amplitude rotates. 28 iterations is worse than 25; on three qubits, 3 is worse than 2.</div>
+      <div class="cheat-item"><strong>The load.</strong> 12 million writes against 6 million lookups for one search. The sqrt N gain never gets a turn on a single search.</div>
+      <div class="cheat-item"><strong>The window.</strong> Quantum ahead from 3 searches per load, the index ahead past 4,224. Three declared parameters decide it; decks print none.</div>
+      <div class="cheat-item"><strong>Noise.</strong> (1 - p) to the G survives. 0.9995 becomes 0.3467 at p = 0.001 and the floor at p = 0.01, with G = 1,060.</div>
+      <div class="cheat-item"><strong>The anti-lever.</strong> At p = 0.01 each added qubit is worse: 0.9148 at two, 0.0010 at ten. At p = 0.001 the trend is down but not every step.</div>
+      <div class="cheat-item"><strong>The break button.</strong> No oracle, exactly 1 over N. A bench that cannot report a worse number measures nothing.</div>
+      <div class="cheat-item"><strong>The brief.</strong> Algorithm and factor; load, query cost, searches per load; p and G; what would change your mind.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 10 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p9-the-post-quantum-inventory.html">← Practitioner session 9 · The post-quantum inventory</a>
+        <a href="../index.html">All sessions →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function f6(v) { return v.toFixed(6); }
+
+  /* ---------- Bench A: Grover ---------- */
+  var aN = document.getElementById("p10a-n"), aNVal = document.getElementById("p10a-n-val"), aNN = document.getElementById("p10a-N-val");
+  var aK = document.getElementById("p10a-k"), aKVal = document.getElementById("p10a-k-val");
+  var aOr = document.getElementById("p10a-oracle");
+  var aOut = document.getElementById("p10a-out"), aVerdict = document.getElementById("p10a-verdict");
+
+  function renderA(fromN) {
+    var n = Number(aN.value), N = 1 << n;
+    var o = QS.optimalK(n);
+    var kmax = o.kTheory + 3;
+    aK.max = String(kmax);
+    if (fromN) aK.value = String(o.k);
+    var k = Math.min(Number(aK.value), kmax);
+    aK.value = String(k);
+    var oracle = aOr.value === "1";
+    aNVal.textContent = String(n); aNN.textContent = comma(N); aKVal.textContent = String(k);
+
+    var curve = QS.successCurve(n, N - 1, kmax, { oracle: oracle });
+    var html = '<table class="sql-table"><thead><tr><th>Iteration</th><th>Success probability</th><th>Gates so far</th><th>Note</th></tr></thead><tbody>';
+    var show = [];
+    for (var i = 0; i <= kmax; i++) show.push(i);
+    show.forEach(function (i) {
+      var note = "";
+      if (oracle && i === o.k) note = "the optimum";
+      else if (oracle && i > o.k) note = "past it";
+      else if (!oracle) note = "uniform, 1 / N";
+      var mark = i === k ? ' style="font-weight:800"' : "";
+      html += "<tr" + mark + "><td>" + i + (i === k ? " (you)" : "") + "</td><td>" + f6(curve.p[i]) + "</td><td>" + comma(curve.gates[i]) + "</td><td>" + note + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    aOut.innerHTML = html;
+
+    var msg;
+    if (!oracle) {
+      msg = "Oracle off. After " + k + " iteration" + (k === 1 ? "" : "s") + " the marked slot's probability is " + f6(curve.p[k]) + ", which is exactly 1 / " + comma(N)
+        + ". The diffusion step maps the uniform state to itself, so with nothing flipped nothing climbs. The search finds nothing, and it is supposed to.";
+    } else {
+      msg = "At " + k + " iteration" + (k === 1 ? "" : "s") + " on " + n + " qubits the marked slot reads " + f6(curve.p[k]) + " after " + comma(curve.gates[k]) + " gates. The optimum is "
+        + o.k + " iteration" + (o.k === 1 ? "" : "s") + " at " + f6(o.p) + " (pi/4 sqrt N is " + (Math.PI / 4 * Math.sqrt(N)).toFixed(2) + "). "
+        + "A classical search needs N / 2 = " + comma(N / 2) + " lookups for an even chance; this run made " + k + " oracle call" + (k === 1 ? "" : "s") + ". "
+        + (k > o.k ? "You are past the optimum and the amplitude is rotating back down." : (k < o.k ? "Not there yet." : "This is the top of the curve."));
+    }
+    aVerdict.textContent = msg;
+  }
+
+  /* ---------- Bench B: queries ---------- */
+  function renderB() {
+    var rows = QS.queryTable(2, 10);
+    var html = '<table class="sql-table"><thead><tr><th>Qubits</th><th>Slots N</th><th>Classical lookups, N / 2</th><th>Quantum oracle calls at the optimum</th><th>Success</th><th>Gates</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += "<tr><td>" + r.n + "</td><td>" + comma(r.N) + "</td><td>" + comma(r.classicalHalf) + "</td><td><b>" + r.quantumK + "</b></td><td>" + r.pSuccess.toFixed(4) + "</td><td>" + comma(r.gates) + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    document.getElementById("p10b-out").innerHTML = html;
+    var last = rows[rows.length - 1];
+    document.getElementById("p10b-verdict").textContent = "At ten qubits: " + last.quantumK + " oracle calls against " + comma(last.classicalHalf)
+      + " lookups, a factor of about " + Math.round(last.classicalHalf / last.quantumK) + ", and the factor grows as the square root of N. This is the one place quantum wins outright, before the load and the noise are counted.";
+  }
+
+  /* ---------- Bench C: the loading tax ---------- */
+  var cN = document.getElementById("p10c-N"), cR = document.getElementById("p10c-R"), cL = document.getElementById("p10c-load"), cQ = document.getElementById("p10c-q");
+  var cOut = document.getElementById("p10c-out"), cVerdict = document.getElementById("p10c-verdict");
+
+  function renderC() {
+    var N = Number(cN.value), R = Number(cR.value), load = Number(cL.value);
+    var log2N = Math.log(N) / Math.LN2;
+    var q = cQ.value === "1" ? 1 : (cQ.value === "log" ? log2N : 10 * log2N);
+    var r = QS.loadingTax({ N: N, R: R, loadPerRow: load, queryCost: q });
+    var html = '<table class="sql-table"><thead><tr><th>Path</th><th>Total operations for ' + comma(R) + ' search' + (R === 1 ? "" : "es") + '</th><th>How it is made</th></tr></thead><tbody>';
+    html += "<tr><td>Quantum: load, then search</td><td><b>" + comma(Math.round(r.quantum)) + "</b></td><td>" + comma(Math.round(r.quantumLoad)) + " to load + " + comma(Math.round(r.quantumSearch)) + " to search (" + comma(r.k) + " oracle calls per search at " + q.toFixed(1) + " each)</td></tr>";
+    html += "<tr><td>Classical brute force</td><td><b>" + comma(Math.round(r.brute)) + "</b></td><td>N / 2 lookups per search, no load</td></tr>";
+    html += "<tr><td>Classical index, built once</td><td><b>" + comma(Math.round(r.indexed)) + "</b></td><td>N log2 N once, then " + log2N.toFixed(1) + " per search</td></tr>";
+    html += "<tr><td>Quantum beats brute force from</td><td>" + (r.crossBrute === null ? "never" : comma(r.crossBrute) + " search" + (r.crossBrute === 1 ? "" : "es") + " per load") + "</td><td>where load + R x search drops below R x N / 2</td></tr>";
+    html += "<tr><td>Classical index beats quantum past</td><td>" + (r.crossIndexed === null ? "never" : comma(r.crossIndexed) + " searches per load") + "</td><td>where the once-built index has amortised</td></tr>";
+    html += "</tbody></table>";
+    cOut.innerHTML = html;
+
+    var msg = "Winner at " + comma(R) + " search" + (R === 1 ? "" : "es") + " per load: " + r.winner + ". ";
+    if (R === 1) msg += "The load alone is " + (r.quantumLoad / r.brute).toFixed(1) + " times the brute-force lookups, so for one search the square-root gain never gets a turn. ";
+    else if (r.winner === "quantum") msg += "The load has amortised and the index has not; this is the window a claim lives in, and it depends on all three declared costs. ";
+    else if (r.winner === "classical index") msg += "The index, built once, now costs " + log2N.toFixed(0) + " lookups a search against " + comma(Math.round(r.k * q)) + " for the quantum path. ";
+    msg += "Change the per-query cost and watch both crossing points move; it is the parameter no claim prints.";
+    cVerdict.textContent = msg;
+  }
+
+  /* ---------- Bench D: noise ---------- */
+  var dN = document.getElementById("p10d-n"), dNVal = document.getElementById("p10d-n-val"), dP = document.getElementById("p10d-p");
+  var dMore = document.getElementById("p10d-more"), dOut = document.getElementById("p10d-out"), dVerdict = document.getElementById("p10d-verdict");
+  var dPrev = null;
+
+  function renderD(fromLever) {
+    var n = Number(dN.value), p = Number(dP.value);
+    dNVal.textContent = String(n);
+    var r = QS.noiseLadder(n, [p])[0];
+    var html = '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Ideal success at the optimum</td><td>" + f6(r.pIdeal) + "</td><td>" + r.k + " iterations, " + comma(r.gates) + " gates, p = 0</td></tr>";
+    html += "<tr><td>Success at that depth under p = " + p + "</td><td><b>" + f6(r.pNoisy) + "</b></td><td>(1 - p) to the " + comma(r.gates) + " of the ideal, the rest uniform</td></tr>";
+    html += "<tr><td>Best any depth can do under this noise</td><td>" + f6(r.bestP) + "</td><td>at " + r.bestK + " iteration" + (r.bestK === 1 ? "" : "s") + "; the optimum moves earlier</td></tr>";
+    html += "<tr><td>The uniform floor, 1 / N</td><td>" + f6(r.uniform) + "</td><td>what a scrambled register returns</td></tr>";
+    html += "</tbody></table>";
+    dOut.innerHTML = html;
+
+    var msg;
+    if (p === 0) {
+      msg = "p = 0 is the exact simulator: " + f6(r.pNoisy) + " at " + n + " qubits, and the anti-lever cannot hurt because no gate ever errs. No hardware has p = 0.";
+    } else {
+      msg = "At " + n + " qubits and p = " + p + " the search succeeds with probability " + f6(r.pNoisy) + " at its ideal depth, against an ideal of " + f6(r.pIdeal)
+        + ". That is " + (r.pNoisy / r.uniform).toFixed(1) + " times the floor.";
+      if (fromLever && dPrev !== null) {
+        msg += " Adding that qubit took it from " + f6(dPrev) + " to " + f6(r.pNoisy) + ": worse, as it is at every step, because the circuit grew from the previous gate count to " + comma(r.gates) + ".";
+      }
+    }
+    dVerdict.textContent = msg;
+    dPrev = r.pNoisy;
+    dMore.disabled = n >= 10;
+    dMore.textContent = n >= 10 ? "Ten is the simulator's top; drop the slider to try again" : "Add a qubit and see what noise does";
+  }
+
+  /* ---------- self test ---------- */
+  var t = QS.selfTest();
+  var note = t.ok
+    ? "The engine's seven properties pass in this browser, including the oracle-removal property this bench's break button exercises. The simulator is exact; the noise is a declared one-parameter model and flatters every number."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+  document.getElementById("p10a-self").textContent = note;
+  document.getElementById("p10d-self").textContent = note;
+
+  aN.addEventListener("input", function () { renderA(true); });
+  aK.addEventListener("input", function () { renderA(false); });
+  aOr.addEventListener("change", function () { renderA(false); });
+  cN.addEventListener("change", renderC); cR.addEventListener("change", renderC); cL.addEventListener("change", renderC); cQ.addEventListener("change", renderC);
+  dN.addEventListener("input", function () { renderD(false); });
+  dP.addEventListener("change", function () { renderD(false); });
+  dMore.addEventListener("click", function () { var n = Number(dN.value); if (n < 10) { dN.value = String(n + 1); renderD(true); } });
+  renderA(true); renderB(); renderC(); renderD(false);
+})();
+</script>
+<style>
+  #p10-a .sql-code, #p10-c .sql-code, #p10-d .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 26rem; }
+  #p10-a input[type="range"], #p10-d input[type="range"] { max-width: 20rem; padding: 0; }
+  #p10-a table.sql-table, #p10-b table.sql-table, #p10-c table.sql-table, #p10-d table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p10-a .sql-tablewrap, #p10-a #p10a-out { max-height: 22rem; overflow-y: auto; }
+  #p10-d .btn { margin: .3rem .9rem .6rem; }
+  #p10-d .btn:disabled { opacity: 1; cursor: default; background: var(--indigo-50); color: var(--indigo-deep); border-color: var(--indigo-soft); }
+</style>
+</body>
+</html>

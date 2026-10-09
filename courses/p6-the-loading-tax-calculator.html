@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 6 of 10. Price the load. Writing N classical rows into a quantum memory costs order N, a square-root search cannot pay that back in one search, and a declared three-parameter model shows how many searches per load it takes, and where a classical index takes the lead again.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The loading-tax calculator - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 6 of 10. One write per row before the first query. On 12,000,000 constructed rows the load alone is twice the brute-force search, and the window where quantum is cheapest is 3 to 4,224 searches per load.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p6-the-loading-tax-calculator.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The loading-tax calculator - learn quantum with phoebe">
+<meta name="twitter:description" content="12,063,988 against 6,000,000 for one search. The square-root gain is real; the load comes first.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 6 · The loading-tax calculator - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 6 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 6 of 10</div>
+    <h1>The loading-tax <span class="accent">calculator</span></h1>
+    <p class="sub">Session 5 ended on a footnote: every row of the query table assumes the data is already inside the machine. Today you price that footnote. Brindle's customer table has to be written into a quantum memory one row at a time before the first oracle call, and that write costs more than the classical search it was meant to beat. You build the loading-tax function, run it across six dataset sizes with the page's engine, and read off the two crossing points every honest version of the claim has to print.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone asked whether a speedup survives real data</span>
+      <span class="chip audience">Has the query table from session 5</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · What the load costs</span>
+      <span class="a3" style="flex:2">15-25 · The net and the crossings</span>
+      <span class="a4" style="flex:4">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The footnote gets a price</h2>
+    </div>
+    <p class="lede">A square-root search is a real gain, measured on this page's register in session 5: 25 oracle calls against 512 lookups at 1,024 items. It is a gain on a search over data that is already loaded. A data team's data is never already loaded. It sits in tables on disk, and every row has to be written somewhere a quantum oracle can read it before the first query runs. This session puts a number on that write, sets it beside the search it was supposed to speed up, and finds the range of workloads where the trade comes out ahead.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> A loading-tax function with three declared parameters (load per row, query cost, searches per load) that reproduces the page's engine to the last digit. The one-search row for Brindle's 12,000,000 constructed customers: 12,063,988 operations for the quantum path against 6,000,000 for brute force. The two crossing points across six dataset sizes, and the window between them. And a one-line answer to "when does the load not matter", which is: rarely, and you can say exactly when.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The slide with no load on it<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Speedup slides for search have one curve that climbs as N and one that climbs as the square root of N, and the gap between them widens to the right edge. Session 5 showed that this picture is correct about oracle calls. What the picture leaves out is the step before the first call: getting the rows into the machine. The question for today is not whether the square root is real. It is whether the square root survives the bill that arrives before it starts.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle is a constructed retailer, and the vendor deck its board received is unnamed and constructed too. The deck's search slide had the two curves from session 5 and a box labelled "your data" with an arrow straight into the quantum side. The engineer circled the arrow and wrote one question beside it for the review: what does that arrow cost, per row, and who pays it each time the table changes?</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in loading terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Load.</strong> Writing N classical rows into a memory the oracle can query. One write per row at the very least, so order N, paid once per load.</li>
+          <li><strong>QRAM.</strong> Quantum random access memory: a memory that can be addressed in superposition. A proposed architecture with a cost model on paper, not a component a data team can buy.</li>
+          <li><strong>Query cost.</strong> What one oracle call costs once the oracle has to read that memory. The page's model sets it at log2 N, the switch count of the best proposed design.</li>
+          <li><strong>Searches per load, R.</strong> How many searches run against one load before the data changes and has to be written again. The parameter that decides almost everything.</li>
+          <li><strong>Classical index.</strong> A sorted list or hash built once in about N log2 N and then searched in about log2 N per lookup. The fair classical rival once R is large.</li>
+          <li><strong>Crossing point.</strong> The value of R at which one path becomes cheaper than another. The model has two, and the honest claim lives between them.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers what loading N rows costs</span>
+      <h2>One write per row, before the first query</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The search in session 5 started from a register that already held the data. Here is the step that put it there. Every classical row is written once into a quantum memory, and the best proposed memory makes each later READ cheap without making that first WRITE any cheaper. The figure follows Brindle's customer table from disk to the oracle and writes the cost on each arrow.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 404" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of the load. On the left, Brindle's constructed customer table on disk: six hatched rows standing for 12,000,000 classical rows. A fan of cyan arrows carries every row into a box in the middle labelled quantum memory, QRAM, a proposed architecture, an assumption not a device, with a stamp reading assumed; its address register is drawn as a row of qubits, 24 qubits of address, slots for 16,777,216 rows. The fan is labelled load: 1 write per row, paid before any query, 12,000,000 writes, order N. An arrow leaves the memory for a box on the right labelled one oracle call, reads the memory, about log2 N switches, 23.5 in the model. A band underneath says Aaronson's first caveat: a slow load kills the speedup in the very first step, and that Giovannetti, Lloyd and Maccone make one query cost about log N while nothing in their design makes N writes cost less than N. A note gives the declared model: load 1 per row, query cost log2 N per call, R searches per load.">
+        <defs>
+          <filter id="p6aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p6aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p6aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p6aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p6aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p6aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p6aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p6aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p6aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p6aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p6aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p6aH" x="30" y="26">LOADING IS ONE WRITE PER ROW. THE BEST PROPOSED QRAM MAKES THE READ CHEAP, NOT THE WRITE.</text>
+
+        <g filter="url(#p6aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the table on disk -->
+          <rect x="30" y="46" width="170" height="254" rx="10" transform="rotate(-0.4 115 173)" fill="#FFFFFF"/>
+          <rect x="46" y="104" width="110" height="18" rx="3" transform="rotate(-1.5 101 113)" fill="url(#p6aHc)"/>
+          <rect x="46" y="128" width="110" height="18" rx="3" transform="rotate(1 101 137)" fill="url(#p6aHc)"/>
+          <rect x="46" y="152" width="110" height="18" rx="3" transform="rotate(-0.8 101 161)" fill="url(#p6aHc)"/>
+          <rect x="46" y="176" width="110" height="18" rx="3" transform="rotate(1.6 101 185)" fill="url(#p6aHc)"/>
+          <rect x="46" y="200" width="110" height="18" rx="3" transform="rotate(-1.2 101 209)" fill="url(#p6aHc)"/>
+          <rect x="46" y="224" width="110" height="18" rx="3" transform="rotate(0.9 101 233)" fill="url(#p6aHc)"/>
+
+          <!-- the load: one arrow per row, the thing the figure is about -->
+          <path d="M160 113 C 240 116, 320 128, 394 142" stroke="#0E7490" stroke-width="2.4" marker-end="url(#p6aAr)"/>
+          <path d="M160 137 C 240 140, 320 146, 394 152" stroke="#0E7490" stroke-width="2.4" marker-end="url(#p6aAr)"/>
+          <path d="M160 161 C 240 162, 320 162, 394 162" stroke="#0E7490" stroke-width="2.4" marker-end="url(#p6aAr)"/>
+          <path d="M160 185 C 240 184, 320 178, 394 172" stroke="#0E7490" stroke-width="2.4" marker-end="url(#p6aAr)"/>
+          <path d="M160 209 C 240 206, 320 194, 394 182" stroke="#0E7490" stroke-width="2.4" marker-end="url(#p6aAr)"/>
+          <path d="M160 233 C 240 228, 320 210, 394 192" stroke="#0E7490" stroke-width="2.4" marker-end="url(#p6aAr)"/>
+
+          <!-- the quantum memory -->
+          <rect x="400" y="70" width="210" height="170" rx="10" transform="rotate(0.4 505 155)" fill="#E3F3F7"/>
+          <!-- address register: qubits -->
+          <circle cx="424" cy="162" r="6" fill="#FFFFFF"/>
+          <circle cx="444" cy="162" r="6" fill="#FFFFFF"/>
+          <circle cx="464" cy="162" r="6" fill="#FFFFFF"/>
+          <circle cx="484" cy="162" r="6" fill="#FFFFFF"/>
+          <path d="M498 162 L500 162 M506 162 L508 162 M514 162 L516 162" stroke-width="2.4"/>
+          <circle cx="530" cy="162" r="6" fill="#FFFFFF"/>
+          <!-- stamp -->
+          <rect x="516" y="42" width="84" height="22" rx="4" transform="rotate(-3 558 53)" fill="#FFFFFF" stroke="#3730A3"/>
+
+          <!-- the read -->
+          <path d="M614 155 L658 155" marker-end="url(#p6aAr)"/>
+          <rect x="664" y="110" width="186" height="96" rx="10" transform="rotate(-0.5 757 158)" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a dial -->
+          <circle cx="852" cy="62" r="9" fill="#FFFFFF"/>
+          <path d="M852 62 L857 56"/>
+
+          <!-- band -->
+          <rect x="30" y="318" width="820" height="50" rx="10" transform="rotate(-0.15 440 343)" fill="#EEEDF9"/>
+        </g>
+
+        <!-- table text -->
+        <text class="p6aL" x="46" y="70">CUSTOMER TABLE</text>
+        <text class="p6aS" x="46" y="88">on disk, constructed</text>
+        <text class="p6aV" x="46" y="270">12,000,000</text>
+        <text class="p6aS" x="46" y="288">classical rows</text>
+
+        <!-- load text -->
+        <text class="p6aB" x="214" y="86">load: 1 write per row</text>
+        <text class="p6aS" x="214" y="102">paid before any query</text>
+        <text class="p6aV" x="214" y="268">12,000,000 writes</text>
+        <text class="p6aS" x="214" y="286">order N: grows with every row</text>
+
+        <!-- memory text -->
+        <text class="p6aA" x="531" y="58">ASSUMED</text>
+        <text class="p6aL" x="414" y="96">QUANTUM MEMORY (QRAM)</text>
+        <text class="p6aS" x="414" y="114">a proposed architecture</text>
+        <text class="p6aS" x="414" y="132">an assumption, not a device</text>
+        <text class="p6aB" x="414" y="194">24 qubits of address</text>
+        <text class="p6aS" x="414" y="212">slots for 16,777,216 rows</text>
+
+        <!-- read text -->
+        <text class="p6aL" x="678" y="134">ONE ORACLE CALL</text>
+        <text class="p6aS" x="678" y="152">reads the memory</text>
+        <text class="p6aB" x="678" y="172">about log2 N switches</text>
+        <text class="p6aS" x="678" y="190">23.5 in the model</text>
+
+        <text class="p6aH" x="46" y="339">Aaronson's first caveat: a slow load kills the speedup in the very first step.</text>
+        <text class="p6aS" x="46" y="357">Giovannetti, Lloyd and Maccone make one query cost about log N; nothing in it makes N writes cost less than N.</text>
+
+        <text class="p6aN" x="30" y="392">Brindle is constructed. Declared model: load 1 per row, query cost log2 N per call, R searches per load.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the cyan fan is the loading tax. The read on the right got cheap on paper; the write on the left is still one per row, and it is paid before the first oracle call.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Order N, and no way around it<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>To search a table with an oracle, the oracle has to be able to see the table. For data that was born classical, which is every row a data team owns, that means writing each row into a memory the quantum circuit can address. However clever the memory, each of the N values has to arrive in it at least once, so the load is at least N writes. On Brindle's constructed 12,000,000-row customer table that is 12,000,000 writes before the first oracle call.</p>
+        <p>Set that beside the search it was meant to beat. A classical scan with no index needs N/2 lookups for a one-half chance, Grover's own figure, which is 6,000,000 on the same table. The load alone is twice the brute-force search. For a single search over fresh classical data the square-root gain is spent before it starts, and nothing about the search afterwards can buy it back.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>In the review (Brindle and its people are constructed) the engineer wrote two numbers on the whiteboard, 12,000,000 and 6,000,000, and asked the room which one the vendor slide had drawn. It had drawn neither. The slide's quantum curve started at the first oracle call, which is like timing a delivery from the moment the van leaves the depot and leaving out the loading bay.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>QRAM is an assumption, not a device<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The memory in the middle of the figure has a name, quantum random access memory, and a well-known proposal behind it. A classical RAM uses n bits to address N = 2^n cells; a QRAM uses n qubits to address a superposition of cells. The proposal's contribution is the cost of a READ: its architecture needs about log N switches per memory call, rather than the N of a conventional design.</p>
+        <p>Giovannetti, V., Lloyd, S. and Maccone, L. (2008). Quantum random access memory. Physical Review Letters 100, 160501; arXiv 0708.1879.</p>
+        <p>Two things follow, and both go in the footnote. First, the cheap read is what the page's model uses for its query cost: log2 N per oracle call, 23.5 on Brindle's table. Second, nothing in the proposal makes the initial WRITE of N classical values cost less than N writes. The paper makes the read cheap. The load stays order N. And the memory itself is a proposed architecture: every claim that leans on it is a claim that begins "supposing it exists", and should say so.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Aaronson's fine print, caveat one<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Aaronson's essay lists four caveats that can each kill an advertised quantum speedup, and the first one is this session. The input has to be loaded fast, which needs a quantum RAM and a reasonably uniform vector; if preparing the input already takes a polynomial number of steps, the speedup vanishes "in the very first step". The essay is about exponential claims, where the stakes are larger, but the arithmetic is the same at the square-root scale: a gain that is smaller than the load is no gain.</p>
+        <p>Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293.</p>
+        <p>A footnote in the same essay adds that the memory must be "passive". A memory that needs a processing element per stored number would also hand a classical parallel machine the same speed, so the comparison would no longer be quantum against classical. Read the two together and the rule is short: the load is part of the algorithm, and so is the memory that holds it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The three parameters the model declares<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The page's engine prices the trade with a model small enough to read in one breath, and every number it prints is printed beside its three parameters.</p>
+        <ul>
+          <li><strong>Load per row.</strong> 1 write, the kindest possible value. Real loads can only cost more.</li>
+          <li><strong>Query cost.</strong> log2 N per oracle call, one read of the proposed memory. Session 5's free oracle is the special case where this is 1.</li>
+          <li><strong>Searches per load, R.</strong> How many searches share one load. 1 by default, because a table that changes has to be loaded again.</li>
+        </ul>
+        <p>Around those three sit the fixed pieces: k = round(pi/4 sqrt N) oracle calls per search, N/2 lookups per brute-force search, and N log2 N once plus log2 N per search for a classical index. None of it is a hardware measurement. It is a declared model, and the point of declaring it is that anyone can move a parameter and watch the answer move.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the net: sqrt N search against an order-N load</span>
+      <h2>Where the load pays back, and where an index takes over</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">One search never pays the load back. Several searches against one load might, because the load is paid once and the square-root gain is collected every time. The figure draws total cost against searches per load on Brindle's table, for the quantum path, for brute force and for a classical index built once. The quantum path is cheapest only inside a window, and the widget under the figure lets you move every edge of it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn chart for Brindle's constructed 12,000,000-row table, total operations on a log scale from 1 million to 100 billion against R, searches run against one load, on a log scale from 1 to 10,000. The classical brute force line, R times N over 2, starts at 6,000,000 for one search and climbs steeply. The quantum line, load once then R searches, starts at 12,063,988 and stays almost flat until R is in the hundreds, because 12,000,000 is the load and each search adds 63,988. The classical index line, built once, is flat at about 282 million. The quantum line crosses below brute force between 2 and 3 searches, marked passes brute force from R equals 3, and crosses above the index past R equals 4,224, marked index cheaper past R equals 4,224. A cyan bracket under the axis marks the window where quantum is the cheapest path, R equals 3 to 4,224 searches per load. A note gives the declared model: load 1 per row, query cost log2 N equals 23.5, k equals 2,721.">
+        <defs>
+          <filter id="p6bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="63" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p6bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p6bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p6bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p6bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p6bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p6bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p6bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p6bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p6bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p6bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p6bH" x="30" y="26">BRINDLE'S 12,000,000 ROWS: TOTAL COST AGAINST SEARCHES PER LOAD, THREE PATHS</text>
+
+        <g filter="url(#p6bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- axes -->
+          <path d="M110 66 L110 330 L800 330"/>
+          <!-- y ticks: 1 million to 100 billion -->
+          <path d="M110 330 L116 330 M110 278 L116 278 M110 226 L116 226 M110 174 L116 174 M110 122 L116 122 M110 70 L116 70" stroke-width="1.6"/>
+          <!-- x ticks: 1 to 10,000 -->
+          <path d="M280 330 L280 336 M450 330 L450 336 M620 330 L620 336 M790 330 L790 336" stroke-width="1.6"/>
+          <!-- classical brute force: R x N/2 -->
+          <path d="M110 289.5 L790 81.5" stroke="#3730A3"/>
+          <!-- classical index, built once -->
+          <path d="M110 202.6 L790 202.6" stroke-dasharray="7 6"/>
+          <!-- quantum: load once, then R searches -->
+          <path d="M110.0 273.8 L152.5 273.7 L195.0 273.5 L237.5 273.2 L280.0 272.7 L322.5 271.8 L365.0 270.4 L407.5 268.0 L450.0 264.2 L492.5 258.8 L535.0 251.6 L577.5 242.6 L620.0 232.2 L662.5 220.8 L705.0 208.8 L747.5 196.3 L790.0 183.7" stroke="#0E7490" stroke-width="2.6"/>
+          <!-- the two crossings -->
+          <circle cx="162" cy="273.6" r="5" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="726.4" cy="202.6" r="5" fill="#0E7490" stroke="#0E7490"/>
+          <!-- the window -->
+          <path d="M191 378 L726 378 M191 371 L191 385 M726 371 L726 385" stroke="#0E7490" stroke-width="2.4"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="850" cy="52" r="9" fill="#FFFFFF"/>
+          <path d="M850 52 L855 46"/>
+        </g>
+
+        <text class="p6bS" x="30" y="52">total operations, log scale</text>
+
+        <!-- y tick labels -->
+        <text class="p6bS" x="102" y="334" text-anchor="end">1 million</text>
+        <text class="p6bS" x="102" y="282" text-anchor="end">10 million</text>
+        <text class="p6bS" x="102" y="230" text-anchor="end">100 million</text>
+        <text class="p6bS" x="102" y="178" text-anchor="end">1 billion</text>
+        <text class="p6bS" x="102" y="126" text-anchor="end">10 billion</text>
+        <text class="p6bS" x="102" y="74" text-anchor="end">100 billion</text>
+
+        <!-- x tick labels -->
+        <text class="p6bS" x="110" y="350" text-anchor="middle">1</text>
+        <text class="p6bS" x="280" y="350" text-anchor="middle">10</text>
+        <text class="p6bS" x="450" y="350" text-anchor="middle">100</text>
+        <text class="p6bS" x="620" y="350" text-anchor="middle">1,000</text>
+        <text class="p6bS" x="790" y="350" text-anchor="middle">10,000</text>
+        <text class="p6bS" x="455" y="366" text-anchor="middle">R, searches run against one load (log scale)</text>
+
+        <!-- series labels -->
+        <text class="p6bA" x="300" y="150">classical brute force: R x N/2</text>
+        <text class="p6bS" x="300" y="166">6,000,000 a search</text>
+        <text class="p6bL" x="118" y="194">classical index, built once</text>
+        <text class="p6bS" x="118" y="218">282,198,396 for one search</text>
+        <text class="p6bB" x="300" y="300">quantum: load once, then R searches</text>
+        <text class="p6bS" x="300" y="316">12,000,000 to load + 63,988 a search</text>
+
+        <!-- crossings -->
+        <text class="p6bB" x="150" y="300">passes brute force</text>
+        <text class="p6bS" x="150" y="316">from R = 3</text>
+        <text class="p6bB" x="736" y="226">index cheaper</text>
+        <text class="p6bS" x="736" y="242">past R = 4,224</text>
+
+        <text class="p6bB" x="458" y="398" text-anchor="middle">quantum is the cheapest path for R = 3 to 4,224 searches per load</text>
+
+        <text class="p6bN" x="30" y="420">Declared model, N = 12,000,000 (constructed): load 1 per row, query cost log2 N = 23.5, k = 2,721.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the quantum line is almost flat because it is almost all load. It passes brute force at the third search and loses to a once-built index past the 4,224th; the honest claim lives in the cyan bracket.</figcaption>
+    </figure>
+
+    <div class="wk" id="p6-tax">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The loading tax, computed by the page's engine every time you change a setting. Three declared parameters, three totals, and the two crossing points swept across six dataset sizes. A model with its assumptions printed, not a measurement of any machine.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p6-N">Rows to search</label>
+        <select class="sql-code" id="p6-N">
+          <option value="1000">1,000</option>
+          <option value="10000">10,000</option>
+          <option value="100000">100,000</option>
+          <option value="1000000">1,000,000</option>
+          <option value="10000000">10,000,000</option>
+          <option value="12000000" selected>12,000,000, Brindle's customer table (constructed)</option>
+        </select>
+        <label class="sql-label" for="p6-R">Searches run against one load, R</label>
+        <select class="sql-code" id="p6-R">
+          <option value="1" selected>1, the table changes before the next search</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="100">100</option>
+          <option value="4224">4,224</option>
+          <option value="10000">10,000</option>
+        </select>
+        <label class="sql-label" for="p6-load">Cost to load one row</label>
+        <select class="sql-code" id="p6-load">
+          <option value="1" selected>1 write per row, the kindest possible</option>
+          <option value="2">2 per row</option>
+          <option value="10">10 per row</option>
+          <option value="0">0, the data is already in the machine (the exception)</option>
+        </select>
+        <label class="sql-label" for="p6-q">Cost of one oracle query</label>
+        <select class="sql-code" id="p6-q">
+          <option value="free">1, a free oracle, session 5's assumption</option>
+          <option value="log" selected>log2 N, one read of the proposed memory</option>
+          <option value="ten">10 x log2 N, a read plus a predicate</option>
+        </select>
+        <div id="p6-out"></div>
+        <p class="sql-note" id="p6-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p6-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Read the one-search row first<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Leave the widget on its defaults: 12,000,000 rows, one search, load 1 per row, query cost log2 N. The quantum path costs 12,063,988 operations, of which 12,000,000 is the load and 63,988 is the search: 2,721 oracle calls at 23.5 each. Brute force costs 6,000,000. A classical index, built for this one search, costs 282,198,396, which is why nobody builds one for a single search. Brute force wins, and the margin is the load.</p>
+        <p>The search term is tiny. That is the square-root gain doing exactly what session 5 said it would, and it is why the quantum line in the figure is nearly flat. Everything about the quantum path at R = 1 is the load, and the load is twice the brute-force bill at every size in the sweep table: the ratio printed by the build-along is 2.0 on all six rows.</p>
+        <ul>
+          <li><strong>Set R to 2.</strong> Brute force still wins: two searches have not yet paid back one load.</li>
+          <li><strong>Set R to 3.</strong> The quantum path wins for the first time. This is the first crossing.</li>
+          <li><strong>Set R to 10,000.</strong> The classical index wins. This is the second crossing, and it is the one a slide leaves out.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Two crossings, and the window between them<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>If one load can serve R searches, the quantum path beats brute force from R = 3 at every size from 10,000 rows up, and from R = 4 at 1,000 rows. That is the first crossing, and it is the one a speedup claim likes to quote. But a workload that searches the same table thousands of times is exactly the workload where a data team builds an index, and the honest rival at large R is the index, not the scan.</p>
+        <p>The index costs N log2 N once and log2 N per search, and past a certain R it is cheaper than the quantum path: past 37 searches per load at 1,000 rows, 118 at 10,000, 380 at 100,000, 1,211 at 1,000,000, 3,854 at 10,000,000 and 4,224 on Brindle's 12,000,000. On Brindle's table the window where quantum is the cheapest path is 3 to 4,224 searches per load, under the declared parameters. Move the query cost in the widget and both edges move; that is the parameter a claim most often leaves unprinted.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>The engineer at constructed Brindle asked the data team two questions instead of one: how many searches run against the customer table between changes, and does an index already exist? The table is updated continuously, so every change is a new load and R resets. And the index existed already, built years ago for the website. The first answer pushes R toward 1; the second means the rival is the index, not the scan. Neither fact was on the slide.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>When the data is already quantum, or the oracle is cheap<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The load disappears in two situations, and both are real. The first is when there is no classical table at all: the input is a quantum state produced by another quantum process, such as a physical system being simulated. Preskill's survey of noisy intermediate-scale devices names exploring many-body physics as a place they should be useful, and in that setting nothing has to be written in row by row.</p>
+        <p>Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862.</p>
+        <p>The second is when the oracle computes its answer instead of reading it: a predicate that can be evaluated from the index alone by a circuit, with no stored rows behind it. Then the load term is zero and the query cost is the circuit's cost, which the model calls query cost. Set the widget's load to 0 to see this case: the quantum path wins from the first search. Watch the index column too, because even with a free load a classical index built once can still overtake a quantum search that is repeated often enough.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why that is the exception<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A data team's tables are born classical: orders, customers, events, logs. Every one is rows on disk that would have to be written in, and every change to them is a new load. The cheap-oracle case is also rarer than it sounds, because "is this the row we want" usually means "read the row", which is the load again. So the two exceptions exist, and neither describes Brindle's customer table or its order table.</p>
+        <p>Aaronson states the general test: a big quantum speedup needs an extremely fast way to create the right superposition AND no fast classical way to create the analogous probability distribution. The load fails the first half for classical data. Leader session 4 covers the second half: when Tang gave a classical algorithm the same kind of preprocessed data structure the quantum recommendation algorithm assumed, the classical side caught up to within a polynomial.</p>
+        <p>Tang, E. (2019). A quantum-inspired classical algorithm for recommendation systems. STOC 2019; arXiv 1807.04271.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Build the calculator and read the crossings</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">One file, five steps, run in order; each step uses what the one before defined. Plain Python, no numpy, and nothing is sampled, so every number is exact and yours will match the outputs below, which were printed by this exact code on Python 3.11. The function is the page's engine line for line, rounding included. Step 4 asserts the result equals the canon; if it raises, the build is wrong, not the canon.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 392" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn flow of the build-along. Four boxes in a row: first, the function with three declared parameters that returns load, search, quantum, brute force and index totals; second, six sizes from 1,000 to 12,000,000 rows, one search each, where load over brute force is 2.0 every time; third, highlighted, two crossings, beats brute force from R and index wins past R, the window between them; fourth, an assertion against the canon on both crossings and Brindle's 12,063,988, which raises if the build drifts. A band underneath shows what step 3 prints: for rows 1,000, 10,000, 100,000, 1,000,000, 10,000,000 and 12,000,000, beats brute force from R equals 4, 3, 3, 3, 3, 3 and index wins past R equals 37, 118, 380, 1,211, 3,854, 4,224, with the Brindle column circled. A dashed box is step 5: turn a knob and watch the window move; a free oracle moves the index crossing far out and ten reads a call moves it in.">
+        <defs>
+          <filter id="p6cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="67" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p6cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p6cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p6cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p6cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p6cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p6cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p6cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p6cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p6cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p6cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p6cH" x="30" y="26">THE BUILD-ALONG: ONE FUNCTION, SIX SIZES, TWO CROSSING POINTS, ONE ASSERTION.</text>
+
+        <g filter="url(#p6cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- four steps -->
+          <rect x="30" y="48" width="190" height="96" rx="10" transform="rotate(-0.4 125 96)" fill="#FFFFFF"/>
+          <rect x="236" y="48" width="190" height="96" rx="10" transform="rotate(0.3 331 96)" fill="#FFFFFF"/>
+          <rect x="442" y="48" width="190" height="96" rx="10" transform="rotate(-0.3 537 96)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="648" y="48" width="202" height="96" rx="10" transform="rotate(0.4 749 96)" fill="#EEEDF9"/>
+          <path d="M222 96 L232 96" marker-end="url(#p6cAr)"/>
+          <path d="M428 96 L438 96" marker-end="url(#p6cAr)"/>
+          <path d="M634 96 L644 96" marker-end="url(#p6cAr)"/>
+          <!-- what step 3 prints -->
+          <rect x="30" y="164" width="820" height="104" rx="10" transform="rotate(0.15 440 216)" fill="#EEEDF9"/>
+          <!-- the Brindle column, circled over the band -->
+          <rect x="738" y="198" width="100" height="62" rx="8" transform="rotate(-1 788 229)" fill="none" stroke="#0E7490" stroke-width="2.2"/>
+          <!-- step 5: turn a knob -->
+          <rect x="30" y="286" width="820" height="58" rx="10" transform="rotate(-0.15 440 315)" fill="#FFFFFF" stroke-dasharray="6 5"/>
+          <!-- doodle anchor: a die -->
+          <rect x="828" y="10" width="18" height="18" rx="4" transform="rotate(4 837 19)" fill="#FFFFFF"/>
+          <circle cx="833" cy="15" r="1.5" fill="#16153A"/>
+          <circle cx="841" cy="23" r="1.5" fill="#16153A"/>
+        </g>
+
+        <text class="p6cL" x="44" y="72">1 · the function</text>
+        <text class="p6cS" x="44" y="92">three declared parameters</text>
+        <text class="p6cS" x="44" y="110">returns load, search,</text>
+        <text class="p6cS" x="44" y="128">quantum, brute, index</text>
+
+        <text class="p6cL" x="250" y="72">2 · six sizes</text>
+        <text class="p6cS" x="250" y="92">1,000 to 12,000,000 rows</text>
+        <text class="p6cS" x="250" y="110">one search each</text>
+        <text class="p6cS" x="250" y="128">load / brute = 2.0 always</text>
+
+        <text class="p6cL" x="456" y="72">3 · two crossings</text>
+        <text class="p6cS" x="456" y="92">beats brute force from R</text>
+        <text class="p6cS" x="456" y="110">index wins past R</text>
+        <text class="p6cB" x="456" y="128">the window between them</text>
+
+        <text class="p6cL" x="662" y="72">4 · assert</text>
+        <text class="p6cS" x="662" y="92">both crossings, six sizes</text>
+        <text class="p6cS" x="662" y="110">Brindle: 12,063,988</text>
+        <text class="p6cS" x="662" y="128">raises if the build drifts</text>
+
+        <text class="p6cS" x="46" y="186">what step 3 prints, declared model: load 1 per row, query cost log2 N, k = round(pi/4 sqrt N)</text>
+        <text class="p6cA" x="46" y="214">rows N</text>
+        <text class="p6cS" x="250" y="214" text-anchor="end">1,000</text>
+        <text class="p6cS" x="350" y="214" text-anchor="end">10,000</text>
+        <text class="p6cS" x="460" y="214" text-anchor="end">100,000</text>
+        <text class="p6cS" x="580" y="214" text-anchor="end">1,000,000</text>
+        <text class="p6cS" x="710" y="214" text-anchor="end">10,000,000</text>
+        <text class="p6cS" x="830" y="214" text-anchor="end">12,000,000</text>
+        <text class="p6cA" x="46" y="234">beats brute from R</text>
+        <text class="p6cB" x="250" y="234" text-anchor="end">4</text>
+        <text class="p6cB" x="350" y="234" text-anchor="end">3</text>
+        <text class="p6cB" x="460" y="234" text-anchor="end">3</text>
+        <text class="p6cB" x="580" y="234" text-anchor="end">3</text>
+        <text class="p6cB" x="710" y="234" text-anchor="end">3</text>
+        <text class="p6cB" x="830" y="234" text-anchor="end">3</text>
+        <text class="p6cA" x="46" y="254">index wins past R</text>
+        <text class="p6cB" x="250" y="254" text-anchor="end">37</text>
+        <text class="p6cB" x="350" y="254" text-anchor="end">118</text>
+        <text class="p6cB" x="460" y="254" text-anchor="end">380</text>
+        <text class="p6cB" x="580" y="254" text-anchor="end">1,211</text>
+        <text class="p6cB" x="710" y="254" text-anchor="end">3,854</text>
+        <text class="p6cB" x="830" y="254" text-anchor="end">4,224</text>
+
+        <text class="p6cL" x="46" y="310">step 5 · turn a knob and watch the window move</text>
+        <text class="p6cS" x="46" y="330">a free oracle moves the index crossing far out; ten reads a call moves it in, and small tables lose outright</text>
+
+        <text class="p6cN" x="30" y="374">A declared model, not a hardware measurement. Every number above is the canon run of the page's engine.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four boxes and a two-row printout. The circled column is Brindle's: beats brute force from the third search, loses to the index past the 4,224th.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>The loading-tax function</h4>
+        <p>Three declared parameters, five totals. k is round(pi/4 sqrt N) written as floor(x + 0.5), which is how the page's engine rounds; Python's own round() sends halves to the even neighbour and would disagree on the odd row. Print Brindle's one-search row first: the three totals must be the canon's.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import math
+
+def loading_tax(N, R=1, load_per_row=1, query_cost=None):
+    log2N = math.log2(N)
+    q = log2N if query_cost is None else query_cost            # one oracle call = one memory read
+    k = max(1, math.floor(math.pi / 4 * math.sqrt(N) + 0.5))   # oracle calls per search
+    per_search = k * q
+    return dict(N=N, R=R, k=k, log2N=log2N, per_search=per_search,
+                load=N * load_per_row, search=R * per_search,
+                quantum=N * load_per_row + R * per_search,
+                brute=R * N / 2,
+                indexed=N * log2N + R * log2N)
+
+b = loading_tax(12_000_000)
+print(f"step 1: k = {b['k']:,} oracle calls at log2 N = {b['log2N']:.1f} each")
+print(f"quantum {b['quantum']:,.0f} = load {b['load']:,.0f} + search {b['search']:,.0f}")
+print(f"brute force {b['brute']:,.0f} | index {b['indexed']:,.0f}")
+# step 1: k = 2,721 oracle calls at log2 N = 23.5 each
+# quantum 12,063,988 = load 12,000,000 + search 63,988
+# brute force 6,000,000 | index 282,198,396</div>
+      </div>
+      <div class="step">
+        <h4>One search, six sizes</h4>
+        <p>Run the function across the six sizes in the canon, one search each, and print the load beside the brute-force bill. The last column is the whole of Part 1 in one number: the load alone is twice the brute-force search, at every size.</p>
+        <div class="prompt-box good"><span class="label">Python</span>SIZES = [1_000, 10_000, 100_000, 1_000_000, 10_000_000, 12_000_000]
+print(f"{'N':&gt;11} {'load':&gt;11} {'search':&gt;7} {'quantum':&gt;11} {'brute':&gt;10} {'index':&gt;12}  load/brute")
+for N in SIZES:
+    r = loading_tax(N)
+    print(f"{N:&gt;11,} {r['load']:&gt;11,.0f} {r['search']:&gt;7,.0f} {r['quantum']:&gt;11,.0f} "
+          f"{r['brute']:&gt;10,.0f} {r['indexed']:&gt;12,.0f}  {r['load'] / r['brute']:.1f}")
+#           N        load  search     quantum      brute        index  load/brute
+#       1,000       1,000     249       1,249        500        9,976  2.0
+#      10,000      10,000   1,050      11,050      5,000      132,890  2.0
+#     100,000     100,000   4,119     104,119     50,000    1,660,981  2.0
+#   1,000,000   1,000,000  15,646   1,015,646    500,000   19,931,589  2.0
+#  10,000,000  10,000,000  57,762  10,057,762  5,000,000  232,534,990  2.0
+#  12,000,000  12,000,000  63,988  12,063,988  6,000,000  282,198,396  2.0</div>
+      </div>
+      <div class="step">
+        <h4>Find the two crossings</h4>
+        <p>Each extra search saves N/2 minus the quantum search cost against brute force, so the load is paid back after the load divided by that saving, rounded up. Each extra search costs the quantum search minus log2 N against the index, so the index's head start runs out after its build minus the load, divided by that, rounded down. Read the window off each row.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def crossings(N, load_per_row=1, query_cost=None):
+    r = loading_tax(N, 1, load_per_row, query_cost)
+    gain = N / 2 - r["per_search"]      # what each search saves against brute force
+    lag = r["per_search"] - r["log2N"]  # what each search costs against the index
+    beat_brute = math.ceil(N * load_per_row / gain) if gain &gt; 0 else None
+    index_past = None
+    if lag &gt; 0:
+        index_past = max(0, math.floor((N * r["log2N"] - N * load_per_row) / lag))
+    return beat_brute, index_past
+
+print(f"{'N':&gt;11}  beats brute force from R  index wins past R")
+for N in SIZES:
+    lo, hi = crossings(N)
+    print(f"{N:&gt;11,}  {lo:&gt;23}  {hi:&gt;17,}")
+#           N  beats brute force from R  index wins past R
+#       1,000                        4                 37
+#      10,000                        3                118
+#     100,000                        3                380
+#   1,000,000                        3              1,211
+#  10,000,000                        3              3,854
+#  12,000,000                        3              4,224</div>
+      </div>
+      <div class="step">
+        <h4>Assert the canon</h4>
+        <p>Both crossings on all six sizes, and Brindle's one-search total, against the frozen canon. If either assertion raises, stop and find the bug before quoting anything; the usual culprit is Python's round() in step 1.</p>
+        <div class="prompt-box good"><span class="label">Python</span>canon = {1_000: (4, 37), 10_000: (3, 118), 100_000: (3, 380),
+         1_000_000: (3, 1_211), 10_000_000: (3, 3_854), 12_000_000: (3, 4_224)}
+for N, want in canon.items():
+    assert crossings(N) == want, (N, crossings(N), want)
+assert round(loading_tax(12_000_000)["quantum"]) == 12_063_988
+print("matches canon: six sizes, both crossings, Brindle's one-search total")
+# matches canon: six sizes, both crossings, Brindle's one-search total</div>
+      </div>
+      <div class="step">
+        <h4>Turn a knob and read the window move</h4>
+        <p>The query cost is the parameter a claim most often leaves unprinted, so sweep it. These numbers are not in the canon and the page does not quote them; set the widget above to the same query cost and the same load and its sweep table will print the same crossings. Notice which edge of the window moves, and the sizes where quantum never beats brute force at all.</p>
+        <div class="prompt-box good"><span class="label">Python</span>knobs = [("free oracle, 1 per call", lambda N: 1),
+         ("ten reads a call, 10 x log2 N", lambda N: 10 * math.log2(N))]
+for label, cost in knobs:
+    print(label)
+    for N in SIZES:
+        lo, hi = crossings(N, query_cost=cost(N))
+        print(f"  {N:&gt;11,}  beats brute force from {lo}  index wins past {hi}")
+# prints two sweeps of six rows each; set the widget's query cost to match and its sweep table agrees</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Never quote a search speedup without its load. Print the one-search row, then the two crossings, then the three parameters they rest on: "beats brute force from 3 searches per load, loses to an index past 4,224, at load 1 per row and query cost log2 N". A speedup with no load term is a slide; with it, it is a model someone can check.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">For one search over Brindle's 12,000,000 constructed rows, the model prints 12,063,988 operations for the quantum path against 6,000,000 for brute force. Why does the quantum path lose?</p>
+      <div class="qopt">A · Because 2,721 oracle calls is more than the 6,000,000 lookups brute force needs</div>
+      <div class="qopt">B · Because the load alone is 12,000,000 writes, twice the brute-force search; the search itself adds only 63,988</div>
+      <div class="qopt">C · Because the simulator stops at ten qubits, so a 24-qubit search cannot be priced</div>
+      <q class="qwhy">The square-root gain is intact: 2,721 calls at 23.5 each is 63,988. What loses is the load, one write per row, paid before the first call and twice the N/2 lookups brute force needed. The loading tax is a declared model, not a simulation, so the ten-qubit limit does not apply to it.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">The model says the quantum path beats brute force from 3 searches per load on Brindle's table. What is the honest next sentence?</p>
+      <div class="qopt">A · So the pilot should be sized for three searches</div>
+      <div class="qopt">B · So quantum wins for every workload with three or more searches per load</div>
+      <div class="qopt">C · But a workload with many searches per load is exactly where a classical index is built, and the index overtakes the quantum path past 4,224 searches, so the window is 3 to 4,224 under load 1 per row and query cost log2 N</div>
+      <q class="qwhy">The first crossing compares against a brute-force scan that nobody runs thousands of times. The second compares against an index, the fair rival at large R. Both edges move when the query cost or the load per row moves, which is why the parameters go in the sentence.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">What does the Giovannetti-Lloyd-Maccone quantum RAM proposal change about the loading tax?</p>
+      <div class="qopt">A · It makes one query cost about log N switches instead of N; it does nothing to make writing N classical values cost less than N writes, and it is a proposed architecture</div>
+      <div class="qopt">B · It makes the load cost log N instead of N, which removes the loading tax</div>
+      <div class="qopt">C · It removes the need for an oracle, so a search costs one call</div>
+      <q class="qwhy">The proposal is about the READ: a memory call through log N switches. The page's model uses that for its query cost, 23.5 on 12,000,000 rows. The WRITE of N rows stays order N, and every claim that relies on the memory relies on a design, not a device.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 7</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with the file from Part 3.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Make the load dearer</h4>
+        <p>Rerun step 3 with load_per_row at 2 and at 10. Write down which edge of the window moves and in which direction, and find any size where the window closes completely. Check two of your rows against the widget set to the same load. A load of 1 per row was the kindest value; this is what kindness was worth.</p>
+      </div>
+      <div class="step">
+        <h4>Price Brindle's order table</h4>
+        <p>Brindle's constructed order table has 4,000,000 rows. Compute its one-search row and its two crossings with your function. The numbers are yours, not the canon's, so label them "model output, declared parameters" wherever they go, and print the three parameters beside them.</p>
+      </div>
+      <div class="step">
+        <h4>Write the footnote for the vendor slide</h4>
+        <p>Three lines under the slide's search chart: the one-search row with the load in it, the window in searches per load, and the three parameters. Then one more line: how many searches the team actually runs between changes to the table, and whether an index already exists. Bring it to session 7, which adds the next term the slide left out, noise.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The load is order N</span><span class="note">One write per row before the first query; 12,000,000 writes on Brindle's constructed table.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">QRAM as an assumption</span><span class="note">Giovannetti-Lloyd-Maccone: a query through about log N switches; the write of N values stays N. A proposal, not a device.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Aaronson's first caveat</span><span class="note">A slow load kills the speedup in the very first step; the memory must be passive.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The one-search row</span><span class="note">12,063,988 for quantum against 6,000,000 brute force and 282,198,396 for an index; the load is twice the scan.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Searches per load</span><span class="note">Quantum beats brute force from R = 3 at 10,000 rows and up, R = 4 at 1,000.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The indexed baseline</span><span class="note">The index wins past 37, 118, 380, 1,211, 3,854 and 4,224 searches; Brindle's window is 3 to 4,224.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The three-parameter model</span><span class="note">Load per row, query cost, searches per load: built, asserted against the canon, printed beside every number.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Already-quantum data, cheap oracles</span><span class="note">The two cases with no load term; named, set to load 0 in the widget, and shown to be the exception.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Dequantization</span><span class="note">Tang 2018 named as the second half of Aaronson's test; taught in leader session 4.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Noise</span><span class="note">Every total here assumes a perfect circuit; session 7 adds a declared noise model.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Hardware measurement</span><span class="note">No machine is measured; the loading tax is a declared model throughout.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The tax.</strong> Loading N classical rows costs at least N writes, paid once per load, before the first oracle call.</div>
+      <div class="cheat-item"><strong>The memory.</strong> QRAM is a proposed architecture. Its read costs about log N switches; its write of N values still costs N.</div>
+      <div class="cheat-item"><strong>The one-search row.</strong> 12,000,000 rows: quantum 12,063,988 (12,000,000 load + 63,988 search), brute force 6,000,000.</div>
+      <div class="cheat-item"><strong>The ratio.</strong> Load over brute force is 2.0 at every size: one search never pays the load back.</div>
+      <div class="cheat-item"><strong>First crossing.</strong> Quantum beats brute force from R = 3 searches per load (R = 4 at 1,000 rows).</div>
+      <div class="cheat-item"><strong>Second crossing.</strong> A once-built index beats quantum past R = 37 at 1,000 rows, up to 4,224 at 12,000,000.</div>
+      <div class="cheat-item"><strong>The parameters.</strong> Load 1 per row, query cost log2 N, R searches per load, k = round(pi/4 sqrt N). Print them beside every number.</div>
+      <div class="cheat-item"><strong>The exception.</strong> No load when the data is already quantum or the oracle computes instead of reads. A data team's tables are neither.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 6 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p5-counting-queries.html">← Practitioner session 5 · Counting queries</a>
+        <a href="p7-a-noisy-circuit.html">Practitioner session 7 · A noisy circuit →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var selN = document.getElementById("p6-N");
+  var selR = document.getElementById("p6-R");
+  var selL = document.getElementById("p6-load");
+  var selQ = document.getElementById("p6-q");
+  var out = document.getElementById("p6-out");
+  var verdict = document.getElementById("p6-verdict");
+  var self = document.getElementById("p6-self");
+  var SIZES = [1000, 10000, 100000, 1000000, 10000000, 12000000];
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function whole(x) { return comma(Math.round(x)); }
+
+  function queryCost(N) {
+    var log2N = Math.log(N) / Math.LN2;
+    if (selQ.value === "free") return 1;
+    if (selQ.value === "ten") return 10 * log2N;
+    return log2N;
+  }
+  function queryLabel() {
+    if (selQ.value === "free") return "1 per call (a free oracle)";
+    if (selQ.value === "ten") return "10 x log2 N per call";
+    return "log2 N per call";
+  }
+
+  function windowText(r) {
+    if (r.crossBrute === null) return "none: brute force is cheaper at every R";
+    var lo = r.crossBrute < 1 ? 1 : r.crossBrute;
+    if (r.crossIndexed === null) return comma(lo) + " and up";
+    if (r.crossIndexed < lo) return "none: the index takes over first";
+    return comma(lo) + " to " + comma(r.crossIndexed);
+  }
+
+  function render() {
+    var N = Number(selN.value), R = Number(selR.value), load = Number(selL.value);
+    var q = queryCost(N);
+    var r = QS.loadingTax({ N: N, R: R, loadPerRow: load, queryCost: q });
+
+    var html = '<p class="sql-note">Model parameters: load ' + load + ' per row · query cost ' + queryLabel() + ', ' + q.toFixed(1) + ' at this N · R = ' + comma(R) + ' search' + (R === 1 ? '' : 'es') + ' per load · k = ' + comma(r.k) + ' oracle calls per search.</p>';
+    html += '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Path</th><th>Total operations, ' + comma(R) + ' search' + (R === 1 ? '' : 'es') + '</th><th>How it is made</th></tr></thead><tbody>';
+    html += '<tr><td>Quantum: load, then search</td><td>' + (r.winner === "quantum" ? "<b>" + whole(r.quantum) + "</b>" : whole(r.quantum)) + '</td><td>' + whole(r.quantumLoad) + ' to load + ' + whole(r.quantumSearch) + ' to search</td></tr>';
+    html += '<tr><td>Classical brute force</td><td>' + (r.winner === "classical brute force" ? "<b>" + whole(r.brute) + "</b>" : whole(r.brute)) + '</td><td>N/2 lookups per search, no load</td></tr>';
+    html += '<tr><td>Classical index, built once</td><td>' + (r.winner === "classical index" ? "<b>" + whole(r.indexed) + "</b>" : whole(r.indexed)) + '</td><td>N log2 N once, then ' + r.log2N.toFixed(1) + ' per search</td></tr>';
+    html += '</tbody></table></div>';
+
+    html += '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Rows N</th><th>Quantum, one search</th><th>Brute force, one search</th><th>Beats brute force from R</th><th>Index wins past R</th><th>Window for quantum</th></tr></thead><tbody>';
+    for (var i = 0; i < SIZES.length; i++) {
+      var s = QS.loadingTax({ N: SIZES[i], R: 1, loadPerRow: load, queryCost: queryCost(SIZES[i]) });
+      var b = SIZES[i] === N;
+      var lo = s.crossBrute === null ? "never" : comma(s.crossBrute < 1 ? 1 : s.crossBrute);
+      var hi = s.crossIndexed === null ? "never" : comma(s.crossIndexed);
+      var w = windowText(s);
+      html += '<tr><td>' + (b ? '<b>' + comma(SIZES[i]) + '</b>' : comma(SIZES[i])) + '</td><td>' + whole(s.quantum) + '</td><td>' + whole(s.brute) + '</td><td>' + lo + '</td><td>' + hi + '</td><td>' + (b ? '<b>' + w + '</b>' : w) + '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+    out.innerHTML = html;
+
+    var msg = "Cheapest at " + comma(R) + " search" + (R === 1 ? "" : "es") + " per load: " + r.winner + ". ";
+    if (load === 0) {
+      msg += "With no load this is the exception, data already in the machine or an oracle that computes instead of reads; the quantum path wins from the first search, until the index has amortised. ";
+    } else if (R === 1) {
+      msg += "The load alone is " + (r.quantumLoad / r.brute).toFixed(1) + " times the brute-force lookups, so for one search the square-root gain never gets a turn. ";
+    } else if (r.winner === "quantum") {
+      msg += "The load has been paid back and the index has not; this is the window a claim lives in. ";
+    } else if (r.winner === "classical index") {
+      msg += "The index, built once, now costs " + r.log2N.toFixed(1) + " a search against " + whole(r.quantumSearch / R) + " for the quantum path. ";
+    } else {
+      msg += "Not enough searches yet to pay back a load of " + whole(r.quantumLoad) + ". ";
+    }
+    msg += "Window on this table: " + windowText(QS.loadingTax({ N: N, R: 1, loadPerRow: load, queryCost: q })) + " searches per load. A declared model with the three parameters above, not a measurement of any machine.";
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the closed-form check on five qubits and the property that fails on a silent oracle. The loading tax on top of it is a declared model; its totals are arithmetic on the three parameters shown."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  selN.addEventListener("change", render);
+  selR.addEventListener("change", render);
+  selL.addEventListener("change", render);
+  selQ.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p6-tax .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 26rem; }
+  #p6-tax table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

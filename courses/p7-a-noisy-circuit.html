@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 7 of 10. Every gate gets a price. A declared global depolarising channel, one parameter per gate, applied to Grover's search on ten qubits: the ladder from p = 0 to p = 0.02, the optimum that moves earlier under noise, and the lever that always makes the number worse.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="A noisy circuit - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 7 of 10. One error per thousand gates turns 0.999461 into 0.346724 on ten qubits, modelled. One per hundred turns it into the uniform floor.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p7-a-noisy-circuit.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A noisy circuit - learn quantum with phoebe">
+<meta name="twitter:description" content="1,060 gates, one coin each. Add a qubit under noise and the answer gets worse, every time.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 7 · A noisy circuit - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 7 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 7 of 10</div>
+    <h1>A noisy <span class="accent">circuit</span></h1>
+    <p class="sub">Session 6 priced the load. Today you price every gate. The search that found its item 999 times in 1,000 on ten qubits did so on a simulator where no gate ever goes wrong, and no machine works like that. You add one declared parameter, an error rate per gate, to the simulator you built in sessions 1 to 4, run the noise ladder from p = 0 to p = 0.02 against the page's engine, and meet the one lever that, at one error per two hundred gates and at one per hundred, makes the answer worse every single time it is pulled: adding qubits.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone asked whether a circuit survives real gates</span>
+      <span class="chip audience">Has the Grover build from session 4</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · One gate, one coin</span>
+      <span class="a3" style="flex:2">15-25 · The ladder and the lever</span>
+      <span class="a4" style="flex:4">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Every gate gets a price</h2>
+    </div>
+    <p class="lede">Every number in sessions 4 to 6 came from an exact simulator: 0.999461 at ten qubits and 25 iterations, 25 oracle calls against 512 lookups. Exact means p = 0, a gate that never errs, and that is the one setting no hardware has. A circuit is a pipeline of gates, each of which can corrupt what it hands on, and the corruption compounds with length the way defect rates compound across the stages of a data pipeline. This session gives each gate an error rate, watches the success probability fall with depth, and finds that the one fix everybody reaches for first is the one that makes it fall faster.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> A noise parameter in your own numpy simulator, one counter and one weight routed through every gate, that reproduces the page's ladder to six decimals. The ladder itself on ten qubits: 0.999461 at p = 0, 0.346724 at one error per thousand gates, 0.001000 at one per hundred against a floor of 0.000977, all modelled. The reason the best depth moves earlier under noise. And the anti-lever, measured: at p = 0.005 and at p = 0.01, adding a qubit lowers the success probability at every step from two qubits to ten.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The slide with perfect gates<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A search slide with a square-root curve is a statement about a circuit, and a circuit has a depth: the number of gates it runs, one after another, before anyone reads the answer. The slide never prints that depth and never prints the error rate per gate, and the product of those two numbers decides whether the curve means anything. Session 5 counted oracle calls. Today counts gates, gives each one a chance of going wrong, and reads what is left at the end.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle is a constructed retailer and the vendor deck its board received is unnamed and constructed too. After session 6 the deck's search slide carried a loading footnote. The engineer added a second question beneath it for the review: how many gates deep is the search on our table, and what fraction of runs does the pilot expect to survive that many gates? The deck had no line for either. Today builds the arithmetic that line needs.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in code terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Depth, G.</strong> The number of gate calls in a run. For Grover on n qubits at k iterations the engine counts G = n + k(4n + 2): 1,060 at ten qubits and 25 iterations. The oracle and the multi-controlled flip count as one gate each, which undercounts hardware.</li>
+          <li><strong>Error rate, p.</strong> The probability that one gate call goes wrong. One number for every gate, declared on the widget.</li>
+          <li><strong>Global depolarising channel.</strong> When a gate goes wrong, the whole register is replaced by the uniform mixture, every basis state equally likely. That is the model's whole picture of an error.</li>
+          <li><strong>Keep.</strong> The weight of the ideal state still standing after G gates: (1 - p) to the G. One float, carried alongside the amplitudes.</li>
+          <li><strong>The uniform floor, 1 / N.</strong> What a fully scrambled register returns for any one item: 0.000977 at ten qubits. A success probability at the floor is a guess, not an answer.</li>
+          <li><strong>Ideal-optimal depth.</strong> The iteration count that maximises success at p = 0: 25 at ten qubits.</li>
+          <li><strong>Best any depth.</strong> The iteration count that maximises success under the chosen noise. It is never later than the ideal optimum, and under noise it is earlier.</li>
+          <li><strong>Modelled.</strong> Every noisy number on this page is the output of the declared one-parameter channel, never a measurement of any machine, and the model flatters hardware.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why a data team already knows this shape<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A pipeline of twenty stages, each of which drops one record in a hundred, delivers about 82 percent of its input. Nobody is surprised, because everyone has watched a long pipeline leak. The quantum version has the same compounding and one extra twist: a stage that goes wrong does not drop a record, it scrambles the whole register, and a scrambled register does not look broken. It returns an answer, just a uniformly random one, with the same confidence as a correct run. There is no null to filter and no row count to check. The only defence is the arithmetic before the run, which is what the rest of this session builds. (The pipeline figures in this card are a constructed illustration.)</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the depolarising channel, one gate at a time</span>
+      <h2>One gate, one coin</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The model is one sentence: each gate does its job with probability 1 - p, and with probability p it replaces the register with the uniform mixture. Draw that for one gate and the rest of the session is multiplication. The figure follows the probability of the item being searched for through a single gate and shows where the leaked share goes.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of one noisy gate. On the left a register of eight probability bars enters a gate box. The gate forks in two. The upper branch, taken with probability one minus p, is the gate doing its job: the output bars show the target slot tall and the rest short. The lower branch, taken with probability p, replaces the register with the uniform mixture: eight equal hatched bars, one over N each. The two branches merge on the right into a mixture: each bar now carries a hatched sliver of uniform at its base and the target bar carries the surviving share of the ideal on top. A band underneath gives the rule after G gates: the ideal survives with weight keep equals one minus p to the G, the rest is uniform, and success equals keep times ideal plus one minus keep over N. On ten qubits and 1,060 gates, p of 0.001 gives 0.346724; p of 0.01 gives keep of 0.00002 and success 0.001000 against a floor of 0.000977. All modelled.">
+        <defs>
+          <filter id="p7aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="71" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p7aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p7aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p7aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p7aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p7aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p7aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p7aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p7aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p7aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p7aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p7aH" x="30" y="26">ONE GATE, ONE COIN: WITH PROBABILITY p THE WHOLE REGISTER IS REPLACED BY THE UNIFORM MIXTURE.</text>
+
+        <g filter="url(#p7aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- box A: state in -->
+          <rect x="40" y="60" width="160" height="150" rx="10" transform="rotate(-0.4 120 135)" fill="#FFFFFF"/>
+          <rect x="54" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <rect x="71" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <rect x="88" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <rect x="105" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <rect x="122" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <rect x="139" y="132" width="12" height="48" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="156" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <rect x="173" y="170" width="12" height="10" fill="#EEEDF9"/>
+          <!-- gate box -->
+          <rect x="222" y="110" width="70" height="50" rx="8" transform="rotate(0.6 257 135)" fill="#EEEDF9" stroke="#3730A3"/>
+          <path d="M202 135 L218 135" marker-end="url(#p7aAr)"/>
+          <!-- fork -->
+          <path d="M294 126 L336 98" marker-end="url(#p7aAr)"/>
+          <path d="M294 146 L336 212" marker-end="url(#p7aAr)" stroke="#0E7490"/>
+          <!-- box B: the gate acts -->
+          <rect x="340" y="48" width="180" height="100" rx="10" transform="rotate(0.3 430 98)" fill="#FFFFFF"/>
+          <rect x="356" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <rect x="376" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <rect x="396" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <rect x="416" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <rect x="436" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <rect x="456" y="78" width="14" height="56" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="476" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <rect x="496" y="130" width="14" height="4" fill="#EEEDF9"/>
+          <!-- box C: scrambled -->
+          <rect x="340" y="166" width="180" height="100" rx="10" transform="rotate(-0.3 430 216)" fill="#E3F3F7"/>
+          <rect x="356" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="376" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="396" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="416" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="436" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="456" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="476" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <rect x="496" y="236" width="14" height="16" fill="url(#p7aHc)"/>
+          <!-- merge -->
+          <path d="M522 98 L556 140" marker-end="url(#p7aAr)"/>
+          <path d="M522 216 L556 190" marker-end="url(#p7aAr)" stroke="#0E7490"/>
+          <!-- box D: the mixture -->
+          <rect x="560" y="60" width="290" height="206" rx="10" transform="rotate(0.3 705 163)" fill="#FFFFFF"/>
+          <rect x="590" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="622" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="654" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="686" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="718" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="750" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="782" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="814" y="222" width="22" height="8" fill="url(#p7aHc)"/>
+          <rect x="750" y="172" width="22" height="50" fill="#0E7490" stroke="#0E7490"/>
+          <!-- band -->
+          <rect x="30" y="284" width="820" height="62" rx="10" transform="rotate(-0.15 440 315)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a coin -->
+          <circle cx="846" cy="22" r="9" fill="#FFFFFF"/>
+          <circle cx="846" cy="22" r="4"/>
+        </g>
+
+        <text class="p7aL" x="54" y="82">STATE IN</text>
+        <text class="p7aS" x="54" y="100">any state, mid-search</text>
+        <text class="p7aS" x="54" y="198">target slot in cyan</text>
+        <text class="p7aL" x="234" y="140">gate</text>
+        <text class="p7aA" x="304" y="92">1 - p</text>
+        <text class="p7aB" x="290" y="196">p</text>
+
+        <text class="p7aL" x="352" y="66">1 - p: the gate acts</text>
+        <text class="p7aS" x="352" y="84">ideal output</text>
+        <text class="p7aL" x="352" y="186">p: scrambled</text>
+        <text class="p7aS" x="352" y="206">uniform, 1 / N in every slot</text>
+
+        <text class="p7aL" x="574" y="82">AFTER THE GATE, A MIXTURE</text>
+        <text class="p7aS" x="574" y="102">(1 - p) of the ideal output</text>
+        <text class="p7aS" x="574" y="120">+ p of the uniform mixture</text>
+        <text class="p7aA" x="574" y="140">hatched: the share that leaked</text>
+        <text class="p7aS" x="574" y="158">later gates leave it uniform</text>
+        <text class="p7aB" x="761" y="250" text-anchor="middle">target</text>
+
+        <text class="p7aH" x="46" y="306">After G gates the ideal survives with weight keep = (1 - p) to the G. The rest is uniform.</text>
+        <text class="p7aB" x="46" y="330">success = keep x ideal + (1 - keep) / N    (the engine's noisySuccess, one line)</text>
+        <text class="p7aL" x="46" y="372">Ten qubits, 1,060 gates: p = 0.001 gives 0.346724. p = 0.01 gives keep 0.00002, so 0.001000; floor 0.000977.</text>
+        <text class="p7aN" x="30" y="398">Modelled. Real noise is per qubit and structured, and a real oracle is many gates: this flatters hardware.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one gate splits the register into a share that is still right and a share that is uniform, and no later gate can turn the uniform share back into an answer. Depth multiplies the split.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why one float carries the whole channel<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A register that is right with weight w and scrambled with weight 1 - w is not a statevector any more; it is a mixture, and the full description is a density matrix, N by N, which at ten qubits is a million entries. The channel never needs it. The scrambled part is the uniform mixture, the identity divided by N, and every gate in the set leaves the identity exactly where it is, because a gate only rotates the register and the uniform mixture looks the same from every angle. So after any number of gates the state is keep times the ideal state plus (1 - keep) times uniform, and only keep changes.</p>
+        <p>That is why the engine can run the exact statevector for the ideal part and carry one extra number for the noise. Each gate multiplies keep by (1 - p). At the end, the probability of reading the target is the target's diagonal entry of that mixture: keep times the ideal square, plus (1 - keep) over N. It is one line in the engine, <span class="mono">noisySuccess</span>, and one line in your build.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Predict before you run: (0.99) to the 1,060<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Write the expected number first, as in session 1. For small p, (1 - p) to the G is close to e to the minus pG, so the only thing to compute in your head is the product of the error rate and the depth. At p = 0.01 and G = 1,060 that product is about 10.6, and e to the minus 10.6 is about two in a hundred thousand: keep is 0.00002. Almost nothing of the ideal survives, so the success probability is the floor plus a crumb, 0.001000 against 0.000977.</p>
+        <p>At p = 0.001 the product is about 1.06, and e to the minus 1.06 is a little over a third. The engine prints 0.346724: about a third of the ideal 0.999461, plus a sliver of floor. If your prediction and the engine disagree by more than rounding, one of them is wrong, and the order of trust is the one session 1 set: the prediction, written before the run, is the thing you check the code against.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analyst, asked by the board what "a small error rate" would cost, did not open a notebook. She wrote pG on the whiteboard: the per-gate error the pilot assumes, times the depth of the search. Below one, she said, most runs survive. Around one, about a third do. Past ten, the machine is returning random rows with confidence. The figures were from the page's modelled ladder, and she said so; the board's question became "what is pG for us", which is the right question.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the model leaves out, and in which direction<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three simplifications, all declared. First, real errors are local: one qubit flips, one phase drifts, two neighbours couple when they should not. A global channel replaces all of that with one uniform scramble. Second, the engine counts the oracle and the multi-controlled flip as one gate each; a hardware oracle over loaded data and a ten-qubit controlled flip each decompose into many native gates, so the real G is far larger than 1,060. Third, nothing is sampled here: the success probability is the exact average over every way the coins could land, not one noisy run.</p>
+        <p>The direction is what matters. The second simplification alone makes every noisy number on this page an overestimate, because a larger G can only lower keep. Structured noise is sometimes kinder to a specific answer and sometimes harsher, which is why error correction exists and why it is not taught here. The page's position is the honest one: the model is a floor on the damage, and a claim that beats it should say which of the three simplifications it relies on.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers success against depth, and the anti-lever</span>
+      <h2>The ladder, and the lever that only makes it worse</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">Session 4 drew Grover's success curve climbing to its peak at 25 iterations on ten qubits. Apply the channel to every point of that curve and you get one curve per error rate. The figure draws five of them; the widget computes them live for any qubit count and lets you pull the anti-lever.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn chart of success probability against Grover iteration count on ten qubits, from 0 to 28 iterations, with the gate count under each tick. Five curves. The exact curve at p equals 0 climbs to 0.999461 at 25 iterations and 1,060 gates. The curve at p equals 0.001, in cyan, rises to a lower, earlier peak of 0.393189 at 19 iterations and reads 0.346724 at 25. The curves at p equals 0.005, 0.01 and 0.02 hug the floor and cannot be told apart at this scale. A table on the right lists the ladder: at 25 iterations, 0.999461, 0.346724, 0.005895, 0.001000 and 0.000977; best any depth, 0.999461 at 25, 0.393189 at 19, 0.046121 at 8, 0.013693 at 4, 0.004457 at 2; uniform floor 0.000977. A band underneath says under noise the best depth moves earlier, and still loses.">
+        <defs>
+          <filter id="p7bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="73" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p7bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p7bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p7bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p7bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p7bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p7bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p7bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p7bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p7bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p7bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p7bH" x="30" y="26">TEN QUBITS, FIVE ERROR RATES: SUCCESS AGAINST DEPTH, COMPUTED BY THE PAGE'S ENGINE.</text>
+
+        <g filter="url(#p7bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- chart panel -->
+          <rect x="30" y="44" width="540" height="326" rx="10" transform="rotate(-0.2 300 207)" fill="#FFFFFF"/>
+          <!-- axes -->
+          <path d="M76 72 L76 304 L540 304" stroke="#5A5B7A"/>
+          <path d="M72 80 L80 80 M72 190 L80 190" stroke="#5A5B7A"/>
+          <!-- floor -->
+          <path d="M80 299.8 L528 299.8" stroke="#C9C9DF" stroke-dasharray="4 4"/>
+          <!-- p = 0.02, 0.01, 0.005 -->
+          <path d="M80 299.8 L96 299.2 L112 299.0 L128 299.1 L144 299.3 L160 299.5 L176 299.6 L192 299.7 L208 299.7 L224 299.8 L528 299.8" stroke="#5A5B7A" stroke-width="1.6"/>
+          <path d="M80 299.8 L96 298.8 L112 297.8 L128 297.2 L144 297.0 L160 297.1 L176 297.3 L192 297.7 L208 298.0 L224 298.4 L240 298.7 L256 299.0 L272 299.2 L288 299.3 L304 299.5 L336 299.6 L400 299.7 L528 299.8" stroke="#9A97D4" stroke-width="1.6"/>
+          <path d="M80 299.8 L96 298.5 L112 296.6 L128 294.7 L144 292.9 L160 291.6 L176 290.6 L192 290.0 L208 289.9 L224 290.0 L240 290.3 L256 290.9 L272 291.5 L288 292.2 L304 293.0 L320 293.7 L336 294.5 L352 295.2 L368 295.8 L384 296.4 L400 296.9 L416 297.4 L432 297.8 L448 298.2 L464 298.5 L480 298.7 L496 298.9 L512 299.1 L528 299.2" stroke="#3730A3" stroke-width="1.6"/>
+          <!-- p = 0.001 -->
+          <path d="M80 299.8 L96 298.2 L112 295.1 L128 290.9 L144 285.8 L160 279.9 L176 273.5 L192 266.8 L208 260.0 L224 253.2 L240 246.6 L256 240.4 L272 234.7 L288 229.5 L304 224.9 L320 221.1 L336 218.0 L352 215.7 L368 214.2 L384 213.5 L400 213.5 L416 214.3 L432 215.8 L448 217.9 L464 220.5 L480 223.7 L496 227.3 L512 231.3 L528 235.6" stroke="#0E7490" stroke-width="2.6"/>
+          <!-- p = 0 -->
+          <path d="M80 299.8 L96 298.1 L112 294.7 L128 289.6 L144 283.0 L160 275.0 L176 265.6 L192 255.1 L208 243.5 L224 231.1 L240 218.1 L256 204.6 L272 190.9 L288 177.2 L304 163.6 L320 150.5 L336 138.0 L352 126.3 L368 115.7 L384 106.1 L400 97.9 L416 91.1 L432 85.9 L448 82.3 L464 80.3 L480 80.1 L496 81.6 L512 84.8 L528 89.6" stroke-dasharray="7 5"/>
+          <!-- marked points -->
+          <circle cx="480" cy="80.1" r="4" fill="#FFFFFF"/>
+          <circle cx="480" cy="223.7" r="4" fill="#FFFFFF" stroke="#0E7490"/>
+          <circle cx="384" cy="213.5" r="5" fill="#0E7490" stroke="#0E7490"/>
+          <!-- table panel -->
+          <rect x="590" y="44" width="260" height="326" rx="10" transform="rotate(0.3 720 207)" fill="#EEEDF9"/>
+          <!-- highlight the p = 0.001 row -->
+          <rect x="598" y="150" width="244" height="26" rx="6" fill="none" stroke="#0E7490" stroke-width="2"/>
+          <!-- band -->
+          <rect x="30" y="384" width="820" height="40" rx="10" transform="rotate(0.15 440 404)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="842" cy="22" r="9" fill="#FFFFFF"/>
+          <path d="M842 22 L848 16"/>
+        </g>
+
+        <!-- axis labels -->
+        <text class="p7bS" x="68" y="84" text-anchor="end">1</text>
+        <text class="p7bS" x="68" y="194" text-anchor="end">0.5</text>
+        <text class="p7bS" x="68" y="308" text-anchor="end">0</text>
+        <text class="p7bS" x="80" y="322" text-anchor="middle">0</text>
+        <text class="p7bS" x="144" y="322" text-anchor="middle">4</text>
+        <text class="p7bS" x="208" y="322" text-anchor="middle">8</text>
+        <text class="p7bB" x="384" y="322" text-anchor="middle">19</text>
+        <text class="p7bL" x="480" y="322" text-anchor="middle">25</text>
+        <text class="p7bS" x="80" y="338" text-anchor="middle">10</text>
+        <text class="p7bS" x="144" y="338" text-anchor="middle">178</text>
+        <text class="p7bS" x="208" y="338" text-anchor="middle">346</text>
+        <text class="p7bS" x="384" y="338" text-anchor="middle">808</text>
+        <text class="p7bS" x="480" y="338" text-anchor="middle">1,060</text>
+        <text class="p7bA" x="46" y="358">iterations k, with gates G beneath; success probability up the side</text>
+
+        <!-- curve labels -->
+        <text class="p7bL" x="96" y="100">p = 0, the exact simulator</text>
+        <text class="p7bS" x="96" y="116">0.999461 at k = 25</text>
+        <text class="p7bB" x="300" y="196">p = 0.001</text>
+        <text class="p7bB" x="300" y="212">0.393189 at k = 19</text>
+        <text class="p7bS" x="250" y="282">p = 0.005, 0.01 and 0.02 all hug the floor</text>
+
+        <!-- table -->
+        <text class="p7bL" x="604" y="68">THE LADDER, k = 25</text>
+        <text class="p7bS" x="604" y="86">1,060 gates, modelled</text>
+        <text class="p7bA" x="604" y="114">p</text>
+        <text class="p7bA" x="728" y="114" text-anchor="end">at k = 25</text>
+        <text class="p7bA" x="836" y="114" text-anchor="end">best (at k)</text>
+        <text class="p7bL" x="604" y="142">0</text>
+        <text class="p7bL" x="728" y="142" text-anchor="end">0.999461</text>
+        <text class="p7bS" x="836" y="142" text-anchor="end">0.999461 (25)</text>
+        <text class="p7bB" x="604" y="168">0.001</text>
+        <text class="p7bB" x="728" y="168" text-anchor="end">0.346724</text>
+        <text class="p7bB" x="836" y="168" text-anchor="end">0.393189 (19)</text>
+        <text class="p7bL" x="604" y="200">0.005</text>
+        <text class="p7bL" x="728" y="200" text-anchor="end">0.005895</text>
+        <text class="p7bS" x="836" y="200" text-anchor="end">0.046121 (8)</text>
+        <text class="p7bL" x="604" y="228">0.01</text>
+        <text class="p7bL" x="728" y="228" text-anchor="end">0.001000</text>
+        <text class="p7bS" x="836" y="228" text-anchor="end">0.013693 (4)</text>
+        <text class="p7bL" x="604" y="256">0.02</text>
+        <text class="p7bL" x="728" y="256" text-anchor="end">0.000977</text>
+        <text class="p7bS" x="836" y="256" text-anchor="end">0.004457 (2)</text>
+        <text class="p7bS" x="604" y="290">uniform floor 1 / N</text>
+        <text class="p7bL" x="836" y="290" text-anchor="end">0.000977</text>
+        <text class="p7bS" x="604" y="320">at p = 0.01 the best depth is</text>
+        <text class="p7bS" x="604" y="338">fourteen times the floor, and</text>
+        <text class="p7bS" x="604" y="356">nothing like an answer</text>
+
+        <text class="p7bH" x="46" y="409">Under noise the best depth moves earlier: 19, then 8, 4, 2. Shorter circuits toss fewer coins, and still lose.</text>
+        <text class="p7bN" x="30" y="448">Modelled, global depolarising. The engine counts the oracle as one gate, which undercounts hardware.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the exact curve is the only one that reaches an answer. At one error per thousand gates the peak is lower and earlier; from one per two hundred the whole curve lies on the floor.</figcaption>
+    </figure>
+
+    <div class="wk" id="p7-noise">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Grover's success curve from the page's engine, with a declared global depolarising error per gate applied to every point. Modelled, and kinder than any hardware. The second table is the anti-lever: the same error rate at every qubit count.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p7-n">Qubits</label>
+        <select class="sql-code" id="p7-n">
+          <option value="2">2 qubits, 4 items</option>
+          <option value="3">3 qubits, 8 items</option>
+          <option value="4">4 qubits, 16 items</option>
+          <option value="5">5 qubits, 32 items</option>
+          <option value="6">6 qubits, 64 items</option>
+          <option value="7">7 qubits, 128 items</option>
+          <option value="8">8 qubits, 256 items</option>
+          <option value="9">9 qubits, 512 items</option>
+          <option value="10" selected>10 qubits, 1,024 items</option>
+        </select>
+        <label class="sql-label" for="p7-p">Error per gate, global depolarising</label>
+        <select class="sql-code" id="p7-p">
+          <option value="0">0, the exact simulator</option>
+          <option value="0.001" selected>0.001, one in a thousand</option>
+          <option value="0.005">0.005, one in two hundred</option>
+          <option value="0.01">0.01, one in a hundred</option>
+          <option value="0.02">0.02, one in fifty</option>
+        </select>
+        <div id="p7-out"></div>
+        <p class="sql-note" id="p7-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p7-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three runs worth doing first<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave it alone.</strong> Ten qubits, p = 0.001. Scroll the curve: the exact column peaks at 0.999461 on iteration 25; the modelled column peaks earlier, at 0.393189 on iteration 19, and has fallen to 0.346724 by iteration 25. The optimum moved, because each extra iteration adds 42 gates of risk for less and less amplitude gain.</li>
+          <li><strong>Move to p = 0.01.</strong> The modelled column at iteration 25 reads 0.001000 against a floor of 0.000977. The best any depth can do is 0.013693 at four iterations: fourteen times the floor and nothing like an answer. Run it a thousand times and the target turns up about as often as any other row.</li>
+          <li><strong>Read the second table at p = 0.005.</strong> Down the qubit column the gates climb from 12 to 1,060 and the modelled success falls at every step: 0.9562, 0.8273, 0.7346, 0.6385, 0.4511, 0.2942, 0.1277, 0.0394, 0.0059. There is no row where adding a qubit helps. Now go back to p = 0.001 and find the one row that rises, between four and five qubits. The noise did not get kinder there: the exact optimum itself jumps from 0.9613 to 0.9992, and at one error per thousand gates that jump outweighs the 35 extra gates. The trend still falls to ten qubits, and the widget says so rather than hiding the wobble.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The anti-lever: add more qubits<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When a search is too small, the reflex is to make the register bigger. At the error rates the canon measured, 0.005 and 0.01 per gate, this lever turns one way only; at gentler rates the trend is the same with the odd wobble where the exact optimum jumps. Each added qubit doubles the number of items, so the ideal iteration count grows as the square root of N, and each iteration also gets longer, 4n + 2 gates. Depth grows on both counts and keep falls with it. At p = 0.01 the anti-lever table reads 0.9148 at two qubits, 0.5643 at four, 0.2082 at six, 0.0191 at eight and 0.0010 at ten, modelled. Every number is worse than the one before it.</p>
+        <p>This is the framing Preskill gave the field in 2018. Noisy intermediate-scale quantum devices, NISQ in his acronym, are limited by noise in their gates, which limits the size of circuit that can be run reliably; the longer path runs through more accurate gates and, "eventually", fault tolerance, for which his abstract gives no date. The ladder above is that sentence measured on a model: the size of circuit that runs reliably is set by pG, and adding qubits raises G.</p>
+        <p>Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>The constructed vendor deck's answer to a too-small demo was the word "scale". Brindle's 12,000,000 constructed customer rows need 24 qubits of index, and the closed form the engine is checked against puts the ideal search at about 3,217 iterations against 25 here, each iteration longer than a ten-qubit one. That is arithmetic past the simulator, not a simulation, and the engineer wrote it beside the anti-lever table: the deck's lever is the one that, at every error rate above zero, makes the number worse.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the ladder does not tell you: when<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The ladder says what an error rate does to a circuit of a given depth. It says nothing about when hardware will reach any particular error rate, and neither does any source this track relies on. Three primary sources take three different stances, and none gives a year. Preskill 2018 treats noisy devices as the near term and fault tolerance as arriving "eventually". The NIST IR 8547 initial public draft plans as if a cryptographically relevant machine may arrive within the secrecy life of data encrypted today, and says migration must start even if such computers are a decade away. Aaronson 2015 writes "supposing we had a quantum computer" and asks what it would be for.</p>
+        <p>None of the three resolves the others, and this page does not either. The useful move for a data team is to stop asking when and start asking what pG a claim assumes, which is a number a vendor can be asked to write down. Session 5 of the leader track takes the timeline to depth.</p>
+        <p>Moody, D., Perlner, R., Regenscheid, A., Robinson, A. and Cooper, D. (2024). Transition to Post-Quantum Cryptography Standards. NIST IR 8547 ipd, initial public draft, November 2024. Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Add a noise parameter to your simulator</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">One file, six steps, run in order; each step uses what the one before defined. Step 1 restates the pieces you built in sessions 1 to 4 with two additions: a gate counter and a keep weight that every gate multiplies by (1 - p). Nothing is sampled, so every number is exact, and the outputs below were printed by this exact code on Python 3.11 with numpy 1.26. Step 4 asserts the ladder against the canon; if it raises, the build is wrong, not the canon.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 476" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of what step 5 of the build-along prints, the anti-lever. Nine columns for two to ten qubits. Above each column a hatched bar for the gate count, rising from 12 gates at two qubits through 31, 58, 93, 162, 247 and 416 to 655 at nine and 1,060 at ten. Under the bars, the iteration count at the ideal optimum, 1, 2, 3, 4, 6, 8, 12, 17, 25. Then three rows of numbers: ideal success, near one in every column; modelled success at p equals 0.005, 0.9562, 0.8273, 0.7346, 0.6385, 0.4511, 0.2942, 0.1277, 0.0394, 0.0059; and at p equals 0.01, 0.9148, 0.7257, 0.5643, 0.4114, 0.2082, 0.0903, 0.0191, 0.0033, 0.0010. At the bottom a cyan staircase for the p equals 0.005 row steps down at every column. A band says depth grows as n plus k times 4n plus 2, with k near pi over 4 root N, so each qubit adds gates per iteration and iterations.">
+        <defs>
+          <filter id="p7cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="79" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p7cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p7cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p7cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p7cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p7cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p7cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p7cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p7cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p7cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p7cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p7cH" x="30" y="26">STEP 5 PRINTS THE ANTI-LEVER: EACH QUBIT ADDED LENGTHENS THE CIRCUIT, AND THE ANSWER GETS WORSE.</text>
+
+        <g filter="url(#p7cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="30" y="40" width="820" height="350" rx="10" transform="rotate(-0.15 440 215)" fill="#FFFFFF"/>
+          <!-- gate bars, baseline 200, height = gates / 1060 x 108 -->
+          <path d="M80 200 L842 200" stroke="#C9C9DF"/>
+          <rect x="103" y="198" width="34" height="2" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="188" y="196.8" width="34" height="3.2" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="273" y="194.1" width="34" height="5.9" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="358" y="190.5" width="34" height="9.5" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="443" y="183.5" width="34" height="16.5" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="528" y="174.8" width="34" height="25.2" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="613" y="157.6" width="34" height="42.4" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="698" y="133.3" width="34" height="66.7" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <rect x="783" y="92" width="34" height="108" fill="url(#p7cHc)" stroke="#3730A3"/>
+          <!-- the falling staircase, success at p = 0.005, baseline 380, height = v x 60 -->
+          <path d="M77.5 380 L77.5 322.6 L162.5 322.6 L162.5 330.4 L247.5 330.4 L247.5 335.9 L332.5 335.9 L332.5 341.7 L417.5 341.7 L417.5 352.9 L502.5 352.9 L502.5 362.3 L587.5 362.3 L587.5 372.3 L672.5 372.3 L672.5 377.6 L757.5 377.6 L757.5 379.6 L842.5 379.6 L842.5 380 Z" fill="#E3F3F7" stroke="#0E7490"/>
+          <!-- band -->
+          <rect x="30" y="400" width="820" height="40" rx="10" transform="rotate(0.15 440 420)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a die -->
+          <rect x="828" y="10" width="18" height="18" rx="4" transform="rotate(4 837 19)" fill="#FFFFFF"/>
+          <circle cx="833" cy="15" r="1.5" fill="#16153A"/>
+          <circle cx="841" cy="23" r="1.5" fill="#16153A"/>
+        </g>
+
+        <!-- qubit labels -->
+        <text class="p7cL" x="120" y="64" text-anchor="middle">n = 2</text>
+        <text class="p7cL" x="205" y="64" text-anchor="middle">3</text>
+        <text class="p7cL" x="290" y="64" text-anchor="middle">4</text>
+        <text class="p7cL" x="375" y="64" text-anchor="middle">5</text>
+        <text class="p7cL" x="460" y="64" text-anchor="middle">6</text>
+        <text class="p7cL" x="545" y="64" text-anchor="middle">7</text>
+        <text class="p7cL" x="630" y="64" text-anchor="middle">8</text>
+        <text class="p7cL" x="715" y="64" text-anchor="middle">9</text>
+        <text class="p7cL" x="800" y="64" text-anchor="middle">10</text>
+        <text class="p7cA" x="46" y="86">gates G, the pile</text>
+
+        <!-- k row -->
+        <text class="p7cA" x="40" y="218">k</text>
+        <text class="p7cS" x="120" y="218" text-anchor="middle">1</text>
+        <text class="p7cS" x="205" y="218" text-anchor="middle">2</text>
+        <text class="p7cS" x="290" y="218" text-anchor="middle">3</text>
+        <text class="p7cS" x="375" y="218" text-anchor="middle">4</text>
+        <text class="p7cS" x="460" y="218" text-anchor="middle">6</text>
+        <text class="p7cS" x="545" y="218" text-anchor="middle">8</text>
+        <text class="p7cS" x="630" y="218" text-anchor="middle">12</text>
+        <text class="p7cS" x="715" y="218" text-anchor="middle">17</text>
+        <text class="p7cS" x="800" y="218" text-anchor="middle">25</text>
+        <!-- gates row -->
+        <text class="p7cA" x="40" y="238">G</text>
+        <text class="p7cL" x="120" y="238" text-anchor="middle">12</text>
+        <text class="p7cL" x="205" y="238" text-anchor="middle">31</text>
+        <text class="p7cL" x="290" y="238" text-anchor="middle">58</text>
+        <text class="p7cL" x="375" y="238" text-anchor="middle">93</text>
+        <text class="p7cL" x="460" y="238" text-anchor="middle">162</text>
+        <text class="p7cL" x="545" y="238" text-anchor="middle">247</text>
+        <text class="p7cL" x="630" y="238" text-anchor="middle">416</text>
+        <text class="p7cL" x="715" y="238" text-anchor="middle">655</text>
+        <text class="p7cL" x="800" y="238" text-anchor="middle">1,060</text>
+        <!-- ideal row -->
+        <text class="p7cA" x="40" y="262">ideal</text>
+        <text class="p7cS" x="120" y="262" text-anchor="middle">1.0000</text>
+        <text class="p7cS" x="205" y="262" text-anchor="middle">0.9453</text>
+        <text class="p7cS" x="290" y="262" text-anchor="middle">0.9613</text>
+        <text class="p7cS" x="375" y="262" text-anchor="middle">0.9992</text>
+        <text class="p7cS" x="460" y="262" text-anchor="middle">0.9966</text>
+        <text class="p7cS" x="545" y="262" text-anchor="middle">0.9956</text>
+        <text class="p7cS" x="630" y="262" text-anchor="middle">0.9999</text>
+        <text class="p7cS" x="715" y="262" text-anchor="middle">0.9994</text>
+        <text class="p7cS" x="800" y="262" text-anchor="middle">0.9995</text>
+        <!-- p = 0.005 row -->
+        <text class="p7cA" x="40" y="284">.005</text>
+        <text class="p7cB" x="120" y="284" text-anchor="middle">0.9562</text>
+        <text class="p7cB" x="205" y="284" text-anchor="middle">0.8273</text>
+        <text class="p7cB" x="290" y="284" text-anchor="middle">0.7346</text>
+        <text class="p7cB" x="375" y="284" text-anchor="middle">0.6385</text>
+        <text class="p7cB" x="460" y="284" text-anchor="middle">0.4511</text>
+        <text class="p7cB" x="545" y="284" text-anchor="middle">0.2942</text>
+        <text class="p7cB" x="630" y="284" text-anchor="middle">0.1277</text>
+        <text class="p7cB" x="715" y="284" text-anchor="middle">0.0394</text>
+        <text class="p7cB" x="800" y="284" text-anchor="middle">0.0059</text>
+        <!-- p = 0.01 row -->
+        <text class="p7cA" x="40" y="306">.01</text>
+        <text class="p7cS" x="120" y="306" text-anchor="middle">0.9148</text>
+        <text class="p7cS" x="205" y="306" text-anchor="middle">0.7257</text>
+        <text class="p7cS" x="290" y="306" text-anchor="middle">0.5643</text>
+        <text class="p7cS" x="375" y="306" text-anchor="middle">0.4114</text>
+        <text class="p7cS" x="460" y="306" text-anchor="middle">0.2082</text>
+        <text class="p7cS" x="545" y="306" text-anchor="middle">0.0903</text>
+        <text class="p7cS" x="630" y="306" text-anchor="middle">0.0191</text>
+        <text class="p7cS" x="715" y="306" text-anchor="middle">0.0033</text>
+        <text class="p7cS" x="800" y="306" text-anchor="middle">0.0010</text>
+
+        <text class="p7cB" x="500" y="332">the p = 0.005 row as a staircase: down at every step</text>
+
+        <text class="p7cH" x="46" y="425">Depth is n + k(4n + 2), with k near pi/4 sqrt N: each qubit adds gates per iteration AND iterations.</text>
+        <text class="p7cN" x="30" y="464">Modelled, global depolarising. Gate counts treat the oracle as one gate, which undercounts hardware.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the pile of gates grows faster than the qubit count, and the staircase of surviving success falls at every column. Nine columns, no exceptions.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>A gate counter with a keep weight</h4>
+        <p>Your simulator from sessions 1 to 4, with every gate routed through one function, <span class="mono">tick</span>, that counts the gate and multiplies keep by (1 - p). That is the whole noise model. The success function reads the target's entry of the mixture. Run it at p = 0 first: it must reproduce the exact canon.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import math
+import numpy as np
+
+def new_state(n, p_noise=0.0):
+    N = 1 &lt;&lt; n
+    re = np.zeros(N); im = np.zeros(N); re[0] = 1.0
+    return {"n": n, "N": N, "re": re, "im": im, "gates": 0, "p": p_noise, "keep": 1.0}
+
+def tick(s):                       # every gate call goes through here
+    s["gates"] += 1
+    s["keep"] *= (1.0 - s["p"])    # the channel: a share p of the register leaks to uniform
+
+def apply_h(s, q):
+    bit = 1 &lt;&lt; q
+    i = np.arange(s["N"]); i = i[(i &amp; bit) == 0]; j = i | bit
+    ar, ai = s["re"][i].copy(), s["im"][i].copy()
+    br, bi = s["re"][j].copy(), s["im"][j].copy()
+    r = np.sqrt(0.5)
+    s["re"][i] = (ar + br) * r; s["im"][i] = (ai + bi) * r
+    s["re"][j] = (ar - br) * r; s["im"][j] = (ai - bi) * r
+    tick(s)
+
+def apply_x(s, q):
+    bit = 1 &lt;&lt; q
+    i = np.arange(s["N"]); i = i[(i &amp; bit) == 0]; j = i | bit
+    for k in ("re", "im"):
+        a = s[k][i].copy(); s[k][i] = s[k][j]; s[k][j] = a
+    tick(s)
+
+def phase_flip(s, idx):
+    s["re"][idx] = -s["re"][idx]; s["im"][idx] = -s["im"][idx]
+    tick(s)
+
+def diffusion(s):
+    for q in range(s["n"]): apply_h(s, q)
+    for q in range(s["n"]): apply_x(s, q)
+    phase_flip(s, s["N"] - 1)
+    for q in range(s["n"]): apply_x(s, q)
+    for q in range(s["n"]): apply_h(s, q)
+
+def success(s, target):            # target entry of keep * ideal + (1 - keep) * uniform
+    ideal = s["re"][target] ** 2 + s["im"][target] ** 2
+    return s["keep"] * ideal + (1.0 - s["keep"]) / s["N"]
+
+def noisy_curve(n, target, kmax, p_noise):
+    s = new_state(n, p_noise)
+    for q in range(n): apply_h(s, q)
+    out = [(0, s["gates"], success(s, target))]
+    for k in range(1, kmax + 1):
+        phase_flip(s, target); diffusion(s)
+        out.append((k, s["gates"], success(s, target)))
+    return out
+
+c = noisy_curve(10, 0, 25, 0.0)
+print("step 1: k = %d, gates = %d, success = %.6f" % c[-1])
+# step 1: k = 25, gates = 1060, success = 0.999461</div>
+      </div>
+      <div class="step">
+        <h4>Predict, then run p = 0.01</h4>
+        <p>Write the prediction from Part 1 first: pG is about 10.6, so keep is about two in a hundred thousand and the answer should sit just above the floor. Then run it. The success probability is 0.001000 against a floor of 0.000977, the same as the widget.</p>
+        <div class="prompt-box good"><span class="label">Python</span>print("step 2: predicted keep = 0.99 ** 1060 = %.5f" % (0.99 ** 1060))
+c = noisy_curve(10, 0, 25, 0.01)
+print("        k = %d, gates = %d, success = %.6f, floor 1/N = %.6f" % (c[-1] + (1 / 1024,)))
+# step 2: predicted keep = 0.99 ** 1060 = 0.00002
+#         k = 25, gates = 1060, success = 0.001000, floor 1/N = 0.000977</div>
+      </div>
+      <div class="step">
+        <h4>The ladder: five error rates, two columns each</h4>
+        <p>For each p, run the curve to 28 iterations, three past the ideal optimum, and read two numbers: success at iteration 25, and the best success at any depth with the iteration that gives it. The second column is the one the exact simulator could never show you.</p>
+        <div class="prompt-box good"><span class="label">Python</span>kmax = math.floor(math.pi / 4 * math.sqrt(1024)) + 3
+ladder = {}
+print("step 3:   p      at k=25   best any depth  at k")
+for p in (0, 0.001, 0.005, 0.01, 0.02):
+    curve = noisy_curve(10, 0, kmax, p)
+    at25 = curve[25][2]
+    bk, _, bp = max(curve, key=lambda r: r[2])
+    ladder[p] = (at25, bp, bk)
+    print("        %-6g  %.6f  %.6f        %d" % (p, at25, bp, bk))
+# step 3:   p      at k=25   best any depth  at k
+#         0       0.999461  0.999461        25
+#         0.001   0.346724  0.393189        19
+#         0.005   0.005895  0.046121        8
+#         0.01    0.001000  0.013693        4
+#         0.02    0.000977  0.004457        2</div>
+      </div>
+      <div class="step">
+        <h4>Assert the canon</h4>
+        <p>Fifteen numbers, every rung of the ladder, checked to six decimals. If this raises, the error is in your build: most often a gate that skips <span class="mono">tick</span>, which leaves keep too high and the noisy numbers too kind.</p>
+        <div class="prompt-box good"><span class="label">Python</span>canon = {0: (0.999461, 0.999461, 25), 0.001: (0.346724, 0.393189, 19),
+         0.005: (0.005895, 0.046121, 8), 0.01: (0.001000, 0.013693, 4),
+         0.02: (0.000977, 0.004457, 2)}
+for p, (a, b, k) in canon.items():
+    assert round(ladder[p][0], 6) == a and round(ladder[p][1], 6) == b and ladder[p][2] == k, p
+print("step 4: all five rungs match the canon to six decimals")
+# step 4: all five rungs match the canon to six decimals</div>
+      </div>
+      <div class="step">
+        <h4>Pull the anti-lever</h4>
+        <p>For n from 2 to 10, find the ideal-optimal iteration count, then read success at that depth under p = 0.005 and p = 0.01. This is the table the figure above draws. Read down either noisy column and look for a row that goes up.</p>
+        <div class="prompt-box good"><span class="label">Python</span>print("step 5:  n   gates   ideal   p=0.005  p=0.01")
+for n in range(2, 11):
+    ideal_curve = noisy_curve(n, 0, math.floor(math.pi / 4 * math.sqrt(1 &lt;&lt; n)) + 3, 0.0)
+    kopt, g, ideal = max(ideal_curve[1:], key=lambda r: r[2])
+    a = noisy_curve(n, 0, kopt, 0.005)[-1][2]
+    b = noisy_curve(n, 0, kopt, 0.01)[-1][2]
+    print("        %2d  %5d   %.4f  %.4f   %.4f" % (n, g, ideal, a, b))
+# step 5:  n   gates   ideal   p=0.005  p=0.01
+#          2     12   1.0000  0.9562   0.9148
+#          3     31   0.9453  0.8273   0.7257
+#          4     58   0.9613  0.7346   0.5643
+#          5     93   0.9992  0.6385   0.4114
+#          6    162   0.9966  0.4511   0.2082
+#          7    247   0.9956  0.2942   0.0903
+#          8    416   0.9999  0.1277   0.0191
+#          9    655   0.9994  0.0394   0.0033
+#         10   1060   0.9995  0.0059   0.0010</div>
+      </div>
+      <div class="step">
+        <h4>Break it on purpose</h4>
+        <p>Move the keep update out of <span class="mono">tick</span> and into <span class="mono">apply_h</span> only, so X gates and phase flips stop counting as risk while the gate counter still says 1,060. Rerun from step 1. Step 4 raises <span class="mono">AssertionError: 0.001</span> on the first noisy rung, because a build that forgets some gates reports a success probability that is too kind. That is the fault to look for first in any noisy number you are handed: which gates were left out of G.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Before any run, write pG: the error per gate times the depth. Below one, most runs survive; around one, a third or so; past ten, the circuit returns the floor with confidence. A claim that does not print both numbers has not told you whether it works, and a claim that prints a G has still to say whether its oracle counted as one gate.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">On ten qubits at p = 0.01 the modelled success at 25 iterations is 0.001000. What does that number tell you?</p>
+      <div class="qopt">A · The search has failed: the uniform floor is 0.000977, so the target turns up about as often as any other row and the answer cannot be told from a random draw</div>
+      <div class="qopt">B · The search works one time in a thousand, so run it a thousand times and take the most frequent result</div>
+      <div class="qopt">C · The simulator has a bug, because Grover's search cannot score below 0.5 at its optimum</div>
+      <q class="qwhy">With 1,060 gates at one error per hundred, keep is 0.00002 and almost nothing of the ideal state survives. 0.001000 is the floor plus a crumb. A thousand runs would return the target about as often as each of the other 1,023 items, so the most frequent result is decided by the random draw, not the oracle.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">At p = 0.001 the ideal optimum is 25 iterations, but the best modelled success, 0.393189, comes at 19. Why does noise move the optimum earlier?</p>
+      <div class="qopt">A · Noise changes the rotation angle of each Grover iteration, so the peak shifts</div>
+      <div class="qopt">B · Each iteration adds 42 gates of risk while its gain in ideal amplitude shrinks near the peak; past 19 the loss in keep outweighs the gain, so a shorter circuit does better</div>
+      <div class="qopt">C · The engine stops early to save time when p is not zero</div>
+      <q class="qwhy">The ideal curve flattens as it approaches its peak, so the last few iterations add very little amplitude. Each still costs 4n + 2 = 42 gates, and each gate multiplies keep by 0.999. The product of the two peaks earlier. The amplitudes themselves are untouched: the same exact statevector, weighted by a smaller keep.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A constructed pilot proposal says the ten-qubit demo is too small and the fix is a bigger register at the same error rate per gate. What does the anti-lever table predict?</p>
+      <div class="qopt">A · Success rises, because a bigger register gives the search more room</div>
+      <div class="qopt">B · Success stays the same, because the error rate per gate has not changed</div>
+      <div class="qopt">C · Success falls: each added qubit raises both the iterations needed, about pi/4 sqrt N, and the gates per iteration, 4n + 2, so the depth G grows and keep = (1 - p) to the G shrinks at every step</div>
+      <q class="qwhy">The table falls at every row at p = 0.005 and at p = 0.01: at p = 0.005 from 0.9562 at two qubits to 0.0059 at ten, modelled. A fixed per-gate error is not a fixed per-run error; the per-run survival is (1 - p) to the G, and G is what a bigger register raises.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 8</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with your build from today.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find the error rate that keeps ten qubits above a half</h4>
+        <p>Using your noisy curve, search for the largest p at which the best any depth can do on ten qubits is still above 0.5. Write down the pG at that point. Then do the same on six qubits and compare the two pG values. Predict the comparison before you run it.</p>
+      </div>
+      <div class="step">
+        <h4>Undercount on purpose, then correct it</h4>
+        <p>Make the oracle cost m gates instead of one by calling <span class="mono">tick</span> m times inside <span class="mono">phase_flip</span> when it is the oracle. Try m = 10 and m = 100 at p = 0.001 and write down how far the ten-qubit success falls. That is the size of the flattery in the page's gate count, under one assumption about the oracle that you chose and should state.</p>
+      </div>
+      <div class="step">
+        <h4>Write the noise footnote for the vendor slide</h4>
+        <p>Three lines for Brindle's constructed deck: the depth the search needs on the table, the error per gate the pilot assumes, and the modelled success those two imply, labelled as modelled. Session 8 adds it to the fine-print checklist.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The global depolarising channel</span><span class="note">One parameter per gate: with probability p the register is replaced by the uniform mixture.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Keep = (1 - p) to the G</span><span class="note">Why the uniform part stays uniform, so one float carries the whole channel; success = keep x ideal + (1 - keep) / N.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Predicting with pG</span><span class="note">e to the minus pG as the back-of-envelope check, written before the run.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The noise ladder on ten qubits</span><span class="note">0.999461, 0.346724, 0.005895, 0.001000, 0.000977 at 25 iterations, modelled.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The optimum moves earlier</span><span class="note">Best any depth: 19, 8, 4 and 2 iterations as p rises, and still nothing like an answer from p = 0.005.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The anti-lever</span><span class="note">At p = 0.005 and 0.01, adding qubits lowers success at every step from two to ten; the one wobble at p = 0.001 comes from the exact optimum.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">A noise parameter in your numpy build</span><span class="note">One counter and one weight through every gate, the ladder asserted against the canon, and a reintroduced fault that the assertion catches.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Preskill's NISQ framing</span><span class="note">Named and cited: noise in the gates limits the size of circuit that runs reliably.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The contested timeline</span><span class="note">Three stances, no year; leader session 5 takes it to depth.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Structured per-qubit noise and error correction</span><span class="note">Not taught. Declared as left out, with the direction: the model flatters hardware.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any hardware, vendor or framework</span><span class="note">None named. The simulator plus one declared parameter is the only machine here.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The channel.</strong> Each gate does its job with probability 1 - p; with probability p the register becomes uniform. Modelled, and kinder than hardware.</div>
+      <div class="cheat-item"><strong>Keep.</strong> (1 - p) to the G. One float alongside the statevector; the uniform part never changes back.</div>
+      <div class="cheat-item"><strong>Success.</strong> keep x ideal + (1 - keep) / N. The floor at ten qubits is 0.000977.</div>
+      <div class="cheat-item"><strong>The predictor.</strong> pG. Below one most runs survive, around one about a third, past ten the floor.</div>
+      <div class="cheat-item"><strong>The ladder.</strong> Ten qubits, 1,060 gates: 0.999461 at p = 0, 0.346724 at 0.001, 0.001000 at 0.01. Modelled.</div>
+      <div class="cheat-item"><strong>The moved optimum.</strong> Under noise the best depth comes earlier, 19 iterations at p = 0.001, and is still a worse answer.</div>
+      <div class="cheat-item"><strong>The anti-lever.</strong> More qubits means more iterations and longer ones. At p = 0.01: 0.9148 at two qubits, 0.0010 at ten.</div>
+      <div class="cheat-item"><strong>The question to ask.</strong> What p per gate, and what G, with the oracle counted honestly? The timeline is contested; pG is not.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 7 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p6-the-loading-tax-calculator.html">← Practitioner session 6 · The loading-tax calculator</a>
+        <a href="p8-reading-a-speedup-claim.html">Practitioner session 8 · Reading a speedup claim →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var nSel = document.getElementById("p7-n");
+  var pSel = document.getElementById("p7-p");
+  var out = document.getElementById("p7-out");
+  var verdict = document.getElementById("p7-verdict");
+  var self = document.getElementById("p7-self");
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function f6(v) { return v.toFixed(6); }
+
+  function render() {
+    var n = Number(nSel.value), p = Number(pSel.value);
+    var r = QS.noiseLadder(n, [p])[0];
+    var kmax = Math.floor(Math.PI / 4 * Math.sqrt(r.N)) + 3;
+    var curve = QS.successCurve(n, 0, kmax);
+
+    var html = '<div class="p7-scroll"><table class="sql-table"><thead><tr><th>Iteration k</th><th>Gates G</th><th>Exact, p = 0</th><th>Modelled, p = ' + p + '</th><th></th></tr></thead><tbody>';
+    for (var k = 0; k < curve.p.length; k++) {
+      var noisy = QS.noisySuccess(curve.p[k], p, curve.gates[k], r.N);
+      var tag = [];
+      if (k === r.k) tag.push("exact optimum");
+      if (k === r.bestK) tag.push("best under this noise");
+      var on = tag.length ? "<b>" : "", off = tag.length ? "</b>" : "";
+      html += "<tr><td>" + on + k + off + "</td><td>" + comma(curve.gates[k]) + "</td><td>" + on + f6(curve.p[k]) + off + "</td><td>" + on + f6(noisy) + off + "</td><td>" + tag.join(", ") + "</td></tr>";
+    }
+    html += "</tbody></table></div>";
+
+    html += '<table class="sql-table"><thead><tr><th>Qubits</th><th>Iterations</th><th>Gates G</th><th>Exact success</th><th>Modelled, p = ' + p + '</th><th>Floor 1 / N</th></tr></thead><tbody>';
+    var prev = null, rose = false, last = 0;
+    for (var m = 2; m <= 10; m++) {
+      var row = QS.noiseLadder(m, [p])[0];
+      if (prev !== null && row.pNoisy > prev) rose = true;
+      prev = row.pNoisy; last = row.pNoisy;
+      var mark = m === n ? "<b>" : "", unmark = m === n ? "</b>" : "";
+      html += "<tr><td>" + mark + m + unmark + "</td><td>" + row.k + "</td><td>" + comma(row.gates) + "</td><td>" + row.pIdeal.toFixed(4) + "</td><td>" + mark + row.pNoisy.toFixed(4) + unmark + "</td><td>" + f6(row.uniform) + "</td></tr>";
+    }
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg;
+    if (p === 0) {
+      msg = "p = 0 is the exact simulator: " + f6(r.pIdeal) + " at " + r.k + " iteration" + (r.k === 1 ? "" : "s") + " on " + n + " qubits, and the anti-lever table only wobbles with the exact optimum, because no gate ever errs. No hardware has p = 0.";
+    } else {
+      msg = "Modelled: at " + n + " qubits and p = " + p + " the search succeeds with probability " + f6(r.pNoisy) + " at its exact-optimal depth of " + comma(r.gates) + " gates, against " + f6(r.pIdeal) + " exact. "
+        + "The best any depth can do is " + f6(r.bestP) + " at " + r.bestK + " iteration" + (r.bestK === 1 ? "" : "s") + ", " + (r.bestP / r.uniform).toFixed(1) + " times the floor of " + f6(r.uniform) + ". "
+        + (rose ? "In the qubit table one row rose: the exact optimum jumps there, and at this gentle error rate the jump outweighs the extra gates. The trend still falls, to " + last.toFixed(4) + " at ten qubits." : "Down the qubit table the modelled success falls at every row: adding a qubit never helped.");
+    }
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the one that checks noise lowers success, never below uniform, and that p = 0 returns the exact curve. The noise is a declared one-parameter model and flatters every number it prints."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  nSel.addEventListener("change", render);
+  pSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p7-noise .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p7-noise table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p7-noise .p7-scroll { max-height: 22rem; overflow-y: auto; }
+</style>
+</body>
+</html>

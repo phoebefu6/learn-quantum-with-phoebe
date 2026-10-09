@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 2 of 10. H, X, Z and CNOT written as the matrices they are, applied to a two-qubit register, with the norm checked after every gate. Build them in numpy with the kron the right way round and match the Bell pair to the page's engine.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Gates as matrices - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 2 of 10. Four gates, four small matrices, one assertion after every one of them. Then a Bell pair in two lines.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p2-gates-as-matrices.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gates as matrices - learn quantum with phoebe">
+<meta name="twitter:description" content="X swaps, Z negates, H mixes, CNOT moves. The norm stays 1 after every one, and the kron order decides which qubit you touched.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 2 · Gates as matrices - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 2 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 2 of 10</div>
+    <h1>Gates as <span class="accent">matrices</span></h1>
+    <p class="sub">Brindle's data engineer has a register she built herself and a vendor deck that keeps saying "a Hadamard layer", "an entangling CNOT" and "a phase gate" as if the words were the explanation. They are not. Each one is a small matrix, and on a register each one is a rule about which pairs of slots to mix, swap or negate. Tonight you write H, X, Z and CNOT as the arrays they are, apply them to two qubits, check the norm after every single gate, and build the Bell pair that session 3 measures. Then you do it again in numpy, with the one ordering convention that silently breaks everyone's first attempt.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone who will have to check a quantum claim with code</span>
+      <span class="chip audience">Comfortable with numpy arrays and a matrix product</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · H, X and Z</span>
+      <span class="a3" style="flex:2">15-23 · CNOT and the Bell pair</span>
+      <span class="a4" style="flex:4">23-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The four boxes on the vendor's slide, opened</h2>
+    </div>
+    <p class="lede">Every circuit diagram is a list of gates read left to right, and every gate is a matrix applied to the register. Four of them, H, X, Z and CNOT, together with session 1's phase flip, are every gate the page's engine has, and they are enough for everything up to and including Grover in session 4. None of them is mysterious once it is written as what it does to a column of two numbers. That is the whole move tonight: write the matrix, apply it, check the norm, and only then believe the output.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> H, X and Z as 2 x 2 matrices you can write from memory and check for unitarity in one line. CNOT as a 4 x 4 permutation, which is the first gate that acts on two qubits at once. A Bell pair built in two gates, with its four amplitudes matched against the page's engine to sixteen decimal places. The kron ordering that decides which qubit a gate actually touched. And one habit: the norm is checked after every gate, not at the end.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why a data engineer needs the matrices, not the names<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A gate name is a label on a box. The matrix is what the box does to the numbers, and the numbers are the only thing a measurement ever reads. A data team already works this way with transformations: nobody accepts "we normalise the features" without seeing whether it is z-scores or min-max, because the two give different downstream numbers. Gates are the same. "Apply a Hadamard" is a sentence; "replace each pair (a, b) with (a + b) and (a - b), both times 0.7071" is a specification you can test.</p>
+        <p>The good news is how small the specifications are. Three of the four gates fit in a 2 x 2 table, the fourth is a permutation of four slots, and the property that keeps all of them honest, unitarity, is a single assertion. The rest of the session is those four tables and that assertion.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>At Brindle, a constructed retailer, the unnamed vendor's deck has a slide of boxes and wires labelled "Hadamard layer, then an entangling CNOT". The engineer's first question was not whether the slide was impressive but what the register held after each box. Nobody in the meeting could say. By the end of tonight you can, for any slide built from these four gates, by writing the column and applying the tables.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in code terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Unitary.</strong> A matrix U with U.conj().T @ U equal to the identity. In array terms: applying it never changes the sum of squared magnitudes. Every gate is one.</li>
+          <li><strong>H (Hadamard).</strong> On one qubit, (a, b) becomes ((a + b) / sqrt 2, (a - b) / sqrt 2). Sum and difference. Applied twice it is the identity.</li>
+          <li><strong>X.</strong> On one qubit, (a, b) becomes (b, a). A swap, the quantum version of a NOT, with no arithmetic at all.</li>
+          <li><strong>Z.</strong> On one qubit, (a, b) becomes (a, -b). A sign on the second entry. The probabilities do not move.</li>
+          <li><strong>CNOT.</strong> A two-qubit gate. Wherever the control qubit reads 1, apply X to the target qubit. On two qubits it is a 4 x 4 permutation matrix.</li>
+          <li><strong>Control.</strong> The qubit CNOT reads. It decides which slots are touched and is never itself changed.</li>
+          <li><strong>Target.</strong> The qubit CNOT flips, in exactly the slots where the control bit is 1.</li>
+          <li><strong>Bell pair.</strong> H on qubit 0, then CNOT with control 0 and target 1, starting from 00. Amplitude 0.7071 on 00 and on 11, zero on 01 and 10.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers H, X and Z</span>
+      <h2>H, X and Z are 2 x 2 matrices on a column of two numbers</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">One qubit is two amplitudes: a on the state 0 and b on the state 1, written as a column. A single-qubit gate is a 2 x 2 matrix that turns that column into a new column. X swaps the entries. Z negates the second. H replaces them with their sum and their difference, scaled by 1 over the square root of 2 so the squares still add to one. Those three sentences are the whole of Part 1; the figure draws them.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 368" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic in three panels, one per gate, each showing a column of two amplitudes going in on the left and the new column coming out on the right. X panel: the input entries a and b cross over, so the output is b on top and a below; from 1, 0 it gives 0, 1. Z panel: the top entry passes straight through and the bottom one is multiplied by minus one, so the output is a and minus b; from 1, 0 nothing visible changes, and on r, r it gives r, minus r with the same squares. H panel, highlighted: each output is fed by both inputs, the top output is a plus b times r and the bottom is a minus b times r, where r is 1 over the square root of 2, 0.7071; from 1, 0 it gives r, r with squares 0.5 and 0.5, and applying H again returns 1, 0 because the paths into the second entry cancel. A band underneath says every gate is unitary, so the norm is still 1 after it.">
+        <defs>
+          <filter id="p2aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p2aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p2aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p2aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p2aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p2aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p2aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p2aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p2aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p2aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p2aH" x="30" y="26">ONE QUBIT IS A COLUMN OF TWO AMPLITUDES: a ON 0, b ON 1. A GATE IS WHAT IT DOES TO THAT COLUMN.</text>
+
+        <g filter="url(#p2aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panel X -->
+          <rect x="30" y="44" width="260" height="236" rx="10" transform="rotate(-0.4 160 162)" fill="#FFFFFF"/>
+          <rect x="46" y="112" width="70" height="40" rx="6" fill="#EEEDF9"/>
+          <rect x="46" y="158" width="70" height="40" rx="6" fill="#EEEDF9"/>
+          <rect x="186" y="112" width="90" height="40" rx="6" fill="#FFFFFF"/>
+          <rect x="186" y="158" width="90" height="40" rx="6" fill="#FFFFFF"/>
+          <path d="M122 132 L180 172" marker-end="url(#p2aAr)"/>
+          <path d="M122 178 L180 138" marker-end="url(#p2aAr)"/>
+
+          <!-- panel Z -->
+          <rect x="310" y="44" width="260" height="236" rx="10" transform="rotate(0.3 440 162)" fill="#FFFFFF"/>
+          <rect x="326" y="112" width="70" height="40" rx="6" fill="#EEEDF9"/>
+          <rect x="326" y="158" width="70" height="40" rx="6" fill="#EEEDF9"/>
+          <rect x="466" y="112" width="90" height="40" rx="6" fill="#FFFFFF"/>
+          <rect x="466" y="158" width="90" height="40" rx="6" fill="#FFFFFF"/>
+          <path d="M402 132 L460 132" marker-end="url(#p2aAr)"/>
+          <path d="M402 178 L460 178" marker-end="url(#p2aAr)"/>
+
+          <!-- panel H -->
+          <rect x="590" y="44" width="260" height="236" rx="10" transform="rotate(-0.3 720 162)" fill="#FFFFFF"/>
+          <rect x="606" y="112" width="70" height="40" rx="6" fill="#EEEDF9"/>
+          <rect x="606" y="158" width="70" height="40" rx="6" fill="#EEEDF9"/>
+          <rect x="746" y="112" width="90" height="40" rx="6" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="746" y="158" width="90" height="40" rx="6" fill="#0E7490" stroke="#0E7490"/>
+          <path d="M682 132 L740 132" marker-end="url(#p2aAr)"/>
+          <path d="M682 132 L740 172" marker-end="url(#p2aAr)"/>
+          <path d="M682 178 L740 138" marker-end="url(#p2aAr)"/>
+          <path d="M682 178 L740 178" marker-end="url(#p2aAr)"/>
+
+          <!-- band -->
+          <rect x="30" y="296" width="820" height="40" rx="10" transform="rotate(0.15 440 316)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a small dial -->
+          <circle cx="854" cy="22" r="8" fill="url(#p2aHc)"/>
+          <path d="M854 22 L859 16"/>
+        </g>
+
+        <!-- X text -->
+        <text class="p2aL" x="46" y="68">X swaps the two entries</text>
+        <text class="p2aS" x="46" y="86">matrix [[0, 1], [1, 0]]</text>
+        <text class="p2aA" x="81" y="104" text-anchor="middle">in</text>
+        <text class="p2aA" x="231" y="104" text-anchor="middle">out</text>
+        <text class="p2aV" x="81" y="138" text-anchor="middle">a</text>
+        <text class="p2aV" x="81" y="184" text-anchor="middle">b</text>
+        <text class="p2aV" x="231" y="138" text-anchor="middle">b</text>
+        <text class="p2aV" x="231" y="184" text-anchor="middle">a</text>
+        <text class="p2aA" x="46" y="222">from (1, 0) it gives (0, 1)</text>
+        <text class="p2aS" x="46" y="240">a certain 0 becomes a certain 1</text>
+        <text class="p2aS" x="46" y="258">squares 0 and 1: the sum is still 1</text>
+
+        <!-- Z text -->
+        <text class="p2aL" x="326" y="68">Z negates the second entry</text>
+        <text class="p2aS" x="326" y="86">matrix [[1, 0], [0, -1]]</text>
+        <text class="p2aA" x="361" y="104" text-anchor="middle">in</text>
+        <text class="p2aA" x="511" y="104" text-anchor="middle">out</text>
+        <text class="p2aV" x="361" y="138" text-anchor="middle">a</text>
+        <text class="p2aV" x="361" y="184" text-anchor="middle">b</text>
+        <text class="p2aV" x="511" y="138" text-anchor="middle">a</text>
+        <text class="p2aV" x="511" y="184" text-anchor="middle">-b</text>
+        <text class="p2aS" x="431" y="170" text-anchor="middle">x (-1)</text>
+        <text class="p2aA" x="326" y="222">from (1, 0) it gives (1, 0)</text>
+        <text class="p2aS" x="326" y="240">no change: the sign lands on a zero</text>
+        <text class="p2aS" x="326" y="258">on (r, r): (r, -r), same squares</text>
+
+        <!-- H text -->
+        <text class="p2aL" x="606" y="68">H mixes them: sum and difference</text>
+        <text class="p2aS" x="606" y="86">r [[1, 1], [1, -1]], r = 1 / sqrt 2</text>
+        <text class="p2aA" x="641" y="104" text-anchor="middle">in</text>
+        <text class="p2aA" x="791" y="104" text-anchor="middle">out</text>
+        <text class="p2aV" x="641" y="138" text-anchor="middle">a</text>
+        <text class="p2aV" x="641" y="184" text-anchor="middle">b</text>
+        <text class="p2aW" x="791" y="136" text-anchor="middle">(a+b) r</text>
+        <text class="p2aW" x="791" y="182" text-anchor="middle">(a-b) r</text>
+        <text class="p2aA" x="606" y="222">from (1, 0) it gives (r, r)</text>
+        <text class="p2aS" x="606" y="240">r = 0.7071, squares 0.5 and 0.5</text>
+        <text class="p2aS" x="606" y="258">H again: back to (1, 0). Paths cancel</text>
+
+        <text class="p2aH" x="46" y="321">Every gate is unitary: squares in equal squares out, so the norm is still 1 after it.</text>
+        <text class="p2aN" x="30" y="358">Values rounded to four decimals; r = 1 / sqrt 2 = 0.7071. Matrices stated from first principles, not quoted.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - X moves amplitude, Z changes a sign nobody can see yet, and H is the only one of the three that mixes. Mixing is where interference comes from.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Every gate is unitary, so the norm cannot move<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A matrix U is unitary when U.conj().T @ U is the identity. Read as a data person: its columns are unit length and at right angles to each other, so it rotates or reflects a vector without stretching it. The length of the amplitude column is the square root of the sum of squared magnitudes, and that sum is exactly the norm session 1 asserted after every gate. So "every gate is unitary" and "the norm stays 1" are the same statement, one in matrix language and one in array language.</p>
+        <p>Check it by hand for the three tables. X: its columns are (0, 1) and (1, 0), unit length, orthogonal. Z: (1, 0) and (0, -1), same. H: (r, r) and (r, -r) with r = 0.7071; each has length r squared plus r squared = 0.5 + 0.5 = 1, and their dot product is r squared minus r squared = 0. The build-along turns those three checks into one line of numpy each, and a gate that fails it is not a gate.</p>
+        <p>One honest caveat. Unitarity catches a wrong matrix, a 0.5 where 0.7071 belongs, on the first call. It cannot catch the right matrix applied to the wrong qubit, because that is still unitary. Step 6 of the build-along makes that failure on purpose.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>H twice is the start again: interference already<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Start at (1, 0), a certain 0. One H gives (r, r): a fifty-fifty column, and if you measured now you would see 0 or 1 equally often. A classical coin in that position, flipped again, stays fifty-fifty. Apply H again instead. The top entry becomes (r + r) times r = 2 times 0.5 = 1. The bottom entry becomes (r - r) times r = 0. Certain 0, exactly where you started.</p>
+        <p>What happened to the bottom entry is the whole idea: two contributions arrived at the same slot, one with a plus sign and one with a minus, and they cancelled before anything was squared. That is interference, and it already appears with one qubit and two gates. Probabilities cannot do this, because probabilities are never negative; amplitudes can, because they carry signs. Session 4's Grover iteration is this cancellation, steered so that the wrong answers cancel and the marked one does not.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's engineer (the case is constructed) ran H twice in her notebook expecting a fifty-fifty column and got a certain 0. Her first instinct was a bug in her register. There was none: the register was right and the expectation was classical. She now writes the predicted column down before she runs any two-gate sequence, which is the habit session 1 started.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>On n qubits, a one-qubit gate touches pairs that differ in bit q<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The 2 x 2 table is for one qubit. On a register of n qubits, qubit q is bit q of the index, exactly as in <a href="p1-a-statevector-simulator-from-scratch.html">session 1</a>, and a gate on qubit q applies the same 2 x 2 table to every pair of slots whose indices differ only in bit q. On two qubits, a gate on qubit 0 touches the pairs (00, 01) and (10, 11); a gate on qubit 1 touches (00, 10) and (01, 11). N / 2 pairs, one small matrix product each. That pair loop is what the page's engine runs.</p>
+        <p>The same gate can also be written as one big 2 to the n by 2 to the n matrix, assembled from Kronecker products of the small table and identities. The build-along does that on two qubits, where the big matrix is 4 x 4, because it makes the ordering convention visible. Past a handful of qubits nobody should: at ten qubits the big matrix has 1,024 x 1,024 = 1,048,576 entries to do the work of 512 pair updates.</p>
+        <p>The gate set and the Bell-pair circuit are textbook material, covered in the standard textbook (Nielsen and Chuang, 2010, reported). The matrices on this page are stated from first principles and checked on the simulator rather than quoted from it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers CNOT and the Bell pair</span>
+      <h2>CNOT moves amplitude, and a Bell pair is two gates</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">CNOT is the first gate that reads one qubit and writes another. Wherever the control qubit is 1, it applies X to the target; everywhere else it does nothing. On two qubits with control 0 and target 1, the slots where qubit 0 reads 1 are 01 and 11, so CNOT swaps those two amplitudes and leaves 00 and 10 alone. Put H on qubit 0 first and the swap carries half the amplitude from 01 to 11. The result is the Bell pair, and the register below builds it live.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 396" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of a two qubit register as four slots labelled 00, 01, 10 and 11, drawn three times from top to bottom. Start: 1 on 00 and 0 elsewhere, norm 1. Arrows from slot 00 go down to slots 00 and 01, showing H on qubit 0 splitting the amplitude across the pair that differs in bit 0. After H on qubit 0: 0.7071 on 00 and 01, 0 on 10 and 11, squares 0.5, 0.5, 0, 0, norm 1. Then a highlighted diagonal arrow carries the amplitude on 01 to slot 11, and a faint arrow carries the zero on 11 back to 01, because CNOT with control 0 and target 1 swaps 01 and 11. After CNOT: 0.7071 on 00 and 11, highlighted, and 0 on 01 and 10, squares 0.5, 0, 0, 0.5, norm 1. The register reads 00 or 11 and never 01 or 10.">
+        <defs>
+          <filter id="p2bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p2bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p2bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p2bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p2bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p2bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p2bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p2bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p2bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p2bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p2bH" x="30" y="26">TWO QUBITS, FOUR SLOTS. H ON QUBIT 0, THEN CNOT 0 TO 1, DRAWN AS WHERE EACH AMPLITUDE GOES.</text>
+        <text class="p2bA" x="30" y="46">bit strings read q1 q0, so qubit 0 is the right-hand digit; slots run index 0 to 3</text>
+
+        <g filter="url(#p2bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row 1: start -->
+          <rect x="170" y="74" width="104" height="40" rx="6" transform="rotate(-0.4 222 94)" fill="#EEEDF9"/>
+          <rect x="280" y="74" width="104" height="40" rx="6" transform="rotate(0.3 332 94)" fill="#FFFFFF"/>
+          <rect x="390" y="74" width="104" height="40" rx="6" transform="rotate(-0.2 442 94)" fill="#FFFFFF"/>
+          <rect x="500" y="74" width="104" height="40" rx="6" transform="rotate(0.4 552 94)" fill="#FFFFFF"/>
+          <!-- row 2: after H on q0 -->
+          <rect x="170" y="170" width="104" height="40" rx="6" transform="rotate(0.3 222 190)" fill="#EEEDF9"/>
+          <rect x="280" y="170" width="104" height="40" rx="6" transform="rotate(-0.4 332 190)" fill="#EEEDF9"/>
+          <rect x="390" y="170" width="104" height="40" rx="6" transform="rotate(0.2 442 190)" fill="#FFFFFF"/>
+          <rect x="500" y="170" width="104" height="40" rx="6" transform="rotate(-0.3 552 190)" fill="#FFFFFF"/>
+          <!-- row 3: after CNOT 0 to 1 -->
+          <rect x="170" y="266" width="104" height="40" rx="6" transform="rotate(-0.3 222 286)" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="280" y="266" width="104" height="40" rx="6" transform="rotate(0.4 332 286)" fill="#FFFFFF"/>
+          <rect x="390" y="266" width="104" height="40" rx="6" transform="rotate(-0.2 442 286)" fill="#FFFFFF"/>
+          <rect x="500" y="266" width="104" height="40" rx="6" transform="rotate(0.3 552 286)" fill="#0E7490" stroke="#0E7490"/>
+
+          <!-- H on q0: 00 splits into 00 and 01 -->
+          <path d="M222 118 L222 164" marker-end="url(#p2bAr)"/>
+          <path d="M226 118 L326 164" marker-end="url(#p2bAr)"/>
+          <!-- the zero pair (10, 11) stays zero -->
+          <path d="M442 118 L442 164" stroke="#C9C9DF"/>
+          <path d="M552 118 L552 164" stroke="#C9C9DF"/>
+
+          <!-- CNOT 0 to 1: 00 stays, 01 and 11 swap -->
+          <path d="M222 214 L222 260" marker-end="url(#p2bAr)"/>
+          <path d="M338 214 L546 260" stroke="#0E7490" stroke-width="2.6" marker-end="url(#p2bAr)"/>
+          <path d="M546 214 L338 260" stroke="#C9C9DF"/>
+
+          <!-- band -->
+          <rect x="30" y="322" width="820" height="40" rx="10" transform="rotate(-0.15 440 342)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a coin -->
+          <circle cx="852" cy="44" r="9" fill="url(#p2bHc)"/>
+        </g>
+
+        <!-- slot labels -->
+        <text class="p2bL" x="222" y="66" text-anchor="middle">00</text>
+        <text class="p2bL" x="332" y="66" text-anchor="middle">01</text>
+        <text class="p2bL" x="442" y="66" text-anchor="middle">10</text>
+        <text class="p2bL" x="552" y="66" text-anchor="middle">11</text>
+
+        <!-- row labels -->
+        <text class="p2bL" x="30" y="98">start</text>
+        <text class="p2bL" x="30" y="194">after H on q0</text>
+        <text class="p2bL" x="30" y="290">after CNOT 0 to 1</text>
+
+        <!-- row 1 values -->
+        <text class="p2bV" x="222" y="100" text-anchor="middle">1</text>
+        <text class="p2bS" x="332" y="98" text-anchor="middle">0</text>
+        <text class="p2bS" x="442" y="98" text-anchor="middle">0</text>
+        <text class="p2bS" x="552" y="98" text-anchor="middle">0</text>
+        <!-- row 2 values -->
+        <text class="p2bV" x="222" y="196" text-anchor="middle">0.7071</text>
+        <text class="p2bV" x="332" y="196" text-anchor="middle">0.7071</text>
+        <text class="p2bS" x="442" y="194" text-anchor="middle">0</text>
+        <text class="p2bS" x="552" y="194" text-anchor="middle">0</text>
+        <!-- row 3 values -->
+        <text class="p2bW" x="222" y="290" text-anchor="middle">0.7071</text>
+        <text class="p2bS" x="332" y="290" text-anchor="middle">0</text>
+        <text class="p2bS" x="442" y="290" text-anchor="middle">0</text>
+        <text class="p2bW" x="552" y="290" text-anchor="middle">0.7071</text>
+
+        <!-- right-hand notes -->
+        <text class="p2bL" x="630" y="92">start: every qubit zero</text>
+        <text class="p2bS" x="630" y="108">squares 1, 0, 0, 0; norm 1</text>
+        <text class="p2bS" x="630" y="138">H on q0 mixes pairs that differ</text>
+        <text class="p2bS" x="630" y="154">in bit 0: (00, 01) and (10, 11)</text>
+        <text class="p2bS" x="630" y="188">squares 0.5, 0.5, 0, 0; norm 1</text>
+        <text class="p2bB" x="630" y="204">qubit 1 is still certainly 0</text>
+        <text class="p2bS" x="630" y="234">CNOT swaps 01 and 11: flip q1</text>
+        <text class="p2bS" x="630" y="250">wherever q0 reads 1. 10 untouched</text>
+        <text class="p2bS" x="630" y="284">squares 0.5, 0, 0, 0.5; norm 1</text>
+        <text class="p2bB" x="630" y="300">reads 00 or 11, never 01 or 10</text>
+
+        <text class="p2bH" x="46" y="347">H spreads one amplitude across a pair. CNOT moves an amplitude to a new slot. That is all that happens.</text>
+        <text class="p2bN" x="30" y="384">Four decimals shown; the engine holds 0.7071067811865476 on 00 and 11. The norm is 1 after each gate.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - nothing is spooky in the arithmetic: one split, one swap. What is new is that the final column cannot be written as qubit 0's column times qubit 1's column.</figcaption>
+    </figure>
+
+    <div class="wk" id="p2-gates">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The page's engine on two qubits. Pick a circuit; every amplitude, probability and norm below is computed on the spot, after every gate.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p2-circ">Circuit, read left to right</label>
+        <select class="sql-code" id="p2-circ">
+          <option value="h" selected>H on q0</option>
+          <option value="hz">H on q0, then Z on q0</option>
+          <option value="x">X on q0</option>
+          <option value="bell">H on q0, then CNOT 0 to 1 (Bell pair)</option>
+          <option value="hh">H on q0, then H on q0</option>
+        </select>
+        <div id="p2-out"></div>
+        <p class="sql-note" id="p2-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p2-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Five circuits, in the order worth running<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Say the predicted column out loud before each one, then look. Column headers read q1 q0, so a gate on qubit 0 moves things between 00 and 01.</p>
+        <ul>
+          <li><strong>H on q0.</strong> 0.7071 on 00 and 01, probability 0.5 each, norm 1. One amplitude spread across one pair.</li>
+          <li><strong>H, then Z on q0.</strong> The 01 entry turns to -0.7071 and the probability row does not change at all. A sign is invisible to a measurement until another gate turns it into a difference.</li>
+          <li><strong>X on q0.</strong> The 1 that sat on 00 now sits on 01. No arithmetic, a swap.</li>
+          <li><strong>The Bell pair.</strong> After H, the same column as the first run. After CNOT, 0.7071 on 00 and 11 and exactly zero on 01 and 10. The verdict line prints the full-precision value the build-along matches against.</li>
+          <li><strong>H, then H on q0.</strong> Back to 1 on 00. The two paths into 01 arrived with opposite signs and cancelled. The norm column reads 1 at every stage of all five.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>CNOT is a permutation, and every permutation is unitary<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Written as a 4 x 4 matrix, CNOT with control 0 and target 1 has exactly one 1 in every row and every column: 00 goes to 00, 01 to 11, 10 to 10, 11 to 01. A matrix like that is a permutation, its transpose is its inverse, and so it is unitary without any arithmetic to check. In array terms it never computes anything; it relabels which slot holds which amplitude, and relabelling cannot change a sum of squares.</p>
+        <p>The control and the target are not symmetric. CNOT 0 to 1 reads qubit 0 and flips qubit 1; CNOT 1 to 0 reads qubit 1 and flips qubit 0, which swaps 10 and 11 instead. Apply that one after H on qubit 0 and nothing moves at all, because both 10 and 11 hold zero: the engine returns 0.7071 on 00 and 01, norm 1, and no Bell pair.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's engineer (constructed, as is everything about Brindle) wired her first CNOT with control and target the wrong way round. Every assertion passed, the norm read 1, and the register was simply the H-on-q0 column unchanged. What caught it was the prediction she had written first: "0.7071 on 00 and 11". A run that matches no prediction is the cheapest bug report there is.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the Bell column cannot be split into two qubits<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Give qubit 0 its own column (a0, a1) and qubit 1 its own column (b0, b1). Two independent qubits then fill the four slots with products, in the q1 q0 order: 00 holds b0 a0, 01 holds b0 a1, 10 holds b1 a0, 11 holds b1 a1. For the Bell column, b0 a0 and b1 a1 must both be 0.7071, so all four numbers are non-zero. But slot 01 must hold zero, so b0 a1 = 0, which needs one of them to be zero. Both cannot hold. No pair of one-qubit columns produces it.</p>
+        <p>That is the precise meaning of "entangled" on these pages, and it took one CNOT. What it does to sampled outcomes, measured over a thousand shots against a pair that is not entangled, is <a href="p3-entanglement-measured.html">session 3</a>.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>The four gates as numpy arrays, with the kron the right way round</h2>
+      <span class="tag build">22 min hands on</span>
+    </div>
+    <p class="lede">Open a fresh notebook or file in a scratch directory; nothing here writes files. The six steps run in one session, one after another. Nothing is sampled, so every output below is exact arithmetic, pasted from one run of this exact code, and yours should match to the digit. The figure is the one convention to get right before step 2.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic in two panels comparing the two Kronecker orders on two qubits. Left panel, np.kron of I and G, which is G on qubit 0: four slots 00, 01, 10, 11 with arcs joining 00 to 01 and 10 to 11, the pairs that differ in the low bit, partner equal to index XOR 1; below, a four by four grid with the ones of X on qubit 0 hachured, two copies of X on the diagonal blocks. Right panel, np.kron of G and I, which is G on qubit 1: arcs joining 00 to 10 and 01 to 11, the pairs that differ in the high bit, partner equal to index XOR 2; below, the grid for X on qubit 1 with identity blocks off the diagonal. A highlighted band says qubit 0 is the low bit and so it is the right factor. A red wrong-way strip says np.kron of H and I followed by CNOT 0 to 1 gives 0.7071 on 00 and 10, not on 00 and 11, with norm 1 and every assertion passing.">
+        <defs>
+          <filter id="p2cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p2cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p2cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p2cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p2cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p2cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p2cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p2cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p2cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p2cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p2cH" x="30" y="26">THE KRON ORDER DECIDES WHICH PAIRS A GATE TOUCHES. QUBIT 0 IS THE LOW BIT, SO IT IS THE RIGHT FACTOR.</text>
+
+        <g filter="url(#p2cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel -->
+          <rect x="30" y="44" width="400" height="256" rx="10" transform="rotate(-0.3 230 172)" fill="#FFFFFF"/>
+          <rect x="70" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <rect x="150" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <rect x="230" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <rect x="310" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <path d="M105 120 C 105 98, 185 98, 185 120" stroke="#0E7490"/>
+          <path d="M265 120 C 265 98, 345 98, 345 120" stroke="#0E7490"/>
+          <!-- left grid: kron(I, X), ones at (0,1) (1,0) (2,3) (3,2) -->
+          <rect x="70" y="196" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="92" y="196" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="114" y="196" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="136" y="196" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="70" y="218" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="92" y="218" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="114" y="218" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="136" y="218" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="70" y="240" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="92" y="240" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="114" y="240" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="136" y="240" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="70" y="262" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="92" y="262" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="114" y="262" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="136" y="262" width="20" height="20" fill="#FFFFFF"/>
+
+          <!-- right panel -->
+          <rect x="450" y="44" width="400" height="256" rx="10" transform="rotate(0.3 650 172)" fill="#FFFFFF"/>
+          <rect x="490" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <rect x="570" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <rect x="650" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <rect x="730" y="124" width="70" height="32" rx="5" fill="#EEEDF9"/>
+          <path d="M525 120 C 525 94, 685 94, 685 120" stroke="#0E7490"/>
+          <path d="M605 120 C 605 104, 765 104, 765 120" stroke="#0E7490"/>
+          <!-- right grid: kron(X, I), ones at (0,2) (1,3) (2,0) (3,1) -->
+          <rect x="490" y="196" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="512" y="196" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="534" y="196" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="556" y="196" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="490" y="218" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="512" y="218" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="534" y="218" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="556" y="218" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="490" y="240" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="512" y="240" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="534" y="240" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="556" y="240" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="490" y="262" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="512" y="262" width="20" height="20" fill="url(#p2cHc)"/>
+          <rect x="534" y="262" width="20" height="20" fill="#FFFFFF"/>
+          <rect x="556" y="262" width="20" height="20" fill="#FFFFFF"/>
+
+          <!-- the rule band, the one thing -->
+          <rect x="30" y="316" width="820" height="38" rx="10" transform="rotate(-0.15 440 335)" fill="#0E7490" stroke="#0E7490"/>
+          <!-- wrong-way strip -->
+          <rect x="30" y="368" width="820" height="50" rx="10" transform="rotate(0.15 440 393)" fill="#FEF2F2" stroke="#FCA5A5"/>
+          <!-- doodle anchor: a bead on a wire -->
+          <circle cx="852" cy="24" r="7" fill="url(#p2cHc)"/>
+          <path d="M852 10 L852 38"/>
+        </g>
+
+        <!-- the 1s in each grid -->
+        <text class="p2cB" x="102" y="210" text-anchor="middle">1</text>
+        <text class="p2cB" x="80" y="232" text-anchor="middle">1</text>
+        <text class="p2cB" x="146" y="254" text-anchor="middle">1</text>
+        <text class="p2cB" x="124" y="276" text-anchor="middle">1</text>
+        <text class="p2cB" x="544" y="210" text-anchor="middle">1</text>
+        <text class="p2cB" x="566" y="232" text-anchor="middle">1</text>
+        <text class="p2cB" x="500" y="254" text-anchor="middle">1</text>
+        <text class="p2cB" x="522" y="276" text-anchor="middle">1</text>
+
+        <!-- left text -->
+        <text class="p2cL" x="50" y="68">np.kron(I, G) is G on qubit 0</text>
+        <text class="p2cS" x="50" y="86">the right factor acts inside each half</text>
+        <text class="p2cL" x="105" y="145" text-anchor="middle">00</text>
+        <text class="p2cL" x="185" y="145" text-anchor="middle">01</text>
+        <text class="p2cL" x="265" y="145" text-anchor="middle">10</text>
+        <text class="p2cL" x="345" y="145" text-anchor="middle">11</text>
+        <text class="p2cS" x="70" y="178">pairs (0, 1) and (2, 3): partner = i XOR 1</text>
+        <text class="p2cL" x="176" y="212">X on q0, as step 2 prints it</text>
+        <text class="p2cS" x="176" y="232">blocks [[X, 0], [0, X]]</text>
+        <text class="p2cS" x="176" y="250">one X per half, low bit flipped</text>
+        <text class="p2cA" x="176" y="270">the engine's applyX(s, 0)</text>
+
+        <!-- right text -->
+        <text class="p2cL" x="470" y="68">np.kron(G, I) is G on qubit 1</text>
+        <text class="p2cS" x="470" y="86">the left factor acts across the halves</text>
+        <text class="p2cL" x="525" y="145" text-anchor="middle">00</text>
+        <text class="p2cL" x="605" y="145" text-anchor="middle">01</text>
+        <text class="p2cL" x="685" y="145" text-anchor="middle">10</text>
+        <text class="p2cL" x="765" y="145" text-anchor="middle">11</text>
+        <text class="p2cS" x="490" y="178">pairs (0, 2) and (1, 3): partner = i XOR 2</text>
+        <text class="p2cL" x="596" y="212">X on q1, as step 2 prints it</text>
+        <text class="p2cS" x="596" y="232">blocks [[0, I], [I, 0]]</text>
+        <text class="p2cS" x="596" y="250">the halves swap, high bit flipped</text>
+        <text class="p2cA" x="596" y="270">the engine's applyX(s, 1)</text>
+
+        <text class="p2cW" x="46" y="340">Qubit 0 is the low bit, so it is the RIGHT factor: np.kron(I, G). Qubit 1 is np.kron(G, I).</text>
+        <text class="p2cL" x="46" y="389">The wrong way round: np.kron(H, I) then CNOT 0 to 1 gives 0.7071 on 00 and 10, not on 00 and 11.</text>
+        <text class="p2cS" x="46" y="407">Unitary, norm 1.0, every assertion passes. Only the state you predicted first catches it.</text>
+        <text class="p2cN" x="30" y="440">Hachured cell = a 1 in the 4 x 4 matrix, blank = 0. Rows and columns run 00, 01, 10, 11 (index 0 to 3).</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two orders are both valid unitaries, which is exactly why the wrong one passes every check except a prediction. Pick the convention once and write it at the top of the file.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>The three tables, and the assertion that makes them gates</h4>
+        <p>Write H, X and Z as 2 x 2 complex arrays and assert each is unitary. The imaginary parts stay zero for every gate tonight; the complex dtype is there so the same check works the day a gate needs them.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import numpy as np
+
+I = np.eye(2, dtype=complex)
+H = np.array([[1, 1], [1, -1]], dtype=complex) / np.sqrt(2)
+X = np.array([[0, 1], [1, 0]], dtype=complex)
+Z = np.array([[1, 0], [0, -1]], dtype=complex)
+
+for name, G in (("I", I), ("H", H), ("X", X), ("Z", Z)):
+    assert np.allclose(G.conj().T @ G, I), name
+print("step 1: I, H, X, Z are all unitary")
+print(np.round(H.real, 4))
+# step 1: I, H, X, Z are all unitary
+# [[ 0.7071  0.7071]
+#  [ 0.7071 -0.7071]]</div>
+      </div>
+      <div class="step">
+        <h4>A one-qubit gate on two qubits, with the kron the right way round</h4>
+        <p>Qubit 0 is the low bit of the index, so it is the right-hand factor of the Kronecker product. Print X on each qubit and hold the two matrices against the figure: qubit 0 swaps within each half, qubit 1 swaps the halves.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def on(G, q):
+    # qubit 0 is the LOW bit of the index, so it is the RIGHT factor
+    return np.kron(I, G) if q == 0 else np.kron(G, I)
+
+print("step 2: X on qubit 0")
+print(on(X, 0).real.astype(int))
+print("step 2: X on qubit 1")
+print(on(X, 1).real.astype(int))
+# step 2: X on qubit 0
+# [[0 1 0 0]
+#  [1 0 0 0]
+#  [0 0 0 1]
+#  [0 0 1 0]]
+# step 2: X on qubit 1
+# [[0 0 1 0]
+#  [0 0 0 1]
+#  [1 0 0 0]
+#  [0 1 0 0]]</div>
+      </div>
+      <div class="step">
+        <h4>CNOT as a 4 x 4 permutation</h4>
+        <p>Build it from the rule rather than typing sixteen numbers: for each index, if the control bit is set, the target bit flips. Column i sends its amplitude to row j. Assert it is unitary like the others.</p>
+        <div class="prompt-box good"><span class="label">Python</span>I4 = np.eye(4)
+
+def cnot(c, t, n=2):
+    N = 1 &lt;&lt; n
+    U = np.zeros((N, N), dtype=complex)
+    for i in range(N):
+        j = i ^ (1 &lt;&lt; t) if (i &gt;&gt; c) &amp; 1 else i
+        U[j, i] = 1          # column i sends its amplitude to row j
+    return U
+
+CX = cnot(0, 1)
+assert np.allclose(CX.conj().T @ CX, I4)
+print("step 3: CNOT, control 0, target 1")
+print(CX.real.astype(int))
+# step 3: CNOT, control 0, target 1
+# [[1 0 0 0]
+#  [0 0 0 1]
+#  [0 0 1 0]
+#  [0 1 0 0]]</div>
+      </div>
+      <div class="step">
+        <h4>The Bell pair, with the norm after every gate, checked against the engine</h4>
+        <p>Start at 00, apply H on qubit 0, then CNOT, printing the column and the norm after each. Then compare with the full-precision value the widget's verdict line prints for the Bell circuit. The two differ in the sixteenth decimal: numpy divides by np.sqrt(2) and the engine uses a stored constant for 1 / sqrt 2. That is one unit of rounding, and it is why comparisons use a tolerance, never ==.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def show(label, psi):
+    assert np.allclose(psi.imag, 0)
+    print(f"{label:&lt;12}", np.round(psi.real, 4),
+          "norm", round(float(np.vdot(psi, psi).real), 12))
+
+psi = np.zeros(4, dtype=complex); psi[0] = 1
+show("start |00&gt;", psi)
+for label, U in (("H on q0", on(H, 0)), ("CNOT 0-&gt;1", CX)):
+    assert np.allclose(U.conj().T @ U, I4)
+    psi = U @ psi
+    show(label, psi)
+
+engine = np.array([0.7071067811865476, 0, 0, 0.7071067811865476])  # the widget's Bell row
+print("numpy 00:", repr(psi[0].real), " gap to engine:", np.abs(psi.real - engine).max())
+# start |00&gt;   [1. 0. 0. 0.] norm 1.0
+# H on q0      [0.7071 0.7071 0.     0.    ] norm 1.0
+# CNOT 0-&gt;1    [0.7071 0.     0.     0.7071] norm 1.0
+# numpy 00: 0.7071067811865475  gap to engine: 1.1102230246251565e-16</div>
+      </div>
+      <div class="step">
+        <h4>The widget's other circuits, in numpy</h4>
+        <p>H twice, H then Z, and X, all on qubit 0. Predict each column first, then run. They should match the last row of each circuit in the widget above.</p>
+        <div class="prompt-box good"><span class="label">Python</span>for name, gates in (("H, H", [H, H]), ("H, Z", [H, Z]), ("X", [X])):
+    psi = np.zeros(4, dtype=complex); psi[0] = 1
+    for G in gates:
+        psi = on(G, 0) @ psi
+    show(name, psi)
+# H, H         [1. 0. 0. 0.] norm 1.0
+# H, Z         [ 0.7071 -0.7071  0.      0.    ] norm 1.0
+# X            [0. 1. 0. 0.] norm 1.0</div>
+      </div>
+      <div class="step">
+        <h4>Break the kron on purpose</h4>
+        <p>Write H on qubit 0 the wrong way round, as np.kron(H, I), and follow it with the same CNOT. The matrix is unitary, the norm is 1.0, every assertion passes, and the column is not a Bell pair: the amplitude went to 10, where qubit 0 is still 0, so the CNOT had nothing to move.</p>
+        <div class="prompt-box good"><span class="label">Python</span>wrong = np.kron(H, I)        # meant as H on qubit 0; it is H on qubit 1
+assert np.allclose(wrong.conj().T @ wrong, I4)
+psi = np.zeros(4, dtype=complex); psi[0] = 1
+psi = CX @ (wrong @ psi)
+show("wrong kron", psi)
+# wrong kron   [0.7071 0.     0.7071 0.    ] norm 1.0</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Check the norm after every gate, not once at the end: a wrong matrix shows up on the gate that introduced it, and nowhere else is it that cheap to find. Then remember what step 6 showed: the norm catches a wrong matrix and cannot catch a right matrix on the wrong qubit. Write the predicted column down first, and the two checks together cover both.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">X is applied to qubit 0 of a two-qubit register. What happens to the four amplitudes?</p>
+      <div class="qopt">A · The amplitude on every slot where qubit 0 is 1 changes sign, and nothing moves</div>
+      <div class="qopt">B · Each pair of slots that differ only in qubit 0, (00, 01) and (10, 11), swaps its two amplitudes</div>
+      <div class="qopt">C · The amplitude on 01 is set to 1 and every other amplitude is set to 0</div>
+      <q class="qwhy">X is the swap [[0, 1], [1, 0]] applied to every pair that differs in bit 0. Option A is Z. Option C describes the result of X on 00 only; started from any other column, X swaps whatever is there rather than overwriting it.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">After H, Z, CNOT and H again, the norm column still reads 1. Why?</p>
+      <div class="qopt">A · The engine renormalises the register after every gate so the norm cannot drift</div>
+      <div class="qopt">B · Because the amplitudes in these circuits are all real, so their squares cannot add to more than 1</div>
+      <div class="qopt">C · Because every gate is unitary, U.conj().T @ U = I, which means it preserves the sum of squared magnitudes; a product of unitaries is unitary too</div>
+      <q class="qwhy">Unitarity is length preservation, and the norm is the squared length. Renormalising would hide a wrong matrix rather than prevent one, and the engine never does it. Real amplitudes can still produce a norm far from 1 under a wrong matrix: a 0.5 in place of 0.7071 in H gives 0.5 on the first call.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">The Bell pair is H on qubit 0 then CNOT 0 to 1, starting from 00. Which basis states can a measurement of it read?</p>
+      <div class="qopt">A · Only 00 and 11, each with probability 0.5; 01 and 10 have amplitude exactly zero and are never read</div>
+      <div class="qopt">B · Any of the four, each with probability 0.25, because two qubits are in play</div>
+      <div class="qopt">C · Only 00 and 01, because H acted on qubit 0 and qubit 1 was never put into superposition</div>
+      <q class="qwhy">H puts 0.7071 on 00 and 01; CNOT then swaps 01 with 11, leaving 0.7071 on 00 and 11 and zero elsewhere. Option C is the column after H alone, before the CNOT moved anything. Option B is the product pair, H on both qubits, which session 3 compares against.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 3</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with tonight's numpy file open.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Build the product pair</h4>
+        <p>Apply H to qubit 0 and H to qubit 1, starting from 00, using on(H, 0) and on(H, 1). Predict the column before running it, print it with show(), and confirm it equals np.kron(H, H) applied to 00. Then write it as qubit 1's column times qubit 0's column, which the Bell pair cannot do.</p>
+      </div>
+      <div class="step">
+        <h4>Prove the Bell column is not a product, on paper</h4>
+        <p>Suppose qubit 0 is (a0, a1) and qubit 1 is (b0, b1). Write the four products in slot order, set them equal to the Bell column, and find the line where it fails. Five minutes with a pencil; it is the cleanest definition of entanglement there is.</p>
+      </div>
+      <div class="step">
+        <h4>Write your prediction for session 3</h4>
+        <p>For 1,000 shots of the Bell pair and 1,000 shots of the product pair, predict the fraction of shots in which the two qubits read the same value. Write both numbers down before session 3, which measures them.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">H, X and Z as 2 x 2 matrices</span><span class="note">Mix, swap, negate; stated from first principles and run on the engine.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">CNOT</span><span class="note">Control and target; a 4 x 4 permutation that swaps 01 and 11 for control 0, target 1.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The Bell pair</span><span class="note">Two gates; 0.7071 on 00 and 11, matched to the engine within 1.1e-16.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The unitarity check</span><span class="note">U.conj().T @ U = I asserted for every gate; the norm checked after every gate.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The kron ordering</span><span class="note">Qubit 0 is the low bit and the right factor; the wrong order passes every check but a prediction.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Entanglement, measured</span><span class="note">Defined tonight as "cannot be split"; <a href="p3-entanglement-measured.html">session 3</a> samples it against a product pair.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Linear algebra in neural nets</span><span class="note">Used here only as far as a 4 x 4 gate needs; the full treatment is <a href="https://phoebefu6.github.io/learn-deep-learning-with-phoebe/">learn-deep-learning-with-phoebe</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">How hardware implements a gate</span><span class="note">Not taught. The simulator is the only machine here, and a matrix is all it needs.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>X.</strong> [[0, 1], [1, 0]]. Swaps the two amplitudes of every pair that differs in bit q. No arithmetic.</div>
+      <div class="cheat-item"><strong>Z.</strong> [[1, 0], [0, -1]]. Negates the amplitude wherever bit q is 1. Probabilities do not move.</div>
+      <div class="cheat-item"><strong>H.</strong> Sum and difference, times 1 / sqrt 2 = 0.7071. Applied twice it is the identity: the paths cancel.</div>
+      <div class="cheat-item"><strong>CNOT.</strong> Wherever the control bit is 1, flip the target. A 4 x 4 permutation; control 0, target 1 swaps 01 and 11.</div>
+      <div class="cheat-item"><strong>Unitary.</strong> U.conj().T @ U equals I. Squares in equal squares out, so the norm stays 1.</div>
+      <div class="cheat-item"><strong>Kron order.</strong> Qubit 0 is the low bit and the right factor: np.kron(I, G). Qubit 1 is np.kron(G, I).</div>
+      <div class="cheat-item"><strong>Bell pair.</strong> H on q0, CNOT 0 to 1, from 00. 0.7071 on 00 and 11; never 01 or 10. Not a product of two columns.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Norm after every gate, and the predicted column written first. The norm cannot see a wrong qubit.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 2 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p1-a-statevector-simulator-from-scratch.html">← Practitioner session 1 · A statevector simulator from scratch</a>
+        <a href="p3-entanglement-measured.html">Practitioner session 3 · Entanglement, measured →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var sel = document.getElementById("p2-circ");
+  var out = document.getElementById("p2-out");
+  var verdict = document.getElementById("p2-verdict");
+  var self = document.getElementById("p2-self");
+
+  var LABELS = ["00", "01", "10", "11"];
+  var CIRCUITS = {
+    h:    [["H", 0]],
+    hz:   [["H", 0], ["Z", 0]],
+    x:    [["X", 0]],
+    bell: [["H", 0], ["CNOT", 0, 1]],
+    hh:   [["H", 0], ["H", 0]]
+  };
+
+  function apply(s, g) {
+    if (g[0] === "H") QS.applyH(s, g[1]);
+    else if (g[0] === "X") QS.applyX(s, g[1]);
+    else if (g[0] === "Z") QS.applyZ(s, g[1]);
+    else if (g[0] === "CNOT") QS.applyCNOT(s, g[1], g[2]);
+  }
+  function gateName(g) { return g[0] === "CNOT" ? "CNOT " + g[1] + " to " + g[2] : g[0] + " on q" + g[1]; }
+  function f4(v) { var t = v.toFixed(4); return t === "-0.0000" ? "0.0000" : t; }
+
+  function row(label, s) {
+    var p = QS.probs(s), html = "<tr><td>" + label + "</td>";
+    for (var i = 0; i < 4; i++) html += "<td><b>" + f4(s.re[i]) + "</b><br><span class=\"p2-p\">p " + p[i].toFixed(4) + "</span></td>";
+    html += "<td>" + QS.norm(s).toFixed(12) + "</td></tr>";
+    return html;
+  }
+
+  function render() {
+    var key = sel.value, gates = CIRCUITS[key];
+    var s = QS.newState(2), before = null, worst = Math.abs(QS.norm(s) - 1);
+    var html = '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Stage</th><th>00</th><th>01</th><th>10</th><th>11</th><th>Norm</th></tr></thead><tbody>';
+    html += row("start", s);
+    for (var k = 0; k < gates.length; k++) {
+      if (k === gates.length - 1) before = QS.probs(s);
+      apply(s, gates[k]);
+      html += row("after " + gateName(gates[k]), s);
+      worst = Math.max(worst, Math.abs(QS.norm(s) - 1));
+    }
+    html += "</tbody></table></div>";
+    out.innerHTML = html;
+
+    var p = QS.probs(s), live = [];
+    for (var i = 0; i < 4; i++) if (p[i] > 1e-12) live.push(LABELS[i] + " (p " + p[i].toFixed(4) + ")");
+    var msg = "The final column can read " + live.join(" or ") + ". Largest distance of the norm from 1 at any stage: "
+      + (worst === 0 ? "exactly 0. " : worst.toExponential(1) + ", which is floating point. ");
+    if (key === "bell") {
+      msg += "CNOT moved the amplitude on 01 to 11; 01 and 10 hold " + f4(s.re[1]) + " and " + f4(s.re[2])
+        + ". Full precision on 00 and 11: " + String(s.re[0]) + " and " + String(s.re[3]) + ", the value step 4 of the build-along checks against.";
+    } else if (key === "hh") {
+      msg += "The second H sent the amplitude home: 00 holds " + String(s.re[0]) + " and 01 holds " + f4(s.re[1])
+        + ". Two paths arrived at 01 with opposite signs and cancelled.";
+    } else if (key === "hz") {
+      var moved = 0; for (i = 0; i < 4; i++) moved = Math.max(moved, Math.abs(p[i] - before[i]));
+      msg += "Z turned the amplitude on 01 into " + f4(s.re[1]) + ", and the largest change in any probability was "
+        + moved.toFixed(4) + ". A sign is invisible to a measurement until another gate turns it into a difference.";
+    } else if (key === "x") {
+      msg += "X swapped the pair (00, 01): 00 now holds " + f4(s.re[0]) + " and 01 holds " + f4(s.re[1]) + ". A swap, with no arithmetic.";
+    } else {
+      msg += "H spread one amplitude across the pair (00, 01): " + f4(s.re[0]) + " and " + f4(s.re[1])
+        + ". The pair (10, 11) held zeros and still does.";
+    }
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the register staying normalised through six gates and a Bell pair that never reads 01 or 10. The simulator is exact; no real machine is."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  sel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p2-gates .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p2-gates table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p2-gates .p2-p { font-size: .74rem; color: var(--muted); font-weight: 600; }
+</style>
+</body>
+</html>

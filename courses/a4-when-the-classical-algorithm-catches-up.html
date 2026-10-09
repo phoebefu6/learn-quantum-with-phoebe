@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 4 of 6. In 2016 a quantum recommendation algorithm looked like one of the strongest candidates for an exponential speedup on data. In 2018 a classical algorithm given the same preprocessed data structure came within a polynomial of it. What dequantization is, why the data structure is the hinge, and a matched-assumption test for any speedup slide.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="When the classical algorithm catches up - learn quantum with phoebe">
+<meta property="og:description" content="Leader session 4 of 6. Exponential against what classical algorithm, given the same data access? Kerenidis and Prakash 2016, Tang 2018, and the matched-assumption test.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/a4-when-the-classical-algorithm-catches-up.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="When the classical algorithm catches up - learn quantum with phoebe">
+<meta name="twitter:description" content="Give the classical side the same data structure the quantum side assumed, and an exponential gap can shrink to a polynomial one. Compare under matched data access.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 4 · When the classical algorithm catches up - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Leader session 4 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Leader session 4 of 6</div>
+    <h1>When the classical algorithm <span class="accent">catches up</span></h1>
+    <p class="sub">Session 3 priced the step a pitch leaves out: the load. Tonight is the second half of Aaronson's check, the half most decks never run. Suppose the fine print is satisfied and the data sits in exactly the structure the quantum algorithm asked for. Does a classical algorithm, handed the same structure, do the job nearly as fast? For one celebrated quantum recommendation algorithm the published answer is yes. Tonight walks through the 2016 claim, the 2018 classical match, and the test that falls out of them. No machine, vendor or roadmap is named.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone asked to fund or read a quantum pitch</span>
+      <span class="chip audience">Anyone who owns a recommendation roadmap</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · The 2016 claim and its memory</span>
+      <span class="a3" style="flex:3">18-28 · The 2018 classical match</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Exponential against what?</h2>
+    </div>
+    <p class="lede">Brindle is a constructed retailer with a 12-million-row customer table, a 4-million-row order table and twenty years of encrypted backups. The second slide of the vendor deck, the summary page the board actually read, promises a "quantum recommendation engine" with an "exponential speedup". A detail page further in calls it a quantum-accelerated recommendation model. The word exponential is a comparison, and a comparison has two sides. The leader's question tonight is short: exponential against WHAT classical algorithm, given the SAME data access?</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> What Kerenidis and Prakash claimed in 2016, in their own complexity expression and with their own condition on it. The memory assumption the claim rests on, and why it is the same assumption session 3 priced. What Tang showed in 2018, in her abstract's terms, and the method that made it work. The difference between "dequantized" and "quantum is over", which is a difference a board will get wrong if nobody says it. And a six-step matched-assumption test you can run on any speedup slide, ending in an honest rewrite of Brindle's headline.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A comparison with one side missing<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Exponential speedup" sounds like a property of the quantum algorithm. It is not. It is a property of a pair: the quantum algorithm and some classical algorithm it is being compared against. Change the classical side and the same quantum algorithm can be exponentially faster, polynomially faster, or not faster at all. A slide that names only one side of the pair has not made a claim yet; it has made half of one.</p>
+        <p>The half that is usually missing has two parts. Which classical algorithm was the baseline, and what was that baseline allowed to read. A data team knows the second part matters more than it sounds. A query against a raw file and the same query against an index are different jobs with different costs, and nobody would compare the index on one side against the raw file on the other and call the gap a speedup.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's head of personalisation, in this constructed case, has a recommender in production and knows what it costs to run. She read slide two and wrote one line in the margin: "faster than what we run, or faster than something nobody runs?" That is the question tonight answers for this algorithm, and the habit tonight leaves is asking it of every slide.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Six words for tonight<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Dequantization.</strong> Finding a classical algorithm that matches a quantum one's speed, up to a polynomial, once the classical side is given the same kind of data access. It removes an exponential gap for one algorithm; it says nothing about every algorithm.</li>
+          <li><strong>Low-rank.</strong> A matrix that is close to a sum of a few simple patterns. A preference matrix of rank about k says a few tastes explain most of what customers like. The mechanics are taught in learn-recommendation-with-phoebe; tonight only needs the word.</li>
+          <li><strong>l2-norm sampling.</strong> Picking a row, or an entry, at random with probability proportional to its squared size. Big entries are picked often, small ones rarely. The classical move at the centre of Part 2.</li>
+          <li><strong>Data structure.</strong> The arrangement the data is stored in before any query runs. Here, a tree of squared norms built once from the matrix. The hinge of the whole story.</li>
+          <li><strong>Matched assumptions.</strong> Giving both sides of a comparison the same input and the same access to it. A fair speedup is measured under matched assumptions or it is not measured.</li>
+          <li><strong>Polylog.</strong> Short for polylogarithmic: a power of the logarithm of the size. Exponentially smaller than the size itself, which is why polylog(mn) against something that reads all mn entries looks like an exponential gap.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What tonight does not do<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Tonight does not teach how a recommender works. Matrix factorisation, collaborative filtering and low-rank approximation as a modelling choice belong to learn-recommendation-with-phoebe, linked in Part 1. Here the recommender is the setting for one argument about speedups, nothing more.</p>
+        <p>Tonight also does not claim that quantum speedups are gone. One algorithm's exponential gap closed to a polynomial under matched assumptions. Grover's square-root advantage in the black-box query model, which session 2 measured, is a proven bound and is untouched. Other proposals that were later given the same treatment are named as an open thread, not surveyed, and no running time is quoted beyond the two papers' own expressions.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers Kerenidis and Prakash 2016</span>
+      <h2>The 2016 claim, and the tree it stands on</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">In 2016 Iordanis Kerenidis and Anupam Prakash published a quantum algorithm for recommendation systems. It does not rebuild the whole preference matrix. It samples a recommendation from a low-rank approximation of it, and it does so in time that grows only with the logarithm of the matrix size. The drawing is the mechanism, in the order the work happens: one pass to build a structure, then fast draws from that structure.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 466" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of the Kerenidis and Prakash recommendation algorithm. Left panel: the preference matrix of m customers by n products, drawn as a hachured grid, stored as a plain table, rank about k. An arrow labelled preprocess once, linear time, leads to the middle panel: a tree data structure of squared norms, with the root holding the squared norm of the whole matrix, two children holding the squared norms of row 1 and row m, and four leaves holding squared entries. A second arrow labelled per query, polylog, leads to the right panel: the quantum step, where a superposition is drawn from the tree and measured to give one sample of the rank-k version, one recommendation out, never the whole matrix. A band underneath says the linear-time pass is paid once, each query costs O of poly k times polylog of m n, the result is exponentially smaller than classical time only if the rank k is a small constant, and the tree is the same memory model as any quantum query algorithm, Grover's included.">
+        <defs>
+          <filter id="a4aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a4aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a4aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a4aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a4aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a4aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a4aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a4aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a4aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a4aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a4aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a4aH" x="30" y="26">ONE LINEAR-TIME PASS BUILDS THE TREE. EVERY QUERY AFTER THAT DRAWS FROM IT IN POLYLOG TIME.</text>
+
+        <g filter="url(#a4aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panel A: the preference matrix, the pile -->
+          <rect x="30" y="44" width="210" height="286" rx="10" transform="rotate(-0.4 135 187)" fill="#FFFFFF"/>
+          <rect x="50" y="100" width="170" height="150" rx="4" transform="rotate(0.5 135 175)" fill="url(#a4aHc)"/>
+          <path d="M50 130 L220 130"/>
+          <path d="M50 160 L220 160"/>
+          <path d="M50 190 L220 190"/>
+          <path d="M50 220 L220 220"/>
+
+          <!-- arrow: preprocess once -->
+          <path d="M248 170 L322 170" marker-end="url(#a4aAr)"/>
+
+          <!-- panel B: the data structure -->
+          <rect x="330" y="44" width="260" height="286" rx="10" transform="rotate(0.3 460 187)" fill="#FFFFFF"/>
+          <path d="M436 130 L395 176"/>
+          <path d="M484 130 L525 176"/>
+          <path d="M384 204 L369 236"/>
+          <path d="M406 204 L421 236"/>
+          <path d="M514 204 L499 236"/>
+          <path d="M536 204 L551 236"/>
+          <rect x="410" y="100" width="100" height="30" rx="8" transform="rotate(-0.6 460 115)" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="350" y="176" width="90" height="28" rx="6" transform="rotate(0.8 395 190)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="480" y="176" width="90" height="28" rx="6" transform="rotate(-0.8 525 190)" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="346" y="236" width="46" height="24" rx="4" fill="#FFFFFF"/>
+          <rect x="398" y="236" width="46" height="24" rx="4" fill="#FFFFFF"/>
+          <rect x="476" y="236" width="46" height="24" rx="4" fill="#FFFFFF"/>
+          <rect x="528" y="236" width="46" height="24" rx="4" fill="#FFFFFF"/>
+
+          <!-- arrow: per query -->
+          <path d="M598 170 L662 170" marker-end="url(#a4aAr)"/>
+
+          <!-- panel C: the quantum step -->
+          <rect x="670" y="44" width="180" height="286" rx="10" transform="rotate(-0.3 760 187)" fill="#FFFFFF"/>
+          <rect x="686" y="116" width="148" height="50" rx="8" transform="rotate(0.5 760 141)" fill="#EEEDF9"/>
+          <path d="M760 170 L760 202" marker-end="url(#a4aAr)"/>
+          <rect x="686" y="206" width="148" height="50" rx="8" transform="rotate(-0.5 760 231)" fill="#FFFFFF"/>
+
+          <!-- doodle anchor: a tiny die -->
+          <rect x="820" y="80" width="18" height="18" rx="4" transform="rotate(4 829 89)" fill="#FFFFFF"/>
+          <circle cx="825" cy="85" r="1.5" fill="#16153A"/>
+          <circle cx="833" cy="93" r="1.5" fill="#16153A"/>
+
+          <!-- band -->
+          <rect x="30" y="350" width="820" height="84" rx="10" transform="rotate(0.15 440 392)" fill="#EEEDF9"/>
+        </g>
+
+        <!-- panel A text -->
+        <text class="a4aL" x="46" y="68">THE PREFERENCE MATRIX</text>
+        <text class="a4aS" x="46" y="84">m customers x n products</text>
+        <text class="a4aS" x="46" y="272">rank about k: a few tastes</text>
+        <text class="a4aS" x="46" y="288">Brindle's, constructed</text>
+        <text class="a4aS" x="46" y="304">stored as a plain table</text>
+
+        <!-- arrow A to B text -->
+        <text class="a4aA" x="285" y="144" text-anchor="middle">preprocess</text>
+        <text class="a4aA" x="285" y="158" text-anchor="middle">once</text>
+        <text class="a4aB" x="285" y="188" text-anchor="middle">linear time</text>
+
+        <!-- panel B text -->
+        <text class="a4aL" x="346" y="68">THE DATA STRUCTURE</text>
+        <text class="a4aS" x="346" y="84">a tree of squared norms, built once</text>
+        <text class="a4aW" x="460" y="120" text-anchor="middle">||A||²</text>
+        <text class="a4aB" x="395" y="194" text-anchor="middle">||row 1||²</text>
+        <text class="a4aB" x="525" y="194" text-anchor="middle">||row m||²</text>
+        <text class="a4aS" x="460" y="194" text-anchor="middle">...</text>
+        <text class="a4aS" x="369" y="252" text-anchor="middle">a11²</text>
+        <text class="a4aS" x="421" y="252" text-anchor="middle">a12²</text>
+        <text class="a4aS" x="499" y="252" text-anchor="middle">am1²</text>
+        <text class="a4aS" x="551" y="252" text-anchor="middle">amn²</text>
+        <text class="a4aS" x="346" y="288">each node sums the squares below it</text>
+        <text class="a4aS" x="346" y="304">any entry read in polylog time</text>
+
+        <!-- arrow B to C text -->
+        <text class="a4aA" x="630" y="158" text-anchor="middle">per query</text>
+        <text class="a4aB" x="630" y="188" text-anchor="middle">polylog</text>
+
+        <!-- panel C text -->
+        <text class="a4aL" x="686" y="68">THE QUANTUM STEP</text>
+        <text class="a4aS" x="686" y="84">per recommendation</text>
+        <text class="a4aL" x="700" y="138">superposition</text>
+        <text class="a4aS" x="700" y="156">drawn from the tree</text>
+        <text class="a4aL" x="700" y="228">one sample</text>
+        <text class="a4aS" x="700" y="246">of a rank-k version</text>
+        <text class="a4aS" x="686" y="284">one recommendation out,</text>
+        <text class="a4aS" x="686" y="300">never the whole matrix</text>
+
+        <!-- band text -->
+        <text class="a4aH" x="46" y="374">Paid once: one linear-time pass over the matrix. Paid per query: O(poly(k) polylog(mn)).</text>
+        <text class="a4aN" x="46" y="396">Exponentially smaller than classical time only if rank k is a small constant: the paper's own condition.</text>
+        <text class="a4aN" x="46" y="416">Same memory model as any quantum query algorithm, Grover's included. Session 3's load is the first arrow.</text>
+
+        <text class="a4aN" x="30" y="456">Kerenidis and Prakash 2016. Drawn with 2 rows and 4 leaves; the real tree has a leaf per stored entry.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the cyan tree is the whole story. The matrix is read once, in linear time, to build it; every fast step afterwards is a draw from it.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the paper claimed, in its own terms<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Take an m by n preference matrix: m customers, n products, an entry wherever a customer has expressed a preference. Assume it is close to rank k, meaning a small number of patterns explain it. The paper's algorithm returns a recommendation for a customer by sampling from a low-rank approximation of the matrix, without ever writing that approximation down. Its claimed running time is O(poly(k) polylog(mn)).</p>
+        <p>Read the expression in two halves. The polylog(mn) half is the eye-catching one: it grows with the logarithm of the matrix size, so doubling the catalogue barely moves it. The poly(k) half is the one to keep a finger on. The paper says itself that its running time is exponentially smaller than classical time only if the rank k is a small constant. That is the authors' own condition, stated in their own paper, and it belongs on any slide that quotes their result.</p>
+        <p>Notice what the output is. One sampled recommendation, drawn from a distribution shaped by the low-rank version of the matrix. Not a table of predicted ratings, not the matrix itself. That is session 3's fourth caveat honoured rather than violated: the algorithm asks for one sample because one sample is cheap to read out.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The memory assumption, stated in the paper<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The paper is candid about what it assumes. The data sits in a classical data structure to which the algorithm has quantum access, and that structure lets it create the superpositions it needs in polylogarithmic time. Reading an entry costs polylogarithmic time. Building the structure from a plain array costs linear time, one pass over the data. That is the tree in the drawing: each node holds the sum of the squared values beneath it, so a draw can walk from the root to a leaf choosing each branch in proportion to its weight.</p>
+        <p>The paper also says this is the same memory model as any quantum query algorithm, Grover's included. That sentence is fair and worth taking seriously. Session 2's search assumed an oracle that could be asked about any row in superposition; this algorithm assumes a structure that can be asked about any entry in superposition. Neither assumption is a trick. Both are the price of entry for a query algorithm, and both say nothing about how the data got there.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>In the constructed case, Brindle's preference matrix would be its 12 million customers against its product catalogue, built from the 4 million orders. The deck's slide two shows the per-query cost and no preprocessing step. The detail page, read closely, mentions "a one-time data preparation phase" in a footnote. That footnote is the tree, and the tree is a full pass over Brindle's data before the first recommendation is served.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why that assumption is where to look<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 3 priced caveat 1, the load: getting N classical rows into a form a quantum algorithm can query costs order N, and no memory design makes that write cheaper. Here the paper has paid that cost openly, as linear-time preprocessing, and amortised it across every query that follows. That is a legitimate move. It is the same move session 3's window made when it shared one load across R searches.</p>
+        <p>The question it raises is the one Aaronson's check (b) asks. Once a linear-time pass has built a tree of squared norms, the tree is a classical object. It sits in classical memory. A classical algorithm could be handed it too. If the quantum algorithm is fast because the tree makes certain distributions cheap to draw from, the honest next question is whether a classical algorithm can draw from the same distributions just as cheaply. Until 2018 the working belief was that it could not. Part 2 is what happened when somebody checked.</p>
+        <p>So the place to look on any quantum data slide is the same place every time: the step before the fast step. Session 3 asked what it costs. Tonight asks who else is allowed to use it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the recommender itself is taught<span class="mini">1 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>How a recommender actually works, what matrix factorisation does, why a low-rank approximation of a preference matrix makes reasonable recommendations, and how to evaluate one, is taught properly in <a href="https://phoebefu6.github.io/learn-recommendation-with-phoebe/">learn-recommendation-with-phoebe</a>, including a session on matrix factorisation. Tonight uses the recommender only as the setting for a speedup argument, and every claim about it here is a claim about running time, not about recommendation quality.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers Tang 2018 (STOC 2019)</span>
+      <h2>Same tree, classical sampler, polynomial gap</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">In 2018 Ewin Tang posted a classical algorithm for the same recommendation task. It reads from the same kind of data structure the quantum algorithm assumed, and it samples from a rank-k approximation in time that also grows only with the logarithm of the matrix size. The drawing puts the two pipelines side by side, drawing from one tree, and shows what happened to the gap between them.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 564" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of two pipelines reading from one data structure. At the top, a single tree of squared norms, built once in linear time. Two arrows lead down from it: on the left, quantum access, into a panel for Kerenidis and Prakash 2016, which builds a superposition from the tree and measures it to get one sample of the rank-k version, at O of poly k times polylog of m n per query. On the right, classical access, into a panel for Tang 2018, which uses l2-norm sampling from the same tree, picking an entry with chance set by its square, to get one sample of the rank-k version, at O of poly k times log of m n, only polynomially slower. Underneath, the gap between them is drawn as a wedge that narrows from exponential, the 2016 claim with quantum given the tree and classical not, to polynomial, the 2018 result with both sides given the same tree. A note says neither algorithm runs on a raw table.">
+        <defs>
+          <filter id="a4bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a4bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a4bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a4bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a4bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a4bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a4bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a4bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a4bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a4bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a4bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a4bH" x="30" y="26">SAME TREE, TWO SAMPLERS: THE GAP SHRINKS FROM EXPONENTIAL TO POLYNOMIAL</text>
+
+        <g filter="url(#a4bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the shared data structure -->
+          <rect x="230" y="44" width="420" height="66" rx="10" transform="rotate(-0.3 440 77)" fill="#E3F3F7" stroke="#0E7490"/>
+          <path d="M280 62 L256 92" stroke="#0E7490"/>
+          <path d="M280 62 L304 92" stroke="#0E7490"/>
+          <circle cx="280" cy="62" r="8" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="256" cy="92" r="7" fill="#FFFFFF" stroke="#0E7490"/>
+          <circle cx="304" cy="92" r="7" fill="#FFFFFF" stroke="#0E7490"/>
+
+          <!-- two access arrows -->
+          <path d="M330 116 L200 160" marker-end="url(#a4bAr)"/>
+          <path d="M550 116 L680 160" marker-end="url(#a4bAr)"/>
+
+          <!-- left pipeline: quantum -->
+          <rect x="30" y="164" width="390" height="216" rx="10" transform="rotate(0.3 225 272)" fill="#FFFFFF"/>
+          <rect x="50" y="218" width="350" height="44" rx="8" transform="rotate(-0.4 225 240)" fill="#EEEDF9"/>
+          <path d="M225 266 L225 290" marker-end="url(#a4bAr)"/>
+          <rect x="50" y="294" width="350" height="44" rx="8" transform="rotate(0.4 225 316)" fill="#FFFFFF"/>
+
+          <!-- right pipeline: classical -->
+          <rect x="460" y="164" width="390" height="216" rx="10" transform="rotate(-0.3 655 272)" fill="#FFFFFF"/>
+          <rect x="480" y="218" width="350" height="44" rx="8" transform="rotate(0.4 655 240)" fill="#EEEDF9"/>
+          <path d="M655 266 L655 290" marker-end="url(#a4bAr)"/>
+          <rect x="480" y="294" width="350" height="44" rx="8" transform="rotate(-0.4 655 316)" fill="#FFFFFF"/>
+
+          <!-- same output marker between the panels -->
+          <path d="M432 311 L448 311"/>
+          <path d="M432 319 L448 319"/>
+
+          <!-- the gap panel -->
+          <rect x="30" y="404" width="820" height="128" rx="10" transform="rotate(0.15 440 468)" fill="#FFFFFF"/>
+          <path d="M200 424 L680 462 L680 478 L200 516 Z" fill="#EEEDF9"/>
+          <path d="M490 470 L600 470" marker-end="url(#a4bAr)"/>
+
+          <!-- doodle anchor: a tiny dial -->
+          <circle cx="826" cy="430" r="9" fill="#FFFFFF"/>
+          <path d="M826 430 L831 424"/>
+        </g>
+
+        <!-- shared structure text -->
+        <text class="a4bL" x="330" y="74">ONE DATA STRUCTURE, BUILT ONCE</text>
+        <text class="a4bS" x="330" y="94">squared norms, linear-time preprocessing</text>
+        <text class="a4bA" x="100" y="136">quantum access</text>
+        <text class="a4bA" x="700" y="136">classical access</text>
+
+        <!-- left pipeline text -->
+        <text class="a4bL" x="46" y="188">QUANTUM, KERENIDIS AND PRAKASH 2016</text>
+        <text class="a4bS" x="46" y="204">quantum access to the tree</text>
+        <text class="a4bL" x="64" y="238">build a superposition from the tree</text>
+        <text class="a4bS" x="64" y="254">amplitudes set by the squared norms</text>
+        <text class="a4bL" x="64" y="314">measure: one sample of the rank-k version</text>
+        <text class="a4bS" x="64" y="330">one recommendation per query</text>
+        <text class="a4bB" x="46" y="364">O(poly(k) polylog(mn))</text>
+        <text class="a4bS" x="216" y="364">per query, after the tree</text>
+
+        <!-- right pipeline text -->
+        <text class="a4bL" x="476" y="188">CLASSICAL, TANG 2018</text>
+        <text class="a4bS" x="476" y="204">classical access to the same tree</text>
+        <text class="a4bL" x="494" y="238">l2-norm sampling from the tree</text>
+        <text class="a4bS" x="494" y="254">pick an entry with chance set by its square</text>
+        <text class="a4bL" x="494" y="314">one sample of the rank-k version</text>
+        <text class="a4bS" x="494" y="330">same kind of output, no qubits</text>
+        <text class="a4bB" x="476" y="364">O(poly(k) log(mn))</text>
+        <text class="a4bS" x="620" y="364">only polynomially slower</text>
+
+        <!-- gap text -->
+        <text class="a4bL" x="46" y="446">2016 CLAIM</text>
+        <text class="a4bV" x="46" y="470">exponential</text>
+        <text class="a4bS" x="46" y="490">quantum with the tree</text>
+        <text class="a4bS" x="46" y="506">vs classical without</text>
+        <text class="a4bA" x="240" y="466">give the classical side the same tree</text>
+        <text class="a4bL" x="696" y="446">2018 RESULT</text>
+        <text class="a4bV" x="696" y="470">polynomial</text>
+        <text class="a4bS" x="696" y="490">both sides given</text>
+        <text class="a4bS" x="696" y="506">the same tree</text>
+
+        <text class="a4bN" x="30" y="556">Complexity expressions from the two papers. Neither algorithm runs on a raw table; both need the tree first.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one tree, two samplers, the same kind of output. The exponential gap was the distance between a sampler with the tree and a baseline without it.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Tang's result, in her abstract's terms<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The paper is Tang, E. (2019), "A quantum-inspired classical algorithm for recommendation systems", STOC 2019, first posted as arXiv 1807.04271 in July 2018. Its abstract says this. Given the matrix in a data structure that supports l2-norm sampling, which is the classical analogue of the Kerenidis-Prakash memory assumption, a classical algorithm can sample from a rank-k approximation in O(poly(k) log(mn)) time. That is only polynomially slower than the quantum algorithm, and so the quantum algorithm does not give an exponential speedup over classical.</p>
+        <p>The abstract is also clear about why that mattered. The quantum recommendation algorithm had been previously believed to be one of the strongest candidates for a provable exponential speedup in quantum machine learning. It was not a minor proposal that fell over. It was one of the best examples the field had, and the classical match came from changing one thing about the comparison: what the classical side was allowed to read.</p>
+        <p>Put the two expressions next to each other. O(poly(k) polylog(mn)) for the quantum algorithm, O(poly(k) log(mn)) for the classical one. Both are logarithmic in the matrix size. Whatever separates them now sits inside the polynomials, and a polynomial gap is a different kind of thing from an exponential one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The method: sampling plays the part superposition played<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Tang's own framing is the one to remember. Manipulating l2-norm sampling distributions plays the role that quantum superpositions play. Look at the drawing again. The quantum pipeline uses the tree to prepare a state whose amplitudes are set by the squared norms, then measures it, and a measurement draws an entry with probability equal to its squared amplitude. The classical pipeline uses the same tree to draw an entry with probability proportional to its squared value directly, walking from the root to a leaf and choosing each branch by weight.</p>
+        <p>Both end in a draw from a distribution shaped by squared magnitudes. Session 1 taught that a measurement is a sample and that a data team handles samples every day. Tonight is the payoff of that sentence: when the quantum algorithm's useful output is a sample, a classical sampler with the same access can sometimes produce an equivalent sample, and then the question is only how many draws each side needs.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The matched-assumption lesson<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Neither algorithm runs on a raw table. The quantum one needs the tree; the classical one needs the tree. Both pay the same linear-time pass to build it. The 2016 exponential gap was measured between a quantum algorithm that had the tree and classical algorithms that, in effect, did not: classical methods that read the whole matrix take time polynomial in mn, and polylog(mn) against that is exponentially smaller. Give the classical side the same tree and the comparison becomes like for like, and like for like it is polynomial.</p>
+        <p>Aaronson had written the general rule three years earlier, and session 3 put it on the table. Check (a): does the application satisfy all of the fine print? Here, yes, if the tree is built. Check (b): once the fine print is included, does a fast classical algorithm give the same information? Here, also yes. Tang's paper is check (b) carried out in full on one specific, celebrated algorithm. It is the reason the check has two parts.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Back to Brindle's constructed deck. Its slide two compares a quantum per-query cost, after a preparation step mentioned only in a footnote, against the cost of Brindle's current recommender retraining over the full matrix. That is the 2016 comparison exactly: one side with a prepared structure, the other without. The head of personalisation's margin note was right. Faster than something nobody would run against that structure, and only polynomially apart from a classical sampler that reads the same tree.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two questions are genuinely open after Tang's result, and tonight teaches the disagreement rather than a verdict.</p>
+        <p><strong>What is a polynomial gap worth in practice?</strong> One reading says the theoretical question was whether the gap was exponential, it is not, and that settles the headline. Another reading says a polynomial gap can still matter: "polynomially slower" says nothing about how large the polynomial is, and if the classical sampler's polynomial in k is of much higher degree than the quantum one's, the quantum algorithm could still win on some realistic sizes once hardware exists. A third reading says practice is decided by constants, data preparation and hardware noise that neither complexity expression contains, so neither side can claim practice from the expressions alone. Neither paper gives running times on real data, and no number is offered here.</p>
+        <p><strong>Do other quantum machine learning proposals survive the same treatment?</strong> Tang's method, give the classical side the same l2-norm sampling access and see what it can do, is a general tool, and nothing about it is specific to recommendation. Which other proposals survive with an exponential gap intact, and under what access assumptions, is an active research question that the primary sources read for these sessions do not settle. The safe position for a leader is not "they all fall" and not "this one was an exception". It is to ask, of each proposal, whether check (b) has been run.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>The matched-assumption test</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps applied to the recommendation slide in Brindle's constructed deck, or to any speedup slide you have in your inbox. The aim is to leave with both sides of the comparison named, the data access matched, and a headline a board can repeat without being wrong.</p>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Name the claimed speedup</h4>
+        <p>Copy the slide's claim word for word: "quantum recommendation engine", "exponential speedup". Then write the quantum side's running time if the slide or its source gives one. For this algorithm it is O(poly(k) polylog(mn)), with the authors' own condition that the gap is exponential only if k is a small constant. If the slide has no expression and no source, write "unstated" and stop here; the next step is a question for the vendor.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Name the classical baseline the claim used</h4>
+        <p>Exponential against what? Write down the classical algorithm on the other side of the comparison. On most slides it is not named. On Brindle's it is implied: the current recommender, retraining over the full matrix. A baseline that reads every entry grows with mn, and polylog(mn) against that is where the word exponential came from.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask what data access the quantum algorithm assumed</h4>
+        <p>Find the preparation step. Here it is the tree of squared norms, built in one linear-time pass and queried in polylogarithmic time. Write it down as a line item with its cost: "one full pass over 12 million customers by the catalogue, before the first recommendation". On Brindle's deck it lives in a footnote, which is itself the finding.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Give the classical baseline the same access</h4>
+        <p>Rewrite the baseline as "a classical algorithm that may read the same tree". Then ask whether one is known. For this algorithm the answer is published: Tang's l2-norm sampler, O(poly(k) log(mn)), only polynomially slower. For a slide about some other algorithm, the answer may be "unknown", which is a different thing from "none exists", and should be written as unknown.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Ask Aaronson's two questions</h4>
+        <p>(a) Does the application satisfy all of the fine print: the load, the structure, the conditioning, the readout? (b) With the fine print included, does a fast classical algorithm give the same information? Write yes, no or unknown beside each, with one line of reason. For Brindle's slide: (a) yes, if the tree is built and paid for; (b) yes, Tang 2018.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Rewrite the headline honestly</h4>
+        <p>Something like: "After a one-time pass to build a sampling structure from our data, a quantum algorithm could sample recommendations in time logarithmic in our catalogue; a classical algorithm reading the same structure does the same job only polynomially slower (Tang 2019). The exponential claim compares against a baseline without that structure." Shorten it if you can; do not drop the preparation step or the word polynomially.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Compare algorithms under matched data access. Never accept a quantum algorithm with a preprocessed structure against a classical one without it. Whatever the quantum side was allowed to read, hand the same thing to the classical side, and only then measure the gap.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">What did Tang's 2018 paper show about the Kerenidis-Prakash recommendation algorithm?</p>
+      <div class="qopt">A · That the quantum algorithm contained an error and does not produce good recommendations</div>
+      <div class="qopt">B · That a classical algorithm working directly on the raw preference table is faster than the quantum algorithm</div>
+      <div class="qopt">C · That a classical algorithm, given a data structure supporting l2-norm sampling, the classical analogue of the quantum memory assumption, samples from a rank-k approximation in O(poly(k) log(mn)), only polynomially slower, so the speedup is not exponential</div>
+      <q class="qwhy">The quantum algorithm was not wrong; its exponential advantage depended on the comparison. Tang's classical algorithm needs the same kind of preprocessed structure, not the raw table, and her abstract's conclusion is that under matched access the gap is polynomial rather than exponential.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Why is the data structure, the tree of squared norms, the hinge of the whole story?</p>
+      <div class="qopt">A · The quantum algorithm's speed depends on a structure built in one linear-time pass; that structure is classical, so a classical algorithm can be given it too, and comparing quantum-with-the-structure against classical-without-it measures the structure, not the quantum step</div>
+      <div class="qopt">B · Because only a quantum computer can read a tree of squared norms</div>
+      <div class="qopt">C · Because the structure makes the quantum algorithm exponentially faster than any classical algorithm that also has it</div>
+      <q class="qwhy">The paper itself says the structure takes linear time to build from a plain array and sits in classical memory with quantum access. B is false, since Tang's sampler reads it classically. C is exactly what Tang's result refuted: with the same structure, the classical side is only polynomially slower.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A board member hears "the quantum recommendation algorithm was dequantized" and concludes that quantum computers have no speedups left. What is the honest reply?</p>
+      <div class="qopt">A · Correct: Tang's result showed every quantum algorithm can be matched classically</div>
+      <div class="qopt">B · Dequantized means this algorithm's exponential gap closed to a polynomial once the classical side got matched data access; it does not mean every speedup is gone, and Grover's square-root query advantage in the black-box model is a proven bound, as session 2 showed</div>
+      <div class="qopt">C · Dequantized means the quantum algorithm was run on a classical simulator instead of quantum hardware</div>
+      <q class="qwhy">Dequantization is a statement about one algorithm under one access assumption. In the black-box query model, a classical search needs about N over 2 lookups for an even chance and the quantum one about the square root of N, and that bound is proven, not a belief waiting to be dequantized. C confuses dequantization with simulation; session 1's simulator imitates a circuit, it does not find a faster classical algorithm.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 5</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, with the six-step test and one slide that is not Brindle's.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Run the test on one other claim</h4>
+        <p>Take the quantum machine learning claim you marked for session 3's homework, or any new one. Run the six steps. Most claims will stall at step 2 because the classical baseline is unnamed; write down that it stalled and where, which is a result in its own right.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>List your own team's prepared structures</h4>
+        <p>Name three structures your team builds once so that later queries are cheap: an index, a materialised aggregate, a sample table, an embedding store. Beside each, write what a query against the raw data would cost instead. You are listing the things a fair classical baseline is allowed to use.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Hold one question for session 5</h4>
+        <p>Every running time tonight assumed each step works perfectly and that the answer can be read out cleanly. Write down one thing your data team does to debug a pipeline, such as printing an intermediate table, that you suspect a quantum circuit does not allow. Session 5 is where the data-team playbook breaks.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Kerenidis and Prakash 2016</span><span class="note">O(poly(k) polylog(mn)), exponentially smaller than classical only if k is a small constant, the paper's own condition.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Tang 2018 (STOC 2019)</span><span class="note">A classical sampler from a rank-k approximation in O(poly(k) log(mn)), only polynomially slower.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">l2-norm sampling</span><span class="note">Drawing entries with chance set by their squares; it plays the part superposition played.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Matched assumptions</span><span class="note">Neither algorithm runs on a raw table; a fair comparison gives both sides the same tree.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Aaronson's two-part check</span><span class="note">(a) all the fine print satisfied, (b) no fast classical algorithm with it; Tang is (b) carried out.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Recommender mechanics</span><span class="note">Matrix factorisation and low-rank modelling live in <a href="https://phoebefu6.github.io/learn-recommendation-with-phoebe/">learn-recommendation-with-phoebe</a>.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Other dequantized algorithms</span><span class="note">Named as an open thread; which proposals keep an exponential gap is not surveyed here.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">The polynomial gap in practice</span><span class="note">Taught as a disagreement; no running times on real data are quoted.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The question.</strong> Exponential against WHAT classical algorithm, given the SAME data access? A speedup is a property of a pair.</div>
+      <div class="cheat-item"><strong>The 2016 claim.</strong> Kerenidis and Prakash: O(poly(k) polylog(mn)) per recommendation, exponentially smaller than classical only if rank k is a small constant.</div>
+      <div class="cheat-item"><strong>The tree.</strong> A classical structure of squared norms, built in one linear-time pass. Same memory model as any quantum query algorithm, Grover's included.</div>
+      <div class="cheat-item"><strong>The 2018 match.</strong> Tang: same kind of structure, classical l2-norm sampling, O(poly(k) log(mn)). Only polynomially slower.</div>
+      <div class="cheat-item"><strong>The method.</strong> l2-norm sampling plays the part superposition played. Both end in a draw weighted by squared size.</div>
+      <div class="cheat-item"><strong>Matched access.</strong> Neither runs on a raw table. Hand the classical side whatever the quantum side was allowed to read, then measure.</div>
+      <div class="cheat-item"><strong>The two-part check.</strong> (a) Is all the fine print satisfied? (b) With it included, does a fast classical algorithm give the same information? Aaronson 2015.</div>
+      <div class="cheat-item"><strong>Dequantized is not over.</strong> One algorithm's exponential gap closed. Grover's square-root query bound in the black-box model is proven and stands.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 4 of 6 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a3-the-data-loading-fine-print.html">← Leader session 3 · The data-loading fine print</a>
+        <a href="a5-why-the-data-team-playbook-breaks-here.html">Leader session 5 · Why the data-team playbook breaks here →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

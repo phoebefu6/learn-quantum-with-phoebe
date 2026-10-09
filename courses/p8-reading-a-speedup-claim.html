@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 8 of 10. A speedup claim is a number with its fine print removed. Five gates, built from sessions 5 to 7 and Aaronson's caveats: input loading, output readout, the classical baseline, noise and depth, problem size. Three constructed claims run through them with the track's own calculators, one verdict line each.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Reading a speedup claim - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 8 of 10. Twenty times fewer oracle calls, until the load, the index, the noise and the size each ask for their number. Three constructed claims, five gates, three verdicts.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p8-reading-a-speedup-claim.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reading a speedup claim - learn quantum with phoebe">
+<meta name="twitter:description" content="Against which classical algorithm, with what load, at what error rate, at what size? Four questions a slide never answers.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 8 · Reading a speedup claim - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 8 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 8 of 10</div>
+    <h1>Reading a speedup <span class="accent">claim</span></h1>
+    <p class="sub">Sessions 5, 6 and 7 each built one calculator: oracle calls against lookups, the load against the search, the error per gate against the depth. Today they become one instrument. A speedup claim is a number with its fine print removed, and the fine print comes back as five questions, each answered with a declared number or not answered at all. You build the checklist in numpy, run three constructed claims through it, and finish with one verdict line per claim that a board can read without a glossary.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone who has to review a quantum pitch with numbers</span>
+      <span class="chip audience">Has the calculators from sessions 5 to 7</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Five gates</span>
+      <span class="a3" style="flex:2">15-25 · The baseline that matters</span>
+      <span class="a4" style="flex:4">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Three slides, one review</h2>
+    </div>
+    <p class="lede">A speedup claim is a ratio: what the quantum method costs, over what something else costs. Both halves of the ratio hide choices. The top hides the load, the readout, the depth and the error rate. The bottom hides which classical method was chosen and how badly it was set up. A practitioner's job is not to believe or disbelieve the ratio; it is to put the hidden choices back, one at a time, and read what is left. Aaronson called this reading the fine print in 2015, and each of the last three sessions built one of the tools that reads it.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> A five-gate checklist, each gate tied to a source and to a calculator you already own. A numpy scorer that takes a claim as a record of declared numbers and prints one status per gate: holds, conditional, fails or undeclared. Three constructed claims scored with it, ending in three verdict lines. And the one question that does more work than any other: against which classical algorithm, given the same access to the data?</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The review the board asked for<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A claim reaches a data team as a slide, and a slide has room for one number. The number is usually honest about what it measures and silent about everything it leaves out. "Twenty times fewer oracle calls" can be exactly true and still describe a job that costs more than the classical one, because the oracle calls were never the expensive part. Reading a claim means asking, for each thing the number leaves out, what it costs, and writing the answer down with its source.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle is a constructed retailer: 12 million customer rows, 4 million order rows, twenty years of encrypted backups, and an unnamed vendor's deck asking the board for a quantum pilot. After sessions 5 to 7 the engineer had three footnotes on three slides: a load term, a query table, a noise ladder. The board asked for something shorter. "Give us one line per claim: does it hold, and if not, where does it break?" Today builds the instrument that writes those lines, and runs it on three constructed claims of the kind such decks carry.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in code terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Claim.</strong> A record: what is computed, at what size, against which baseline, with which advertised ratio. Fields the slide does not fill are None, not zero.</li>
+          <li><strong>Gate.</strong> One question the claim must answer with a declared number. Five of them, run in a fixed order.</li>
+          <li><strong>Holds.</strong> The declared number survives the gate's calculator.</li>
+          <li><strong>Conditional.</strong> It survives only inside a window the claim did not state, such as a range of searches per load.</li>
+          <li><strong>Fails.</strong> The calculator, fed the claim's own numbers, removes the advertised advantage.</li>
+          <li><strong>Undeclared.</strong> The claim gives no number for this gate. Not a pass, and not a fail either: a question to send back.</li>
+          <li><strong>Baseline.</strong> The classical method the ratio divides by. Brute force is the easiest one to beat and the least honest one to quote.</li>
+          <li><strong>Verdict line.</strong> One sentence per claim naming what survives and where it broke. The output a board reads.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where each number on this page comes from<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three calculators, all from earlier sessions and all running on the same engine as this page. Query counts are session 5's: the measured optimal iteration count for each register size, 25 oracle calls on ten qubits against 512 lookups for a one-half chance classically. The loading tax is session 6's declared model with three parameters, load 1 per row, query cost log2 N per oracle call, and R searches per load. The noise is session 7's declared global depolarising channel, one parameter per gate, modelled and kinder than hardware. Nothing on this page is a measurement of any machine, and every number that is arithmetic past the simulator says so where it appears.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the fine-print checklist</span>
+      <h2>Five gates, each asking for one number</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The checklist is short on purpose: input loading, output readout, the classical baseline, noise and depth, problem size. Each gate comes from a source or a session, each has a calculator, and each asks the claim for one declared number. The figure runs one constructed claim through all five and draws what each gate charges for.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 532" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of one constructed claim passing through five gates in sequence. At the top, the claim as advertised: ten qubits over a 1,000-row demo table, one marked row found in 25 oracle calls against 500 lookups, twenty times fewer, declared at 0.001 error per gate. A cyan pipe carries the advertised speedup down the left side and narrows after each gate that charges for something. Gate 1, input loading, fails: the 1,000 rows must be written in before the first call, so one search costs 1,249 against 500 brute-force lookups. Gate 2, output readout, holds: a search returns one row per run. Gate 3, classical baseline, is conditional: quantum beats brute force from 4 searches per load and an index built once wins past 37. Gate 4, noise and depth, fails: 1,060 gates at 0.001 per gate gives success 0.346724, modelled, not the 0.999461 advertised. Gate 5, problem size, fails: grown from two to ten qubits at 0.001, success trends from 0.9910 down to 0.3467. At the bottom, what survives: a window of 4 to 37 searches per load in which about a third of runs succeed, modelled.">
+        <defs>
+          <filter id="p8aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="81" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p8aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p8aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p8aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p8aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p8aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p8aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p8aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p8aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p8aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p8aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p8aH" x="30" y="26">ONE CLAIM, FIVE GATES: EACH ASKS FOR A DECLARED NUMBER AND CHARGES FOR WHAT WAS LEFT OUT.</text>
+
+        <g filter="url(#p8aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the claim as advertised -->
+          <rect x="30" y="40" width="820" height="46" rx="10" transform="rotate(-0.15 440 63)" fill="#FFFFFF"/>
+          <!-- the pipe: the advertised speedup, narrowing after each gate that charges -->
+          <rect x="75" y="88" width="70" height="22" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="88" y="128" width="44" height="42" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="88" y="188" width="44" height="42" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="95" y="248" width="30" height="42" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="101" y="308" width="18" height="42" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="105" y="368" width="10" height="28" fill="#0E7490" stroke="#0E7490"/>
+          <!-- the five gates -->
+          <rect x="50" y="112" width="120" height="14" rx="4" transform="rotate(-0.5 110 119)" fill="#EEEDF9" stroke="#3730A3"/>
+          <rect x="50" y="172" width="120" height="14" rx="4" transform="rotate(0.4 110 179)" fill="#EEEDF9" stroke="#3730A3"/>
+          <rect x="50" y="232" width="120" height="14" rx="4" transform="rotate(-0.3 110 239)" fill="#EEEDF9" stroke="#3730A3"/>
+          <rect x="50" y="292" width="120" height="14" rx="4" transform="rotate(0.5 110 299)" fill="#EEEDF9" stroke="#3730A3"/>
+          <rect x="50" y="352" width="120" height="14" rx="4" transform="rotate(-0.4 110 359)" fill="#EEEDF9" stroke="#3730A3"/>
+          <!-- what each charging gate spills -->
+          <path d="M170 122 L178 128"/>
+          <circle cx="184" cy="132" r="7" fill="url(#p8aHc)" stroke="#3730A3"/>
+          <path d="M170 242 L178 248"/>
+          <circle cx="184" cy="252" r="7" fill="url(#p8aHc)" stroke="#3730A3"/>
+          <path d="M170 302 L178 308"/>
+          <circle cx="184" cy="312" r="7" fill="url(#p8aHc)" stroke="#3730A3"/>
+          <path d="M170 362 L178 368"/>
+          <circle cx="184" cy="372" r="7" fill="url(#p8aHc)" stroke="#3730A3"/>
+          <!-- what survives -->
+          <rect x="30" y="400" width="820" height="44" rx="10" transform="rotate(0.15 440 422)" fill="#E3F3F7"/>
+          <!-- band -->
+          <rect x="30" y="456" width="820" height="40" rx="10" transform="rotate(-0.15 440 476)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="846" cy="22" r="9" fill="#FFFFFF"/>
+          <path d="M846 22 L851 16"/>
+        </g>
+
+        <text class="p8aL" x="46" y="59">CLAIM B, CONSTRUCTED: ten qubits over a 1,000-row demo table</text>
+        <text class="p8aS" x="46" y="77">advertised: one marked row in 25 oracle calls against 500 lookups, "20 times fewer", at 0.001 error per gate</text>
+        <text class="p8aA" x="154" y="104">the advertised speedup</text>
+
+        <text class="p8aH" x="200" y="123">1 · INPUT LOADING</text>
+        <text class="p8aB" x="840" y="123" text-anchor="end">fails</text>
+        <text class="p8aS" x="200" y="141">1,000 rows written in before the first call: one search costs 1,249 against 500 brute-force lookups</text>
+
+        <text class="p8aH" x="200" y="183">2 · OUTPUT READOUT</text>
+        <text class="p8aL" x="840" y="183" text-anchor="end">holds</text>
+        <text class="p8aS" x="200" y="201">a search returns one row per run, not a vector to read entry by entry (Aaronson's fourth caveat)</text>
+
+        <text class="p8aH" x="200" y="243">3 · CLASSICAL BASELINE</text>
+        <text class="p8aB" x="840" y="243" text-anchor="end">conditional</text>
+        <text class="p8aS" x="200" y="261">beats brute force from 4 searches per load; an index built once wins past 37</text>
+
+        <text class="p8aH" x="200" y="303">4 · NOISE AND DEPTH</text>
+        <text class="p8aB" x="840" y="303" text-anchor="end">fails</text>
+        <text class="p8aS" x="200" y="321">1,060 gates at the declared 0.001 per gate: success 0.346724 modelled, not the 0.999461 advertised</text>
+
+        <text class="p8aH" x="200" y="363">5 · PROBLEM SIZE</text>
+        <text class="p8aB" x="840" y="363" text-anchor="end">fails</text>
+        <text class="p8aS" x="200" y="381">1,000 rows is a toy; grown from 2 to 10 qubits at 0.001, success trends from 0.9910 to 0.3467</text>
+
+        <text class="p8aB" x="150" y="418">WHAT SURVIVES</text>
+        <text class="p8aL" x="150" y="436">a window of 4 to 37 searches per load, in which about a third of runs succeed, modelled</text>
+
+        <text class="p8aH" x="46" y="481">Each gate charges for what the slide left out. No number supplied is not a pass.</text>
+        <text class="p8aN" x="30" y="518">Constructed. Load 1 per row, query log2 N; oracle counted as one gate; noise modelled and kinder than hardware.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the claim does not die at one gate; it narrows at four of five. What reaches the bottom is not zero, it is a window with conditions, and the verdict line is that window written down.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The five gates, and where each one comes from<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Aaronson's 2015 essay lists four caveats on the linear-algebra speedups, each of which can kill the advantage on its own. Two of them become gates directly. The other two, and his closing test, fold into the rest. Sessions 5 to 7 supply the arithmetic.</p>
+        <ul>
+          <li><strong>1 · Input loading.</strong> His first caveat: the input must be loaded fast, and if preparing it already takes order-n steps the speedup vanishes "in the very first step". Session 6 priced it: one write per row, before the first query. Even the best proposed quantum RAM makes a query cost about log N; nothing in it makes the initial write of N classical values cost less than N writes.</li>
+          <li><strong>2 · Output readout.</strong> His fourth caveat: the output is a quantum state, and reading a specific entry costs about n repetitions. A search passes this gate, because it returns one index per run. A claim that returns a vector does not, unless it says how many runs it needs.</li>
+          <li><strong>3 · Classical baseline.</strong> His closing test: once the fine print is included, does a fast classical algorithm give the same information? Session 6 showed that an index built once beats the quantum search past 4,224 searches per load on Brindle's customer table. Part 2 takes this gate to depth.</li>
+          <li><strong>4 · Noise and depth.</strong> Not in Aaronson's list, which supposes a working machine. Session 7 and Preskill's framing: noise in the gates limits the size of circuit that runs reliably, so a claim needs an error per gate and a gate count.</li>
+          <li><strong>5 · Problem size.</strong> Session 5: the query advantage grows as sqrt N, so a claim is only as good as the size it was shown at. His second and third caveats live here for linear-system claims: the matrix must be sparse or structured, and well-conditioned.</li>
+        </ul>
+        <p>Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293. Giovannetti, V., Lloyd, S. and Maccone, L. (2008). Quantum random access memory. Physical Review Letters 100, 160501; arXiv 0708.1879.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>A gate charges; it does not veto<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The tempting way to use a checklist is as a filter: one failure and the claim is out. That is too blunt, and it loses information the board needs. A gate's job is to put a cost back into the ratio and report what is left. Claim B fails the loading gate for a single search, and the same calculator says it beats brute force from four searches per load. That is not a pass, but it is not nothing either: it is a condition, and a condition is something the vendor can be asked to meet.</p>
+        <p>So the scorer has four statuses, not two. Holds and fails are the obvious pair. Conditional means the advantage survives inside a window the claim did not state. Undeclared means the claim gave no number, and the right response is a question, not a verdict. A review whose rows all read "undeclared" has not found that the claim is wrong; it has found that the claim has not yet been made.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's analyst, reviewing the constructed deck, was asked by a board member whether "fails" on the loading gate meant the pilot was dead. She answered with the window: beats brute force from three searches per load on the customer table, loses to an index past 4,224, under the declared loading model with its three parameters printed beside it. "So the question for the vendor is how many searches we would run per load." That question went into the reply letter. The claim had not been rejected; it had been sent back with a number to fill in.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why every number on the scorecard carries a label<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A checklist that quotes numbers without their assumptions is the same kind of slide it was built to read. Three labels travel with every number here. A gate count, such as 1,060 for ten qubits at 25 iterations, counts the oracle and the multi-controlled flip as one gate each, which undercounts hardware. A noisy success probability is the output of a declared one-parameter global depolarising channel, and that model flatters hardware. A loading total carries its three parameters: load 1 per row, query cost log2 N, and the number of searches per load.</p>
+        <p>The direction of each simplification matters more than its size. All three make the quantum side look better than it would on a machine. So when a claim fails a gate on this page's numbers, it would fail it at least as badly on hardware; when it passes, the pass is provisional. That asymmetry is what makes a modelled checklist useful: it can rule a claim out with confidence, and only rule it in with a caveat.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the classical baseline and what a credible claim declares</span>
+      <h2>Against the best classical algorithm, not a scan</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The bottom of the ratio is where most of the damage is done. Brute force over a raw table is the classical method every claim wins against, because it touches every entry and uses no structure. The honest comparison is against the best classical algorithm given the same access to the data that the quantum method assumed. The worked case is dequantization: a quantum speedup that was believed exponential until a classical algorithm with the same data structure came within a polynomial of it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of the comparison that matters, on the recommendation case. On the left a hatched raw table, m users by n items, a plain array. One arrow goes up to a red wrong-way panel, brute force over the raw table, which is what the slide compares against. A second arrow goes right into a cyan box, the sampling data structure, built once in linear time from the plain array, which Kerenidis and Prakash state themselves. From that structure two arrows go right: one to the quantum algorithm of Kerenidis and Prakash 2016, poly of k times polylog of m n per sample, which needs quantum access to the structure; one to the classical algorithm of Tang 2018, poly of k times log of m n per sample, using l2-norm sampling from the same structure. A dashed red curve from the brute force panel to the quantum box is labelled the advertised gap, exponential. A bracket between the quantum and classical boxes is labelled the honest gap, only polynomial. A band underneath asks: against which classical algorithm, given the same access to the data?">
+        <defs>
+          <filter id="p8bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="83" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p8bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p8bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p8bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p8bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p8bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p8bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p8bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p8bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p8bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p8bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p8bH" x="30" y="26">THE SAME PREPROCESSED STRUCTURE FEEDS BOTH SIDES. THAT IS THE COMPARISON, NOT A SCAN.</text>
+
+        <g filter="url(#p8bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- the raw table, the data -->
+          <rect x="30" y="56" width="150" height="240" rx="8" transform="rotate(-0.4 105 176)" fill="url(#p8bHc)"/>
+          <path d="M30 96 L180 96 M30 136 L180 136 M30 176 L180 176 M30 216 L180 216 M30 256 L180 256" stroke="#9A97D4"/>
+          <!-- wrong-way panel: brute force over the raw table -->
+          <rect x="230" y="50" width="290" height="84" rx="10" transform="rotate(0.3 375 92)" fill="#FEF2F2" stroke="#991B1B"/>
+          <!-- the sampling data structure: the hinge -->
+          <rect x="230" y="178" width="290" height="84" rx="10" transform="rotate(-0.3 375 220)" fill="#0E7490" stroke="#0E7490"/>
+          <!-- quantum, KP 2016 -->
+          <rect x="580" y="130" width="270" height="76" rx="10" transform="rotate(0.3 715 168)" fill="#EEEDF9"/>
+          <!-- classical, Tang 2018 -->
+          <rect x="580" y="236" width="270" height="76" rx="10" transform="rotate(-0.3 715 274)" fill="#E3F3F7"/>
+          <!-- arrows -->
+          <path d="M182 118 C 200 108, 210 98, 226 94" marker-end="url(#p8bAr)"/>
+          <path d="M182 220 L226 220" marker-end="url(#p8bAr)"/>
+          <path d="M522 206 L576 178" marker-end="url(#p8bAr)"/>
+          <path d="M522 234 L576 266" marker-end="url(#p8bAr)"/>
+          <!-- the advertised gap: brute force to quantum -->
+          <path d="M522 82 C 620 72, 700 88, 712 126" stroke="#991B1B" stroke-dasharray="6 5" marker-end="url(#p8bAr)"/>
+          <!-- the honest gap: quantum to classical -->
+          <path d="M856 140 L864 140 L864 304 L856 304" stroke="#0E7490"/>
+          <!-- band -->
+          <rect x="30" y="368" width="820" height="40" rx="10" transform="rotate(0.15 440 388)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a coin -->
+          <circle cx="846" cy="22" r="9" fill="#FFFFFF"/>
+          <circle cx="846" cy="22" r="4"/>
+        </g>
+
+        <text class="p8bS" x="560" y="58">the advertised gap: exponential</text>
+
+        <text class="p8bL" x="30" y="316">RAW TABLE</text>
+        <text class="p8bS" x="30" y="334">m users by n items</text>
+        <text class="p8bS" x="30" y="352">a plain array</text>
+
+        <text class="p8bL" x="246" y="74">BRUTE FORCE OVER THE RAW TABLE</text>
+        <text class="p8bS" x="246" y="94">what the slide compares against</text>
+        <text class="p8bS" x="246" y="112">no structure, no preprocessing</text>
+
+        <text class="p8bW" x="246" y="204">SAMPLING DATA STRUCTURE</text>
+        <text class="p8bW" x="246" y="224">built once, in linear time</text>
+        <text class="p8bW" x="246" y="244">the hinge both sides need</text>
+        <text class="p8bS" x="230" y="284">one linear pass turns the plain array into it,</text>
+        <text class="p8bS" x="230" y="302">as Kerenidis and Prakash state themselves</text>
+
+        <text class="p8bL" x="596" y="154">QUANTUM, KERENIDIS-PRAKASH 2016</text>
+        <text class="p8bS" x="596" y="174">poly(k) polylog(mn) per sample</text>
+        <text class="p8bS" x="596" y="192">quantum access to the structure</text>
+
+        <text class="p8bL" x="596" y="260">CLASSICAL, TANG 2018</text>
+        <text class="p8bS" x="596" y="280">poly(k) log(mn) per sample</text>
+        <text class="p8bS" x="596" y="298">l2-norm sampling, same structure</text>
+        <text class="p8bB" x="580" y="336">the honest gap: only polynomial</text>
+
+        <text class="p8bH" x="46" y="393">Ask of every speedup: against which classical algorithm, given the same access to the data?</text>
+        <text class="p8bN" x="30" y="438">Aaronson 2015's closing test: with the fine print in, does a fast classical algorithm give the same answer?</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the exponential gap was measured from the red panel, which never had the structure. Give the classical side the same structure the quantum side assumed and the gap closes to a polynomial.</figcaption>
+    </figure>
+
+    <div class="wk" id="p8-score">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The checklist scorer. Pick a constructed claim, a number of searches per load and an error per gate to test; each gate's evidence is computed by the page's engine on the spot, using the loading tax (declared model, three parameters), the query count and the global depolarising channel (modelled, kinder than hardware).</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p8-claim">Claim</label>
+        <select class="sql-code" id="p8-claim">
+          <option value="A">A · 24 qubits over 12,000,000 customer rows, "about 2,600 times fewer lookups"</option>
+          <option value="B" selected>B · 10 qubits, a 1,000-row demo table, "25 calls against 500"</option>
+          <option value="C">C · 4,000,000 order rows, "exponentially faster recommendations"</option>
+        </select>
+        <label class="sql-label" for="p8-r">Searches per load, R</label>
+        <select class="sql-code" id="p8-r">
+          <option value="1" selected>1</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="10">10</option>
+          <option value="37">37</option>
+          <option value="38">38</option>
+          <option value="100">100</option>
+          <option value="1000">1,000</option>
+          <option value="4224">4,224</option>
+          <option value="4225">4,225</option>
+        </select>
+        <label class="sql-label" for="p8-p">Error per gate to test, global depolarising</label>
+        <select class="sql-code" id="p8-p">
+          <option value="0">0, the exact simulator</option>
+          <option value="0.001" selected>0.001, what claim B declares</option>
+          <option value="0.005">0.005, one in two hundred</option>
+          <option value="0.01">0.01, one in a hundred</option>
+        </select>
+        <div id="p8-out"></div>
+        <p class="sql-note" id="p8-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p8-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three runs worth doing first<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave it alone.</strong> Claim B, one search per load, 0.001 per gate. Loading fails: 1,249 against 500. The baseline gate fails too, because at one search brute force is the best classical method. Noise fails at 0.346724, modelled. Readout holds. Now move R to 4: loading flips to holds and the baseline to conditional. Move it to 38 and the index takes over.</li>
+          <li><strong>Switch to claim A and walk R up.</strong> At one search the load is twice the brute-force bill. From three searches per load the quantum total is below brute force, and it stays below the index until 4,224; at 4,225 the index wins. The noise and size gates stay undeclared whatever you choose, because the claim never said how deep its circuit is or what error rate it assumes, and twenty-four qubits is past what this page can run.</li>
+          <li><strong>Switch to claim C.</strong> The knobs stop mattering, and the widget says why: the claim is not a search and declares no circuit. Its decisive gate is the baseline, and the evidence there is not a number the engine can compute but a published result. That is the honest shape of some fine print: the calculator takes you to the gate, and the literature answers it.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Dequantization, the worked case<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Kerenidis and Prakash proposed a quantum recommendation algorithm in 2016 that samples from a low-rank approximation of an m by n preference matrix in time polynomial in the rank k and polylogarithmic in mn. Their paper says plainly what it assumes: the data sits in a classical data structure the algorithm has quantum access to, built from a plain array in linear time, and the speedup is exponential only if k is a small constant. Against brute force over the raw matrix, that looked like an exponential gap, and it was widely taken as one of the strongest candidates for one in quantum machine learning.</p>
+        <p>Tang's 2018 result gave the classical side the same thing: a data structure supporting l2-norm sampling, the classical analogue of the quantum access assumption. With it, a classical algorithm samples from the rank-k approximation in time polynomial in k and logarithmic in mn, only polynomially slower. Her abstract concludes that the quantum algorithm does not give an exponential speedup over classical. Nothing about the quantum algorithm was wrong. The comparison was. Leader session 4 tells the full story; how the recommender itself works belongs to <a href="https://phoebefu6.github.io/learn-recommendation-with-phoebe/">learn-recommendation-with-phoebe</a> and is not re-taught here.</p>
+        <p>Kerenidis, I. and Prakash, A. (2016). Quantum recommendation systems. arXiv 1603.08675; ITCS 2017. Tang, E. (2019). A quantum-inspired classical algorithm for recommendation systems. STOC 2019; arXiv 1807.04271. See also <a href="a4-when-the-classical-algorithm-catches-up.html">Leader session 4 · When the classical algorithm catches up</a>.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What a credible claim declares<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Turn the checklist round and it becomes a specification for the claim itself. A credible speedup claim declares five things, and each one fills a gate:</p>
+        <ul>
+          <li><strong>Problem size.</strong> The N it was shown at, and the N it is claimed for. If they differ, which numbers are measured and which are arithmetic.</li>
+          <li><strong>Depth.</strong> The gate count of the circuit, and how the oracle was counted. A claim that counts the oracle as one gate should say so, as this page does.</li>
+          <li><strong>Error rate.</strong> The error per gate assumed or measured, and the success probability it implies at that depth.</li>
+          <li><strong>Wall-clock including loading.</strong> The cost from raw data to answer, with the load in it, and the number of searches or samples the load is shared across.</li>
+          <li><strong>The classical baseline.</strong> Which classical algorithm, with what preprocessing, given what access to the data. "Brute force" is a baseline only if no structure is allowed on either side.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's reply to the constructed vendor deck was not a rejection. It was these five lines, sent back as a table with one empty column for each of the deck's three claims, and a sentence above it: "we will score whatever you fill in, with the arithmetic attached." A claim that comes back with the columns filled can be checked in an afternoon. A claim that comes back without them has answered the question too.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why "when" is not a gate<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Claims often carry a date for when the hardware will be ready, and the checklist has no gate for it. That is deliberate. The three primary sources this track relies on take three different stances and none gives a year. Preskill 2018 treats noisy intermediate-scale devices as the near term and fault tolerance as arriving "eventually". The NIST IR 8547 initial public draft plans as if a cryptographically relevant machine may arrive within the secrecy life of data encrypted today, and says migration must begin even if such computers are a decade away; the 2030 and 2035 dates in it are proposed policy dates, not hardware predictions. Aaronson 2015 writes "supposing we had a quantum computer" and asks what it would be for.</p>
+        <p>None of the three resolves the others, and this page does not either. The five gates are questions a claim can answer today, with numbers. A date is a question no source can answer, so a claim that leads with one has put its weight on the one line that cannot be checked.</p>
+        <p>Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862. Moody, D., Perlner, R., Regenscheid, A., Robinson, A. and Cooper, D. (2024). Transition to Post-Quantum Cryptography Standards. NIST IR 8547 ipd, initial public draft, November 2024.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Score three constructed claims</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">One file, six steps, run in order. Step 1 restates the three calculators from sessions 5, 6 and 7 in compact form; steps 2 to 5 build the scorer and run it on three constructed claims, none quoted from anyone. Nothing is sampled, so every output is exact, and the outputs below were printed by this exact code on Python 3.11 with numpy 1.26. Every number the claims print is one the canon already records.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn scorecard of what steps 3 to 5 print: three constructed claims as rows, five gates as columns. Claim A, 24 qubits over 12,000,000 rows, about 2,600 times fewer: input loading fails, 12,063,988 against 6,000,000; output readout holds, one row per run; classical baseline conditional, 3 to 4,224 searches per load; noise and depth undeclared, no error rate and no gate count; problem size undeclared, 3,217 against 8,388,608, closed form. Claim B, 10 qubits, 1,000 rows, 25 calls against 500: loading fails, 1,249 against 500; readout holds, 0.999461 ideal; baseline conditional, 4 to 37 per load; noise fails, 0.346724 at p equals 0.001; size fails, 0.9910 trending to 0.3467. Claim C, 4,000,000 order rows, exponentially faster: loading conditional, 4,000,000 writes paid by both sides; readout holds, one item per user; baseline fails, Tang 2018, polynomial; noise undeclared; size conditional, only if the rank k is small. Underneath, three verdict lines, one per claim.">
+        <defs>
+          <filter id="p8cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="89" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p8cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p8cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p8cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p8cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p8cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p8cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p8cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p8cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p8cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p8cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p8cH" x="30" y="26">STEPS 3 TO 5 PRINT THREE SCORECARDS: FIVE GATES EACH, ONE VERDICT LINE PER CLAIM.</text>
+
+        <g filter="url(#p8cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- row A, top 80 -->
+          <rect x="240" y="80" width="114" height="62" rx="6" transform="rotate(-0.4 297 111)" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.6"/>
+          <rect x="362" y="80" width="114" height="62" rx="6" transform="rotate(0.3 419 111)" fill="#FFFFFF"/>
+          <rect x="484" y="80" width="114" height="62" rx="6" transform="rotate(-0.3 541 111)" fill="#EEEDF9"/>
+          <rect x="606" y="80" width="114" height="62" rx="6" transform="rotate(0.4 663 111)" fill="#FFFFFF" stroke="#5A5B7A" stroke-dasharray="5 4"/>
+          <rect x="728" y="80" width="114" height="62" rx="6" transform="rotate(-0.3 785 111)" fill="#FFFFFF" stroke="#5A5B7A" stroke-dasharray="5 4"/>
+          <!-- row B, top 154 -->
+          <rect x="240" y="154" width="114" height="62" rx="6" transform="rotate(0.3 297 185)" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.6"/>
+          <rect x="362" y="154" width="114" height="62" rx="6" transform="rotate(-0.4 419 185)" fill="#FFFFFF"/>
+          <rect x="484" y="154" width="114" height="62" rx="6" transform="rotate(0.3 541 185)" fill="#EEEDF9"/>
+          <rect x="606" y="154" width="114" height="62" rx="6" transform="rotate(-0.3 663 185)" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.6"/>
+          <rect x="728" y="154" width="114" height="62" rx="6" transform="rotate(0.4 785 185)" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.6"/>
+          <!-- row C, top 228 -->
+          <rect x="240" y="228" width="114" height="62" rx="6" transform="rotate(-0.3 297 259)" fill="#EEEDF9"/>
+          <rect x="362" y="228" width="114" height="62" rx="6" transform="rotate(0.4 419 259)" fill="#FFFFFF"/>
+          <rect x="484" y="228" width="114" height="62" rx="6" transform="rotate(-0.4 541 259)" fill="#E3F3F7" stroke="#0E7490" stroke-width="2.6"/>
+          <rect x="606" y="228" width="114" height="62" rx="6" transform="rotate(0.3 663 259)" fill="#FFFFFF" stroke="#5A5B7A" stroke-dasharray="5 4"/>
+          <rect x="728" y="228" width="114" height="62" rx="6" transform="rotate(-0.3 785 259)" fill="#EEEDF9"/>
+          <!-- verdict band -->
+          <rect x="30" y="304" width="820" height="72" rx="10" transform="rotate(0.15 440 340)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a die -->
+          <rect x="828" y="10" width="18" height="18" rx="4" transform="rotate(4 837 19)" fill="#FFFFFF"/>
+          <circle cx="833" cy="15" r="1.5" fill="#16153A"/>
+          <circle cx="841" cy="23" r="1.5" fill="#16153A"/>
+        </g>
+
+        <!-- column headers -->
+        <text class="p8cA" x="297" y="52" text-anchor="middle">1 · input</text>
+        <text class="p8cA" x="297" y="68" text-anchor="middle">loading</text>
+        <text class="p8cA" x="419" y="52" text-anchor="middle">2 · output</text>
+        <text class="p8cA" x="419" y="68" text-anchor="middle">readout</text>
+        <text class="p8cA" x="541" y="52" text-anchor="middle">3 · classical</text>
+        <text class="p8cA" x="541" y="68" text-anchor="middle">baseline</text>
+        <text class="p8cA" x="663" y="52" text-anchor="middle">4 · noise</text>
+        <text class="p8cA" x="663" y="68" text-anchor="middle">and depth</text>
+        <text class="p8cA" x="785" y="52" text-anchor="middle">5 · problem</text>
+        <text class="p8cA" x="785" y="68" text-anchor="middle">size</text>
+
+        <!-- row labels -->
+        <text class="p8cL" x="30" y="98">CLAIM A</text>
+        <text class="p8cS" x="30" y="116">24 qubits, 12,000,000 rows</text>
+        <text class="p8cS" x="30" y="132">"about 2,600 times fewer"</text>
+        <text class="p8cL" x="30" y="172">CLAIM B</text>
+        <text class="p8cS" x="30" y="190">10 qubits, 1,000 rows</text>
+        <text class="p8cS" x="30" y="206">"25 calls against 500"</text>
+        <text class="p8cL" x="30" y="246">CLAIM C</text>
+        <text class="p8cS" x="30" y="264">4,000,000 order rows</text>
+        <text class="p8cS" x="30" y="280">"exponentially faster"</text>
+
+        <!-- row A cells -->
+        <text class="p8cB" x="248" y="100">fails</text>
+        <text class="p8cS" x="248" y="118">12,063,988</text>
+        <text class="p8cS" x="248" y="134">vs 6,000,000</text>
+        <text class="p8cL" x="370" y="100">holds</text>
+        <text class="p8cS" x="370" y="118">one row</text>
+        <text class="p8cS" x="370" y="134">per run</text>
+        <text class="p8cL" x="492" y="100">conditional</text>
+        <text class="p8cS" x="492" y="118">3 to 4,224</text>
+        <text class="p8cS" x="492" y="134">per load</text>
+        <text class="p8cL" x="614" y="100">undeclared</text>
+        <text class="p8cS" x="614" y="118">no error rate</text>
+        <text class="p8cS" x="614" y="134">no gate count</text>
+        <text class="p8cL" x="736" y="100">undeclared</text>
+        <text class="p8cS" x="736" y="118">3,217 against</text>
+        <text class="p8cS" x="736" y="134">8,388,608</text>
+
+        <!-- row B cells -->
+        <text class="p8cB" x="248" y="174">fails</text>
+        <text class="p8cS" x="248" y="192">1,249</text>
+        <text class="p8cS" x="248" y="208">vs 500</text>
+        <text class="p8cL" x="370" y="174">holds</text>
+        <text class="p8cS" x="370" y="192">0.999461</text>
+        <text class="p8cS" x="370" y="208">ideal</text>
+        <text class="p8cL" x="492" y="174">conditional</text>
+        <text class="p8cS" x="492" y="192">4 to 37</text>
+        <text class="p8cS" x="492" y="208">per load</text>
+        <text class="p8cB" x="614" y="174">fails</text>
+        <text class="p8cS" x="614" y="192">0.346724</text>
+        <text class="p8cS" x="614" y="208">at p = 0.001</text>
+        <text class="p8cB" x="736" y="174">fails</text>
+        <text class="p8cS" x="736" y="192">0.9910 trends</text>
+        <text class="p8cS" x="736" y="208">to 0.3467</text>
+
+        <!-- row C cells -->
+        <text class="p8cL" x="248" y="248">conditional</text>
+        <text class="p8cS" x="248" y="266">4,000,000</text>
+        <text class="p8cS" x="248" y="282">writes, both</text>
+        <text class="p8cL" x="370" y="248">holds</text>
+        <text class="p8cS" x="370" y="266">one item</text>
+        <text class="p8cS" x="370" y="282">per user</text>
+        <text class="p8cB" x="492" y="248">fails</text>
+        <text class="p8cS" x="492" y="266">Tang 2018:</text>
+        <text class="p8cS" x="492" y="282">polynomial</text>
+        <text class="p8cL" x="614" y="248">undeclared</text>
+        <text class="p8cS" x="614" y="266">no error rate</text>
+        <text class="p8cS" x="614" y="282">no gate count</text>
+        <text class="p8cL" x="736" y="248">conditional</text>
+        <text class="p8cS" x="736" y="266">only if rank</text>
+        <text class="p8cS" x="736" y="282">k is small</text>
+
+        <!-- verdicts -->
+        <text class="p8cB" x="46" y="326">A · a window of 3 to 4,224 searches per load, and nothing said about noise</text>
+        <text class="p8cB" x="46" y="346">B · the 20 times is a p = 0 number; at its own error rate it succeeds 0.346724</text>
+        <text class="p8cB" x="46" y="366">C · against the matched classical algorithm the gap is polynomial, not exponential</text>
+
+        <text class="p8cS" x="30" y="396">white: holds · tint: conditional · dashed: undeclared · cyan edge: fails</text>
+        <text class="p8cN" x="30" y="418">Constructed claims. Load 1 per row, query log2 N; oracle as one gate; noise modelled, kinder than hardware.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - readout holds on all three claims, which is the honest surprise: none of these claims dies where Aaronson's best-known caveat points. Each dies, or narrows, at a different gate, and the verdict line names which.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Three calculators in one file</h4>
+        <p>Session 5's curve and optimal k, session 6's loading tax and crossings, session 7's noisy success, plus the engine's gate count, which treats the oracle and the multi-controlled flip as one gate each and so undercounts hardware. Print the ten-qubit row first: the three numbers must be the canon's.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import math
+import numpy as np
+
+def grover_curve(n, kmax, target=None):                    # session 5
+    N = 2 ** n
+    target = N - 1 if target is None else target
+    psi = np.full(N, 1 / np.sqrt(N), dtype=complex)
+    curve = [abs(psi[target]) ** 2]
+    for _ in range(kmax):
+        psi[target] *= -1                 # oracle: one call
+        psi = 2 * psi.mean() - psi        # diffusion
+        curve.append(abs(psi[target]) ** 2)
+    return np.array(curve)
+
+def best_k(n):                                             # session 5
+    c = grover_curve(n, int(np.floor(np.pi / 4 * np.sqrt(2 ** n))) + 3)
+    k = 1 + int(np.argmax(c[1:] &gt;= c[1:].max() - 1e-12))
+    return k, float(c[k])
+
+def loading_tax(N, R=1, load_per_row=1, query_cost=None):   # session 6
+    log2N = math.log2(N)
+    q = log2N if query_cost is None else query_cost
+    k = max(1, math.floor(math.pi / 4 * math.sqrt(N) + 0.5))
+    per_search = k * q
+    return dict(N=N, k=k, log2N=log2N, per_search=per_search, load=N * load_per_row,
+                quantum=N * load_per_row + R * per_search, brute=R * N / 2,
+                indexed=N * log2N + R * log2N)
+
+def crossings(N, load_per_row=1, query_cost=None):         # session 6
+    r = loading_tax(N, 1, load_per_row, query_cost)
+    gain, lag = N / 2 - r["per_search"], r["per_search"] - r["log2N"]
+    lo = math.ceil(N * load_per_row / gain) if gain &gt; 0 else None
+    hi = max(0, math.floor((N * r["log2N"] - N * load_per_row) / lag)) if lag &gt; 0 else None
+    return lo, hi
+
+def gates(n, k):                       # the engine's count: oracle and flip as ONE gate each
+    return n + k * (4 * n + 2)
+
+def noisy_success(p_ideal, p, G, N):                       # session 7
+    keep = (1 - p) ** G
+    return keep * p_ideal + (1 - keep) / N
+
+k, ideal = best_k(10)
+print(f"step 1: n = 10, k = {k}, ideal {ideal:.6f}, gates {gates(10, k):,}")
+# step 1: n = 10, k = 25, ideal 0.999461, gates 1,060</div>
+      </div>
+      <div class="step">
+        <h4>The checklist as data</h4>
+        <p>Five gate names in a fixed order and one function that prints a claim's scorecard and its verdict line. A claim is a dictionary from gate to a status and the evidence behind it; the status is one of holds, conditional, fails or undeclared, and the evidence is always a number from a calculator or the name of a source.</p>
+        <div class="prompt-box good"><span class="label">Python</span>CHECKLIST = ["input loading", "output readout", "classical baseline",
+             "noise and depth", "problem size"]
+
+def run(name, results, line):
+    print(name)
+    for gate in CHECKLIST:
+        status, evidence = results[gate]
+        print(f"  {gate:&lt;19}{status:&lt;12}{evidence}")
+    print("  verdict:", line)
+
+print("step 2: five gates,", ", ".join(CHECKLIST))
+# step 2: five gates, input loading, output readout, classical baseline, noise and depth, problem size</div>
+      </div>
+      <div class="step">
+        <h4>Claim A: twenty-four qubits over Brindle's customer table</h4>
+        <p>Constructed: a search over Brindle's 12,000,000 constructed customer rows, advertised as about 2,600 times fewer lookups. The loading tax runs on the 12,000,000 rows; the advertised ratio is closed-form arithmetic on the 16,777,216 indices that 24 qubits provide, past the simulator, and the claim declares no error rate and no gate count.</p>
+        <div class="prompt-box good"><span class="label">Python</span>N = 12_000_000
+t, (lo, hi) = loading_tax(N), crossings(N)
+pad = loading_tax(2 ** 24)                # 24 qubits of index for 12,000,000 rows
+run("CLAIM A: 24 qubits over 12,000,000 customer rows, 'about 2,600 times fewer lookups'", {
+    "input loading":      ("fails", f"one search {t['quantum']:,.0f} against brute force {t['brute']:,.0f}"),
+    "output readout":     ("holds", "a search returns one row per run"),
+    "classical baseline": ("conditional", f"beats brute force from {lo}, an index wins past {hi:,}"),
+    "noise and depth":    ("undeclared", "no error per gate, no gate count"),
+    "problem size":       ("undeclared", f"{pad['k']:,} calls against {pad['N'] // 2:,}: closed form, never run"),
+}, f"a window of {lo} to {hi:,} searches per load, and nothing said about noise")
+# CLAIM A: 24 qubits over 12,000,000 customer rows, 'about 2,600 times fewer lookups'
+#   input loading      fails       one search 12,063,988 against brute force 6,000,000
+#   output readout     holds       a search returns one row per run
+#   classical baseline conditional beats brute force from 3, an index wins past 4,224
+#   noise and depth    undeclared  no error per gate, no gate count
+#   problem size       undeclared  3,217 calls against 8,388,608: closed form, never run
+#   verdict: a window of 3 to 4,224 searches per load, and nothing said about noise</div>
+      </div>
+      <div class="step">
+        <h4>Claim B: the ten-qubit demo</h4>
+        <p>Constructed: one marked row among 1,000 demo rows, padded to a 1,024-slot register, found in 25 oracle calls against 500 lookups, at a declared 0.001 error per gate. This claim gives enough numbers to run every calculator, and the size gate counts the rises honestly: at 0.001 the trend falls, but not at every step.</p>
+        <div class="prompt-box good"><span class="label">Python</span>N = 1_000
+t, (lo, hi) = loading_tax(N), crossings(N)
+k, ideal = best_k(10)                     # 1,000 rows fit a 1,024-slot register
+G = gates(10, k)
+claimed = noisy_success(ideal, 0.001, G, 1024)
+trend = [noisy_success(best_k(n)[1], 0.001, gates(n, best_k(n)[0]), 2 ** n) for n in range(2, 11)]
+rises = sum(b &gt; a for a, b in zip(trend, trend[1:]))
+run("CLAIM B: 10 qubits, 1,000 product rows, '25 calls against 500 lookups, 20 times fewer'", {
+    "input loading":      ("fails", f"one search {t['quantum']:,.0f} against brute force {t['brute']:,.0f}"),
+    "output readout":     ("holds", f"one row per run, ideal success {ideal:.6f}"),
+    "classical baseline": ("conditional", f"beats brute force from {lo}, an index wins past {hi}"),
+    "noise and depth":    ("fails", f"{G:,} gates at p = 0.001: {claimed:.6f} modelled"),
+    "problem size":       ("fails", f"at p = 0.001, {trend[0]:.4f} on 2 qubits, {trend[-1]:.4f} on 10, {rises} rise"),
+}, f"the 20 times is a p = 0 number; at its own error rate it succeeds {claimed:.6f}")
+# CLAIM B: 10 qubits, 1,000 product rows, '25 calls against 500 lookups, 20 times fewer'
+#   input loading      fails       one search 1,249 against brute force 500
+#   output readout     holds       one row per run, ideal success 0.999461
+#   classical baseline conditional beats brute force from 4, an index wins past 37
+#   noise and depth    fails       1,060 gates at p = 0.001: 0.346724 modelled
+#   problem size       fails       at p = 0.001, 0.9910 on 2 qubits, 0.3467 on 10, 1 rise
+#   verdict: the 20 times is a p = 0 number; at its own error rate it succeeds 0.346724</div>
+      </div>
+      <div class="step">
+        <h4>Claim C: exponentially faster recommendations</h4>
+        <p>Constructed: a quantum recommender over Brindle's 4,000,000 constructed order rows. Only one gate here has an engine number, the load; the decisive gate is answered by a published result, and the scorer records the source as its evidence rather than inventing a figure.</p>
+        <div class="prompt-box good"><span class="label">Python</span>N = 4_000_000
+t = loading_tax(N)
+run("CLAIM C: 4,000,000 order rows, 'exponentially faster recommendations'", {
+    "input loading":      ("conditional", f"{t['load']:,.0f} writes into a sampling structure, either side"),
+    "output readout":     ("holds", "one sampled item per user is what a recommendation is"),
+    "classical baseline": ("fails", "Tang 2018: same structure, classical, poly(k) log(mn)"),
+    "noise and depth":    ("undeclared", "no error per gate, no gate count"),
+    "problem size":       ("conditional", "exponential only if the rank k is a small constant"),
+}, "against the matched classical algorithm the gap is polynomial, not exponential")
+# CLAIM C: 4,000,000 order rows, 'exponentially faster recommendations'
+#   input loading      conditional 4,000,000 writes into a sampling structure, either side
+#   output readout     holds       one sampled item per user is what a recommendation is
+#   classical baseline fails       Tang 2018: same structure, classical, poly(k) log(mn)
+#   noise and depth    undeclared  no error per gate, no gate count
+#   problem size       conditional exponential only if the rank k is a small constant
+#   verdict: against the matched classical algorithm the gap is polynomial, not exponential</div>
+      </div>
+      <div class="step">
+        <h4>Read the three verdict lines together</h4>
+        <p>Put the three verdicts side by side, as the figure above does, and notice where each claim broke. Claim A narrows to a window and leaves two gates undeclared. Claim B gave every number and failed on its own numbers. Claim C failed on the baseline, where no calculator on this page could have caught it and one published paper did. Three claims, three different failure points: that spread is why the checklist has five gates and not one. Then open the scorer in Part 2 on claim B and set the error per gate to 0: the noise gate's evidence becomes 0.999461 and its status flips to holds, while loading and baseline do not move. One declared number changed one cell, which is exactly what a scorecard is for.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Score before you summarise. Run every claim through the same five gates, write the status and the evidence for each, and only then write the verdict line. A summary written first picks the gate that agrees with it; a scorecard written first has to say where the claim broke, and a board can check the arithmetic behind every cell.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A constructed claim says a ten-qubit search found one row among 1,000 in 25 oracle calls, against 500 lookups classically. Which gate does it fail first, and why?</p>
+      <div class="qopt">A · Output readout, because a quantum computer cannot return a single row</div>
+      <div class="qopt">B · Input loading: the 1,000 rows must be written in before the first call, so one search costs 1,249 against 500 under the declared model (load 1 per row, query cost log2 N, one search per load)</div>
+      <div class="qopt">C · None: 25 against 500 is twenty times fewer, and that is what was measured</div>
+      <q class="qwhy">The 25 oracle calls are real, but they assume the data is already inside the machine. Writing 1,000 rows costs 1,000 before the search begins, and the search itself is 25 calls at log2 N each, 249 in all. The load alone is twice the brute-force bill, so for one search the claim loses; from four searches per load it starts to win.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A constructed recommender claim reports an exponential speedup over classical, measured against brute force on the raw preference matrix. What is the right response?</p>
+      <div class="qopt">A · Accept it, because brute force over a large matrix really is that slow</div>
+      <div class="qopt">B · Reject every quantum recommender, because Tang 2018 proved them useless</div>
+      <div class="qopt">C · Ask which classical algorithm was compared, given the same data-structure access the quantum method assumed: Tang 2018 shows a classical algorithm with l2-norm sampling from that structure is only polynomially slower</div>
+      <q class="qwhy">The quantum algorithm needs its data in a preprocessed structure. Give the classical side the same structure and Tang's algorithm runs in poly(k) log(mn), so the exponential gap was a gap against the wrong baseline. Tang's result does not make the quantum algorithm wrong or useless; it removes the exponential claim.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A claim gives no error per gate and no gate count. How should the scorer record the noise-and-depth gate?</p>
+      <div class="qopt">A · Undeclared, which is not a pass: on ten qubits and 1,060 gates the modelled success already falls from 0.999461 to 0.346724 at 0.001 per gate, so the missing numbers decide whether the claim works</div>
+      <div class="qopt">B · Holds, because noise is an engineering detail the vendor will fix</div>
+      <div class="qopt">C · Fails, because every noisy circuit returns the uniform floor</div>
+      <q class="qwhy">Without a depth and an error rate there is nothing to compute, so the honest status is undeclared and the honest action is to ask. It is not a fail: at 0.001 per gate ten qubits still succeed about a third of the time, modelled, and well above the floor. It is not a pass either: the same model at 0.01 per gate gives 0.001000 against a floor of 0.000977.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 9</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with your scorer from today.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Score a fourth claim</h4>
+        <p>Write a constructed claim of your own, in the shape of one you have seen, with no names in it. Fill only the fields the original actually stated and leave the rest as None. Run it through the five gates. Count how many come back undeclared before any calculator has run; that count is the first line of your review.</p>
+      </div>
+      <div class="step">
+        <h4>Make claim A credible</h4>
+        <p>Write the five declarations claim A would need to be checkable: size shown and size claimed, depth with the oracle counted honestly, error per gate, wall-clock including the load and the number of searches per load, and the classical baseline with its preprocessing. Do not invent the values; write the field names and what unit each would be in. That table is the reply letter.</p>
+      </div>
+      <div class="step">
+        <h4>Write Brindle's three-line memo</h4>
+        <p>For the constructed deck, one verdict line per claim, each naming the gate where it broke and the number that broke it, with the model's labels attached: modelled, oracle counted as one gate, loading parameters printed. Session 9 moves from the vendor's claims to the one quantum task the data team is certain to be handed: the inventory of where its cryptography lives.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The five-gate checklist</span><span class="note">Input loading, output readout, classical baseline, noise and depth, problem size, in a fixed order.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Aaronson's caveats, mapped</span><span class="note">Loading and readout as gates; sparsity and conditioning under problem size; his closing test as the baseline gate.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Four statuses, not two</span><span class="note">Holds, conditional, fails, undeclared; a gate charges for what was left out rather than vetoing.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The best classical baseline</span><span class="note">Against an index or a matched algorithm, never brute force alone; the window of searches per load.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Dequantization as the worked case</span><span class="note">Kerenidis-Prakash 2016 and Tang 2018: the same data structure on both sides, a polynomial gap.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">What a credible claim declares</span><span class="note">Problem size, depth, error rate, wall-clock including loading, the classical baseline.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Three constructed claims scored in numpy</span><span class="note">The calculators from sessions 5 to 7 in one file, a scorer, and one verdict line per claim.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Recommender mechanics</span><span class="note">Named, not re-taught; learn-recommendation-with-phoebe owns matrix factorisation.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The contested timeline</span><span class="note">Three stances, no year, and why it is not a gate; leader session 5 takes it to depth.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The post-quantum inventory</span><span class="note">Session 9: the quantum task a data team is certain to be handed.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any vendor, product or hardware</span><span class="note">None named. All three claims are constructed and the simulator is the only machine here.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The five gates.</strong> Input loading, output readout, classical baseline, noise and depth, problem size. Same order, every claim.</div>
+      <div class="cheat-item"><strong>Four statuses.</strong> Holds, conditional, fails, undeclared. Undeclared is a question to send back, not a pass.</div>
+      <div class="cheat-item"><strong>Loading.</strong> N writes before the first call. On 1,000 rows one search costs 1,249 against 500; load 1 per row, query log2 N.</div>
+      <div class="cheat-item"><strong>Readout.</strong> A search returns one row per run and passes. A claim that returns a vector must say how many runs it needs.</div>
+      <div class="cheat-item"><strong>Baseline.</strong> Against which classical algorithm, given the same access to the data? Brute force is the easiest win and the weakest evidence.</div>
+      <div class="cheat-item"><strong>Dequantization.</strong> Tang 2018: same structure, classical, poly(k) log(mn). The exponential gap was against the wrong baseline.</div>
+      <div class="cheat-item"><strong>Noise and depth.</strong> Ten qubits, 1,060 gates, 0.001 per gate: 0.346724, modelled, oracle counted as one gate.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Score before you summarise. Five cells with evidence first, the verdict line last.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 8 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p7-a-noisy-circuit.html">← Practitioner session 7 · A noisy circuit</a>
+        <a href="p9-the-post-quantum-inventory.html">Practitioner session 9 · The post-quantum inventory →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var cSel = document.getElementById("p8-claim");
+  var rSel = document.getElementById("p8-r");
+  var pSel = document.getElementById("p8-p");
+  var out = document.getElementById("p8-out");
+  var verdict = document.getElementById("p8-verdict");
+  var self = document.getElementById("p8-self");
+
+  function comma(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function f6(v) { return v.toFixed(6); }
+  function f4(v) { return v.toFixed(4); }
+  function plural(n, w) { return comma(n) + " " + w + (n === 1 ? "" : (w === "search" ? "es" : "s")); }
+
+  /* loading and baseline gates for a search claim, from the loading tax */
+  function searchGates(N, R) {
+    var t = QS.loadingTax({ N: N, R: R });
+    var params = "load " + t.loadPerRow + " per row, query cost log2 N = " + t.log2N.toFixed(1);
+    var load = {
+      gate: "1 · Input loading",
+      status: t.quantum < t.brute ? "holds" : "fails",
+      ev: "load " + comma(t.quantumLoad) + " + search " + comma(t.quantumSearch) + " = " + comma(t.quantum) + " against brute force " + comma(t.brute) + ", at " + plural(R, "search") + " per load (" + params + ")"
+    };
+    var best = Math.min(t.brute, t.indexed);
+    var bestName = t.indexed <= t.brute ? "an index built once" : "brute force";
+    var inside = t.quantum < best;
+    var base = {
+      gate: "3 · Classical baseline",
+      status: inside ? "conditional" : "fails",
+      ev: (inside ? "inside the window: " : "outside the window: the best classical method here is " + bestName + ", " + comma(best) + "; ") + "quantum beats brute force from " + comma(t.crossBrute) + " searches per load and an index wins past " + comma(t.crossIndexed)
+    };
+    return { t: t, load: load, base: base };
+  }
+
+  function claimA(R, p) {
+    var s = searchGates(12000000, R);
+    var r = QS.noiseLadder(10, [p])[0];
+    var pad = QS.loadingTax({ N: 16777216 });
+    var ratio = Math.round(pad.brute / pad.k / 100) * 100;
+    return {
+      gates: [
+        s.load,
+        { gate: "2 · Output readout", status: "holds", ev: "a search returns one row per run" },
+        s.base,
+        { gate: "4 · Noise and depth", status: "undeclared", ev: "no error per gate and no gate count. For scale only: ten qubits, the largest this page runs, is " + comma(r.gates) + " gates, and at p = " + p + " its modelled success is " + f6(r.pNoisy) + " (oracle as one gate, kinder than hardware)" },
+        { gate: "5 · Problem size", status: "undeclared", ev: "24 qubits: " + comma(pad.k) + " oracle calls against " + comma(pad.brute) + " lookups, about " + comma(ratio) + " times, is closed-form arithmetic past the simulator, never run" }
+      ],
+      line: s.base.status === "conditional"
+        ? "At " + plural(R, "search") + " per load the claim sits inside its window of " + comma(s.t.crossBrute) + " to " + comma(s.t.crossIndexed) + "; it still says nothing about noise or depth."
+        : "At " + plural(R, "search") + " per load the claim is outside its window of " + comma(s.t.crossBrute) + " to " + comma(s.t.crossIndexed) + ", and it says nothing about noise or depth."
+    };
+  }
+
+  function claimB(R, p) {
+    var s = searchGates(1000, R);
+    var o = QS.optimalK(10);
+    var r = QS.noiseLadder(10, [p])[0];
+    var trend = [], n;
+    for (n = 2; n <= 10; n++) trend.push(QS.noiseLadder(n, [p])[0].pNoisy);
+    var rises = 0;
+    for (n = 1; n < trend.length; n++) if (trend[n] > trend[n - 1]) rises++;
+    var advertised = s.t.brute / R / s.t.k;
+    var noise = p === 0
+      ? { gate: "4 · Noise and depth", status: "holds", ev: comma(r.gates) + " gates at p = 0: " + f6(r.pNoisy) + ", the exact simulator. The claim itself declares 0.001." }
+      : { gate: "4 · Noise and depth", status: r.pNoisy >= 0.5 ? "holds" : "fails", ev: comma(r.gates) + " gates at p = " + p + ": modelled " + f6(r.pNoisy) + "; best any depth " + f6(r.bestP) + " at k = " + r.bestK + " (oracle as one gate, kinder than hardware)" };
+    var size = p === 0
+      ? { gate: "5 · Problem size", status: "holds", ev: "at p = 0 nothing compounds: " + f4(trend[0]) + " on 2 qubits, " + f4(trend[trend.length - 1]) + " on 10" }
+      : { gate: "5 · Problem size", status: trend[trend.length - 1] < trend[0] ? "fails" : "holds", ev: "grown at p = " + p + ": " + f4(trend[0]) + " on 2 qubits, " + f4(trend[trend.length - 1]) + " on 10; " + (rises === 0 ? "falls at every step" : "falls overall, with " + rises + " rise" + (rises === 1 ? "" : "s") + " where the exact optimum jumps") };
+    return {
+      gates: [
+        s.load,
+        { gate: "2 · Output readout", status: "holds", ev: "one row per run; ideal success " + f6(o.p) + " at k = " + o.k },
+        s.base,
+        noise,
+        size
+      ],
+      line: "The advertised " + comma(advertised) + " times (" + comma(s.t.brute / R) + " lookups over " + o.k + " calls) is a p = 0, data-already-loaded number. At p = " + p + " one run succeeds with modelled probability " + f6(r.pNoisy) + ", and at " + plural(R, "search") + " per load the baseline gate reads " + s.base.status + "."
+    };
+  }
+
+  function claimC() {
+    var t = QS.loadingTax({ N: 4000000 });
+    return {
+      gates: [
+        { gate: "1 · Input loading", status: "conditional", ev: comma(t.quantumLoad) + " writes to build the sampling structure, at load " + t.loadPerRow + " per row; the matched classical algorithm needs the same structure, so the load is paid by both sides" },
+        { gate: "2 · Output readout", status: "holds", ev: "one sampled item per user, which is what a recommendation is; reading whole vectors would cost repetitions (Aaronson's fourth caveat)" },
+        { gate: "3 · Classical baseline", status: "fails", ev: "Tang 2018: given the same l2-norm sampling structure, a classical algorithm runs in poly(k) log(mn), only polynomially slower" },
+        { gate: "4 · Noise and depth", status: "undeclared", ev: "no error per gate and no gate count" },
+        { gate: "5 · Problem size", status: "conditional", ev: "Kerenidis and Prakash: exponentially smaller than classical time only if the rank k is a small constant" }
+      ],
+      line: "Against the matched classical algorithm the gap is polynomial, not exponential. The R and error knobs do not apply: the claim is not a search and declares no circuit."
+    };
+  }
+
+  function render() {
+    var c = cSel.value, R = Number(rSel.value), p = Number(pSel.value);
+    var res = c === "A" ? claimA(R, p) : (c === "B" ? claimB(R, p) : claimC());
+    var html = '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Gate</th><th>Status</th><th>Evidence, computed now</th></tr></thead><tbody>';
+    var tally = { holds: 0, conditional: 0, fails: 0, undeclared: 0 };
+    res.gates.forEach(function (g) {
+      tally[g.status]++;
+      html += "<tr><td>" + g.gate + "</td><td><b>" + g.status + "</b></td><td>" + g.ev + "</td></tr>";
+    });
+    html += "</tbody></table></div>";
+    out.innerHTML = html;
+    verdict.textContent = "Holds " + tally.holds + ", conditional " + tally.conditional + ", fails " + tally.fails + ", undeclared " + tally.undeclared + ". " + res.line;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the two that fail on a broken diffusion step or a silent oracle. Every number above is the engine's, under declared models; none is a measurement of any machine."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  cSel.addEventListener("change", render);
+  rSel.addEventListener("change", render);
+  pSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p8-score .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p8-score table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 9 of 10. Harvest now, decrypt later turns data retention into the risk variable, so the post-quantum inventory is a data job: a catalogue with a declared schema, the algorithm families FIPS 203, 204 and 205 replace, and an exposure score ranked under a planning horizon nobody can settle. Built in pandas on a constructed catalogue of twelve systems.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The post-quantum inventory - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 9 of 10. Twelve constructed systems, eight declared columns, one exposure score, and a horizon slider that shows which rows the timeline argument can and cannot move.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p9-the-post-quantum-inventory.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The post-quantum inventory - learn quantum with phoebe">
+<meta name="twitter:description" content="The one quantum job a data team is certain to be handed is a catalogue with a retention column. Build it, score it, and watch the contested horizon reorder the middle.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 9 · The post-quantum inventory - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 9 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 9 of 10</div>
+    <h1>The post-quantum <span class="accent">inventory</span></h1>
+    <p class="sub">Eight sessions checked what a quantum machine would do for Brindle's data. Tonight is about what one could do to it. The board's second question, what do we have to do about the encryption, does not need a physicist. It needs a catalogue of which systems use which cryptography, how long the data behind each one must stay secret, and who owns it, scored so the team knows which row to hand on first. You build that catalogue in pandas on twelve constructed systems, score it under two planning horizons, and find out which rows the timeline argument can move and which it cannot.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone who will be asked to produce the cryptographic inventory</span>
+      <span class="chip audience">Comfortable with a pandas DataFrame and a sort</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:2">3-13 · Retention is the risk</span>
+      <span class="a3" style="flex:3">13-25 · The catalogue and the score</span>
+      <span class="a4" style="flex:4">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The encryption question arrives as a spreadsheet request</h2>
+    </div>
+    <p class="lede">Every other quantum task in these sessions is optional: a team can decline a pilot, ignore a deck, wait out a claim. This one is not. The joint factsheet from CISA, NSA and NIST tells organisations to prepare a cryptographic inventory, and the request lands on whoever already knows where the data lives and how long it is kept. That is the data team. The work is a catalogue, a join and a sort, and the hard column is retention, which the team fills every week for other reasons.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> A declared schema for a cryptographic inventory, eight columns, each with the existing source that fills it. A classifier that sorts algorithm families into at risk, already post-quantum and unknown, with the standard on each replacement path. An exposure score built on the planning inequality from the NIST IR 8547 draft. And a ranking you have run under two horizon assumptions, with the rows that moved named, so the board paper can say which priorities depend on the timeline argument and which do not.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the factsheet actually asks for<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The factsheet "Quantum-Readiness: Migration to Post-Quantum Cryptography" (CISA, NSA and NIST, 17 August 2023) tells organisations to set up a project team, run cryptographic discovery and prepare a cryptographic inventory. The inventory covers network protocols, assets on end-user systems and servers including the paths software and firmware updates arrive by, and cryptographic code in build and deployment pipelines. It asks for a record of when and where quantum-vulnerable cryptography protects the most sensitive datasets, with an estimate of how long each dataset needs protecting. It asks for that record to be correlated with existing asset, identity and endpoint inventories, and for suppliers to be asked for their embedded cryptography, because discovery tools may miss it.</p>
+        <p>Read as a requirements document, that is a table with a primary key, a join to three existing tables, a duration column and an explicit rule for missing values. Leader session 6 drew it as four columns; tonight it gets a declared schema, types, a score and code.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle (a constructed retailer: 12 million customer rows, 4 million order rows, twenty years of encrypted backups) received the request as an email from the security lead with the factsheet attached and one line: "can you start the list". The data team's first reply was a question back: list of what, keyed on what, and how long is "how long". Tonight is the answer to that reply.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in table terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Harvest now, decrypt later.</strong> An adversary copies encrypted data today and keeps it until a machine exists that can break the public-key scheme protecting it. The factsheet also calls it "catch now, break later".</li>
+          <li><strong>Algorithm family.</strong> The public-key scheme a system relies on: RSA, elliptic-curve Diffie-Hellman (ECDH), finite-field Diffie-Hellman, ECDSA, EdDSA. One column, closed vocabulary.</li>
+          <li><strong>Use.</strong> Key exchange (two parties agree a key, so confidentiality is at stake) or signature (a party proves it wrote something, so authenticity is at stake). The two have different threats.</li>
+          <li><strong>Retention years, Y.</strong> How long the data must stay secret, or for a signature, how long the signature must be trusted. The column the data team can fill and a scanner cannot.</li>
+          <li><strong>Migration years, X.</strong> The owning team's estimate of how long until the system stops using the vulnerable scheme. Data written in that window is still written the old way.</li>
+          <li><strong>Planning horizon, H.</strong> An assumed number of years until a cryptographically relevant quantum computer exists. An input to the score, contested, and never a forecast on this page.</li>
+          <li><strong>Exposure.</strong> Years of required protection that outlast the horizon, times a sensitivity weight. Zero means clear under that assumption, not safe forever.</li>
+          <li><strong>ML-KEM, ML-DSA, SLH-DSA.</strong> The schemes in FIPS 203, 204 and 205, all published 13 August 2024: one key-encapsulation mechanism and two signature schemes.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where this inventory stops<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The deliverable is a ranked list: where which cryptography protects what, for how long, owned by whom. What happens to the keys afterwards, rotation, custody and the move to new schemes, belongs to <a href="https://phoebefu6.github.io/learn-cyber-security-with-phoebe/">learn-cyber-security-with-phoebe</a>. Who may read the inventory itself, which is a map of the estate's weakest points, is an access-control question for <a href="https://phoebefu6.github.io/learn-data-access-control-with-phoebe/">learn-data-access-control-with-phoebe</a>. Both are linked, not retaught.</p>
+        <p>Shor's algorithm is the published reason RSA and elliptic-curve schemes are at risk from a large enough machine. It is named here and not run: a ten-qubit simulator cannot factor anything worth the page, and nothing in the inventory depends on watching it try.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers harvest now, decrypt later as a timing problem</span>
+      <h2>Retention, not physics, is the risk variable</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The risk to a dataset does not begin on the day a machine is switched on. It begins the day the data is sent or stored under a vulnerable scheme, because a copy taken that day can be kept. It ends when the data no longer needs to be secret. So the quantity to measure is how much of a dataset's required secrecy outlasts the time it would take someone to break it, and every term but one is a column the team can fill.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 444" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn timeline in years from today, 0 to 30. A top lane, Z the time to break, is contested and has no year: it is drawn as an assumed safe stretch of H years, here H equals 12 as one assumption, followed by a hatched stretch labelled breakable if the assumption holds, with a dashed vertical line at H running down through four constructed Brindle rows. Each row is a bar of migration years X followed by secrecy years Y. Backup archive, X 4 plus Y 20, ends at 24 years, and the 12 years past H are filled cyan: 12 years times sensitivity 4 gives exposure 48. Checkout, X 4 plus Y 10, overlaps H by 2 years: 2 times 4 is 8. Terminal firmware, a signature, X 5 plus Y 12, overlaps by 5 years: 5 times 3 is 15, in the forgery lane. Analytics export, X 1 plus Y 2, ends before H and is clear. A band says exposure is the overlap, years of secrecy that outlast H, times how bad a breach would be.">
+        <defs>
+          <filter id="p9aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="91" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p9aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p9aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p9aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p9aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p9aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p9aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p9aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p9aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p9aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p9aH" x="30" y="26">HARVEST NOW, DECRYPT LATER: THE RISK IS THE PART OF A DATASET'S REQUIRED SECRECY THAT OUTLASTS H</text>
+        <text class="p9aB" x="490" y="50" text-anchor="middle">assumed H = 12 years</text>
+
+        <g filter="url(#p9aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- top lane: Z, contested -->
+          <rect x="250" y="60" width="238" height="26" rx="4" fill="#EEEDF9"/>
+          <rect x="492" y="60" width="358" height="26" rx="4" fill="url(#p9aHc)" stroke="#5A5B7A" stroke-dasharray="5 4"/>
+          <!-- the assumed horizon -->
+          <path d="M490 56 L490 304" stroke-dasharray="6 5"/>
+          <!-- backup_archive: X 4, Y 20 -->
+          <rect x="250" y="120" width="78" height="26" rx="3" fill="#EEEDF9"/>
+          <rect x="332" y="120" width="156" height="26" rx="3" fill="#FFFFFF"/>
+          <rect x="492" y="120" width="238" height="26" rx="3" fill="#0E7490" stroke="#0E7490"/>
+          <!-- checkout_tls: X 4, Y 10 -->
+          <rect x="250" y="170" width="78" height="26" rx="3" fill="#EEEDF9"/>
+          <rect x="332" y="170" width="156" height="26" rx="3" fill="#FFFFFF"/>
+          <rect x="492" y="170" width="38" height="26" rx="3" fill="#0E7490" stroke="#0E7490"/>
+          <!-- terminal_firmware: X 5, Y 12 -->
+          <rect x="250" y="220" width="98" height="26" rx="3" fill="#EEEDF9"/>
+          <rect x="352" y="220" width="136" height="26" rx="3" fill="#FFFFFF"/>
+          <rect x="492" y="220" width="98" height="26" rx="3" fill="#0E7490" stroke="#0E7490"/>
+          <!-- analytics_export: X 1, Y 2 -->
+          <rect x="250" y="270" width="18" height="26" rx="3" fill="#EEEDF9"/>
+          <rect x="272" y="270" width="38" height="26" rx="3" fill="#FFFFFF"/>
+          <!-- axis -->
+          <path d="M250 316 L850 316 M250 312 L250 320 M350 312 L350 320 M450 312 L450 320 M550 312 L550 320 M650 312 L650 320 M750 312 L750 320 M850 312 L850 320"/>
+          <!-- legend swatches -->
+          <rect x="250" y="346" width="14" height="10" rx="2" fill="#EEEDF9"/>
+          <rect x="520" y="346" width="14" height="10" rx="2" fill="#FFFFFF"/>
+          <rect x="700" y="346" width="14" height="10" rx="2" fill="#0E7490" stroke="#0E7490"/>
+          <!-- band -->
+          <rect x="30" y="372" width="820" height="40" rx="10" transform="rotate(0.15 440 392)" fill="#EEEDF9"/>
+          <!-- doodle anchor: an hourglass -->
+          <path d="M840 30 L856 30 L848 40 Z M848 40 L840 50 L856 50 Z" transform="rotate(4 848 40)"/>
+        </g>
+
+        <text class="p9aL" x="30" y="72">Z: time to break</text>
+        <text class="p9aS" x="30" y="88">contested, no source gives a year</text>
+        <text class="p9aS" x="369" y="77" text-anchor="middle">assumed safe for H years</text>
+        <text class="p9aA" x="500" y="104">past H: breakable, if the assumption holds</text>
+
+        <text class="p9aL" x="30" y="132">backup_archive</text>
+        <text class="p9aS" x="30" y="146">X 4 + Y 20, key exchange</text>
+        <text class="p9aS" x="289" y="137" text-anchor="middle">X</text>
+        <text class="p9aS" x="410" y="137" text-anchor="middle">Y</text>
+        <text class="p9aB" x="738" y="137">12 y x 4 = 48</text>
+
+        <text class="p9aL" x="30" y="182">checkout_tls</text>
+        <text class="p9aS" x="30" y="196">X 4 + Y 10, key exchange</text>
+        <text class="p9aS" x="289" y="187" text-anchor="middle">X</text>
+        <text class="p9aS" x="410" y="187" text-anchor="middle">Y</text>
+        <text class="p9aB" x="538" y="187">2 y x 4 = 8</text>
+
+        <text class="p9aL" x="30" y="232">terminal_firmware</text>
+        <text class="p9aS" x="30" y="246">X 5 + Y 12, signature</text>
+        <text class="p9aS" x="299" y="237" text-anchor="middle">X</text>
+        <text class="p9aS" x="420" y="237" text-anchor="middle">Y</text>
+        <text class="p9aB" x="598" y="237">5 y x 3 = 15 (forgery lane)</text>
+
+        <text class="p9aL" x="30" y="282">analytics_export</text>
+        <text class="p9aS" x="30" y="296">X 1 + Y 2, key exchange</text>
+        <text class="p9aS" x="291" y="287" text-anchor="middle">Y</text>
+        <text class="p9aS" x="318" y="287">clear: ends before H</text>
+
+        <text class="p9aS" x="250" y="334" text-anchor="middle">today</text>
+        <text class="p9aS" x="350" y="334" text-anchor="middle">5</text>
+        <text class="p9aS" x="450" y="334" text-anchor="middle">10</text>
+        <text class="p9aS" x="550" y="334" text-anchor="middle">15</text>
+        <text class="p9aS" x="650" y="334" text-anchor="middle">20</text>
+        <text class="p9aS" x="750" y="334" text-anchor="middle">25</text>
+        <text class="p9aS" x="850" y="334" text-anchor="end">30 years</text>
+
+        <text class="p9aS" x="270" y="355">X: still written under the old scheme</text>
+        <text class="p9aS" x="540" y="355">Y: secret, inside H</text>
+        <text class="p9aS" x="720" y="355">the overlap: exposure</text>
+
+        <text class="p9aH" x="46" y="397">Exposure is the overlap: years of secrecy that outlast H, times how bad a breach would be.</text>
+        <text class="p9aN" x="30" y="434">All durations constructed (Brindle). H is a contested input: no primary source gives a year.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the machine's arrival date is the one term nobody can supply, and the drawing does not need it to show which bar overlaps most. Move H and every overlap moves; the backup archive's stays the longest.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The planning inequality, as a column calculation<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>NIST IR 8547, the initial public draft of November 2024, states the threat in its own terms: adversaries collect encrypted data now with the goal of decrypting it once quantum technology matures, and because sensitive data often keeps its value for many years, the transition is urgent before any such computer exists. It gives the planning rule in prose: migration time plus required secrecy lifetime must not exceed the time until a cryptographically relevant quantum computer exists.</p>
+        <p>In columns that is X + Y against Z. X is per system and comes from the owning team. Y is per dataset and comes from the retention policy. Z is one number for the whole estate, and it is the number nobody has. So the inventory computes X + Y for every row, which needs no argument, and then asks how much of it sits past an assumed horizon H, which is where the argument enters. The overlap is max(0, X + Y - H) years.</p>
+        <p>Why X belongs in the sum: a system that keeps using a vulnerable scheme for four more years is writing new harvestable copies for four more years, and the last of those copies needs its full Y of secrecy from the day it is written. The bar in the figure starts today and runs to X + Y for exactly that reason.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's backup archive (constructed) is written nightly and each backup must stay secret for twenty years. Its owners estimate four years to move the backup keys to a new scheme. X + Y is 24. The analytics export to a marketing agency holds pseudonymised events kept for two years, X + Y of 3. Before anyone argues about H, the inventory has already said the archive's exposure is eight times longer, and no stance on the timeline can reverse that.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The horizon is contested, so it is an input<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three primary sources, three stances, no date. <strong>Preskill 2018</strong> describes noisy devices of 50 to 100 qubits as the near term and fault tolerance as arriving "eventually". <strong>The NIST IR 8547 draft</strong> plans as if the machine may arrive within the secrecy life of data encrypted today, and says the migration must begin now even if quantum computers are a decade away. <strong>Aaronson 2015</strong> writes "supposing we had a quantum computer"; his essay is about what one would be for, not when. None resolves the others, and this page does not either.</p>
+        <p>The practical consequence is a modelling choice: H is a parameter you sweep, never a constant you look up. The build-along runs two values, 4 and 15 years, picked only because they show the mechanism clearly. Neither is a forecast, and a board paper that presents either as one has turned an input into a claim.</p>
+        <p>The dates that do exist are policy dates. The NIST IR 8547 draft proposes that RSA, ECDSA, finite-field and elliptic-curve Diffie-Hellman and MQV, and RSA key establishment at 112 bits of security be deprecated after 2030 and disallowed after 2035; at 128 bits or more, disallowed after 2035; EdDSA at 128 bits or more, disallowed after 2035. Those are proposed retirement dates for algorithms, in a draft. They say when NIST proposes to stop accepting a scheme, not when a machine will exist.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Signatures sit in a different lane<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Harvest now, decrypt later is a confidentiality threat: it needs something secret to have been copied. A signature protects nothing secret. Brindle's till software updates are public; what matters is that a till accepts only updates Brindle signed. The risk there is forgery once a machine exists, for as long as the signature must be trusted, which for firmware in a card terminal can be the life of the terminal.</p>
+        <p>The inventory keeps both in one table, because the same discovery finds both and the same owners hold both, but the use column separates them and the score reads Y as secrecy life for key exchange and trust life for a signature. The arithmetic is the same; the sentence in the board paper is not. Leader session 6 flagged Brindle's till updates "forgery, not harvest" for this reason. If signatures as a mechanism are new to your team, <a href="https://phoebefu6.github.io/learn-blockchain-with-phoebe/">learn-blockchain-with-phoebe</a> walks through them.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the inventory schema and the migration priority</span>
+      <h2>A catalogue with a declared schema, scored under a horizon you can move</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">An inventory without a schema becomes a spreadsheet where "RSA", "rsa-2048", "RSA (probably)" and a blank all mean different things to different people. Declare the columns first, with types, a closed vocabulary for the algorithm family and a written rule for unknowns. Then the score is one line, and the ranking is a sort you can rerun under any horizon.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 652" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schema and replacement map. Top: eight column cards in two rows, each with its type and the existing source that fills it: system, string, unique key, from the asset inventory; data class, from the data catalogue; family, closed list, from the discovery scan; use, key exchange or signature, from the discovery scan; retention years Y, integer, years kept secret, from the retention policy, filled cyan as the column that makes this a data job; migration years X, project estimate, from the owning team; sensitivity, 1 to 4, from data classification; owner, from the catalogue. Below, three lanes. Key exchange: RSA key establishment, elliptic-curve Diffie-Hellman and finite-field Diffie-Hellman join a bracket and an arrow to FIPS 203 ML-KEM, final, 13 August 2024, parameter sets 512, 768 and 1024, resting on Module Learning With Errors. Signature: RSA signatures, ECDSA and EdDSA join a bracket with arrows to FIPS 204 ML-DSA and FIPS 205 SLH-DSA, hash-based from SPHINCS+, the backup scheme. Unknown, supplier-embedded: an arrow to a finding, not a zero, ask the supplier. A band gives the NIST IR 8547 initial public draft proposals: 112-bit deprecated after 2030 and disallowed after 2035, 128-bit and above disallowed after 2035, proposed policy dates and not a hardware forecast.">
+        <defs>
+          <filter id="p9bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="93" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p9bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p9bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p9bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p9bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p9bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p9bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p9bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p9bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p9bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p9bH" x="30" y="26">THE INVENTORY IS A TABLE: EIGHT DECLARED COLUMNS, EACH FILLED FROM A SOURCE THE TEAM ALREADY HAS</text>
+
+        <g filter="url(#p9bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- schema row A -->
+          <rect x="30" y="40" width="195" height="62" rx="8" transform="rotate(-0.3 127 71)" fill="#FFFFFF"/>
+          <rect x="235" y="40" width="195" height="62" rx="8" transform="rotate(0.3 332 71)" fill="#FFFFFF"/>
+          <rect x="440" y="40" width="195" height="62" rx="8" transform="rotate(-0.2 537 71)" fill="#FFFFFF"/>
+          <rect x="645" y="40" width="195" height="62" rx="8" transform="rotate(0.3 742 71)" fill="#FFFFFF"/>
+          <!-- schema row B -->
+          <rect x="30" y="110" width="195" height="62" rx="8" transform="rotate(0.3 127 141)" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="235" y="110" width="195" height="62" rx="8" transform="rotate(-0.3 332 141)" fill="#FFFFFF"/>
+          <rect x="440" y="110" width="195" height="62" rx="8" transform="rotate(0.2 537 141)" fill="#FFFFFF"/>
+          <rect x="645" y="110" width="195" height="62" rx="8" transform="rotate(-0.3 742 141)" fill="#FFFFFF"/>
+
+          <!-- lane 1: key exchange -->
+          <rect x="30" y="236" width="820" height="106" rx="10" transform="rotate(-0.2 440 289)" fill="#FFFFFF"/>
+          <rect x="60" y="248" width="240" height="24" rx="4" fill="#EEEDF9"/>
+          <rect x="60" y="278" width="240" height="24" rx="4" fill="#EEEDF9"/>
+          <rect x="60" y="308" width="240" height="24" rx="4" fill="#EEEDF9"/>
+          <path d="M300 260 L400 260 M300 290 L400 290 M300 320 L400 320 M400 260 L400 320"/>
+          <path d="M400 290 L474 290" marker-end="url(#p9bAr)"/>
+          <rect x="480" y="248" width="350" height="84" rx="8" fill="#E3F3F7" stroke="#0E7490"/>
+
+          <!-- lane 2: signature -->
+          <rect x="30" y="372" width="820" height="108" rx="10" transform="rotate(0.2 440 426)" fill="#FFFFFF"/>
+          <rect x="60" y="384" width="240" height="24" rx="4" fill="#EEEDF9"/>
+          <rect x="60" y="414" width="240" height="24" rx="4" fill="#EEEDF9"/>
+          <rect x="60" y="444" width="240" height="24" rx="4" fill="#EEEDF9"/>
+          <path d="M300 396 L400 396 M300 426 L400 426 M300 456 L400 456 M400 396 L400 456"/>
+          <path d="M400 404 L474 404" marker-end="url(#p9bAr)"/>
+          <path d="M400 452 L474 452" marker-end="url(#p9bAr)"/>
+          <rect x="480" y="384" width="350" height="40" rx="8" fill="#E3F3F7" stroke="#0E7490"/>
+          <rect x="480" y="432" width="350" height="40" rx="8" fill="#E3F3F7" stroke="#0E7490"/>
+
+          <!-- lane 3: unknown -->
+          <rect x="30" y="512" width="820" height="48" rx="10" transform="rotate(-0.2 440 536)" fill="#FFFFFF"/>
+          <rect x="60" y="522" width="240" height="26" rx="4" fill="#FFFFFF" stroke="#5A5B7A" stroke-dasharray="5 4"/>
+          <path d="M304 535 L474 535" marker-end="url(#p9bAr)"/>
+          <rect x="480" y="520" width="350" height="32" rx="6" fill="#FFFFFF"/>
+
+          <!-- dates band -->
+          <rect x="30" y="572" width="820" height="46" rx="10" transform="rotate(0.15 440 595)" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a padlock -->
+          <rect x="828" y="352" width="16" height="12" rx="2" transform="rotate(-4 836 358)"/>
+          <path d="M831 352 L831 347 A5 5 0 0 1 841 347 L841 352"/>
+        </g>
+
+        <!-- schema text -->
+        <text class="p9bB" x="42" y="60">system</text>
+        <text class="p9bS" x="42" y="76">str, unique key</text>
+        <text class="p9bA" x="42" y="92">from: asset inventory</text>
+        <text class="p9bB" x="247" y="60">data_class</text>
+        <text class="p9bS" x="247" y="76">str, catalogue term</text>
+        <text class="p9bA" x="247" y="92">from: data catalogue</text>
+        <text class="p9bB" x="452" y="60">family</text>
+        <text class="p9bS" x="452" y="76">str, closed list</text>
+        <text class="p9bA" x="452" y="92">from: discovery scan</text>
+        <text class="p9bB" x="657" y="60">use</text>
+        <text class="p9bS" x="657" y="76">key exchange or signature</text>
+        <text class="p9bA" x="657" y="92">from: discovery scan</text>
+
+        <text class="p9bW" x="42" y="130">retention_years (Y)</text>
+        <text class="p9bW" x="42" y="146">int, years kept secret</text>
+        <text class="p9bW" x="42" y="162">from: retention policy</text>
+        <text class="p9bB" x="247" y="130">migration_years (X)</text>
+        <text class="p9bS" x="247" y="146">int, project estimate</text>
+        <text class="p9bA" x="247" y="162">from: the owning team</text>
+        <text class="p9bB" x="452" y="130">sensitivity</text>
+        <text class="p9bS" x="452" y="146">int, 1 to 4</text>
+        <text class="p9bA" x="452" y="162">from: data classification</text>
+        <text class="p9bB" x="657" y="130">owner</text>
+        <text class="p9bS" x="657" y="146">str, a named team</text>
+        <text class="p9bA" x="657" y="162">from: the catalogue</text>
+
+        <text class="p9bH" x="30" y="196">WHICH FAMILIES THE STANDARDS REPLACE</text>
+        <text class="p9bS" x="30" y="212">families as named in the 2023 factsheet and the NIST IR 8547 draft; each arrow is the replacement path</text>
+
+        <!-- lane 1 text -->
+        <text class="p9bA" x="30" y="228">KEY EXCHANGE: what can be harvested now and read later</text>
+        <text class="p9bL" x="72" y="265">RSA key establishment</text>
+        <text class="p9bL" x="72" y="295">ECDH, elliptic-curve</text>
+        <text class="p9bL" x="72" y="325">finite-field DH</text>
+        <text class="p9bV" x="496" y="274">FIPS 203 · ML-KEM</text>
+        <text class="p9bS" x="496" y="294">key encapsulation, final, 13 August 2024</text>
+        <text class="p9bS" x="496" y="310">parameter sets ML-KEM-512, 768 and 1024</text>
+        <text class="p9bS" x="496" y="326">security rests on Module Learning With Errors</text>
+
+        <!-- lane 2 text -->
+        <text class="p9bA" x="30" y="364">SIGNATURE: what can be forged once a machine exists</text>
+        <text class="p9bL" x="72" y="401">RSA signatures</text>
+        <text class="p9bL" x="72" y="431">ECDSA</text>
+        <text class="p9bL" x="72" y="461">EdDSA</text>
+        <text class="p9bV" x="496" y="403">FIPS 204 · ML-DSA</text>
+        <text class="p9bS" x="496" y="418">module-lattice signatures, 13 August 2024</text>
+        <text class="p9bV" x="496" y="451">FIPS 205 · SLH-DSA</text>
+        <text class="p9bS" x="496" y="466">hash-based, from SPHINCS+, the backup scheme</text>
+
+        <!-- lane 3 text -->
+        <text class="p9bA" x="30" y="506">UNKNOWN: supplier-embedded, discovery cannot see it</text>
+        <text class="p9bL" x="72" y="539">unknown family</text>
+        <text class="p9bB" x="496" y="540">a finding, not a zero: ask the supplier</text>
+
+        <!-- dates -->
+        <text class="p9bL" x="46" y="591">NIST IR 8547, initial public draft, November 2024, proposes for the families above:</text>
+        <text class="p9bS" x="46" y="608">112-bit security deprecated after 2030 and disallowed after 2035; 128-bit and above disallowed after 2035</text>
+        <text class="p9bN" x="30" y="640">Proposed policy dates for retiring algorithms, not a hardware forecast. Schema constructed for Brindle.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - only one column cannot come from a scanner, and it is the one the score depends on most. Every family on the left has a final standard on its replacement path; the unknown row has a person to ask instead.</figcaption>
+    </figure>
+
+    <div class="wk" id="p9-rank">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Brindle's constructed catalogue of twelve systems, scored now in this page. Drag the horizon and the ranking is recomputed; the last column compares each row's rank with the horizon where you last let go. H is an assumption, not a forecast.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p9-h">Planning horizon H, years from today: <b id="p9-h-val">15</b></label>
+        <input class="sql-code" id="p9-h" type="range" min="0" max="30" step="1" value="15">
+        <label class="sql-label" for="p9-unk">How the unknown row is scored</label>
+        <select class="sql-code" id="p9-unk">
+          <option value="risk" selected>As at risk, the worst case, and flagged as a finding</option>
+          <option value="zero">As zero, the trap: a blank family counts as safe</option>
+        </select>
+        <div id="p9-out"></div>
+        <p class="sql-note" id="p9-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p9-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three moves worth making first<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leave it at 15.</strong> The comparison column reads against H = 4. contracts_archive has climbed from seventh to second, customer_db and checkout_tls have fallen two places each, and only four rows are still exposed. backup_archive has not moved.</li>
+          <li><strong>Drag slowly from 0 to 20.</strong> Watch terminal_firmware: fourth, then third from H = 5, then second at 13 and 14, then third again from 15 as contracts_archive passes it. One row, up and down, on one slider, and nothing in its own columns changed.</li>
+          <li><strong>Set H to 4, then switch the unknown row to zero.</strong> customer_db, the 12-million-row table whose encryption is supplier-embedded and unclassified, drops from second to tenth. The row the team knows least about now looks safest, which is the defect the rule exists to prevent.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The schema, and why each column has a named source<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Eight columns: <code>system</code> (string, the primary key), <code>data_class</code> (a term from the data catalogue), <code>family</code> (closed list), <code>use</code> (key exchange, signature or unknown), <code>retention_years</code> (Y, integer), <code>migration_years</code> (X, integer), <code>sensitivity</code> (integer 1 to 4) and <code>owner</code> (a named team). Each has a source that already exists: the asset inventory, the data catalogue, the discovery scan, the retention policy, the owning team's estimate, the classification policy. The factsheet's instruction to correlate with existing inventories is this: the inventory is a join, not a new store.</p>
+        <p>The family column is a closed list for the same reason a country column is. Free text produces "RSA", "RSA-2048" and "rsa" as three families, and the classifier in the build-along would silently send two of them to unknown. Declare the list, reject anything outside it on load, and the classifier becomes a dictionary lookup.</p>
+        <p>Sensitivity uses the scale the team's classification policy already has; Brindle's (constructed) runs 1 to 4, from pseudonymised events to customer identity and payment. For a signature row it reads as how bad a forgery would be. The score multiplies by it, so a scale that has drifted between owners will quietly reorder the list: check it the way you would check a currency column before summing it.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's first draft (constructed) had a free-text family column filled by six owners. It held eleven spellings of four families, and the loyalty API was recorded as "DH" with no way to tell finite-field from elliptic-curve. Declaring the list took ten minutes; resolving the loyalty API took one question to its owner, and the answer went in the table with the owner's name beside it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Which families the standards replace<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The factsheet names RSA, ECDH and ECDSA as the public-key algorithms that will need updating. The NIST IR 8547 draft lists the families it proposes to retire: ECDSA, RSA signatures, finite-field Diffie-Hellman and MQV, elliptic-curve Diffie-Hellman and MQV, RSA key establishment, and EdDSA. Those are the at-risk values of the family column.</p>
+        <ul>
+          <li><strong>Key exchange families go to FIPS 203, ML-KEM.</strong> The Module-Lattice-Based Key-Encapsulation Mechanism Standard, published 13 August 2024, with parameter sets ML-KEM-512, 768 and 1024; its security rests on the Module Learning With Errors problem. NIST's release says it is based on CRYSTALS-Kyber.</li>
+          <li><strong>Signature families go to FIPS 204, ML-DSA, or FIPS 205, SLH-DSA.</strong> Both published 13 August 2024. ML-DSA is module-lattice-based and based on CRYSTALS-Dilithium; SLH-DSA is stateless and hash-based, derived from SPHINCS+, which the release describes as a backup signature scheme. A fourth, FN-DSA, is planned as FIPS 206.</li>
+          <li><strong>Already post-quantum.</strong> A row whose family is ML-KEM, ML-DSA or SLH-DSA scores zero exposure at every horizon. Brindle's staff VPN (constructed) is the one such row.</li>
+          <li><strong>Unknown.</strong> Anything the scan could not name. A finding with an owner and a question, never a blank.</li>
+        </ul>
+        <p>NIST's release of 13 August 2024 encourages administrators to begin transitioning "as soon as possible". The release dates are final; the 2030 and 2035 dates in IR 8547 are proposed.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The score, and what the horizon can and cannot reorder<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Exposure = max(0, X + Y - H) x sensitivity, for every row that is at risk or unknown; zero for a post-quantum row. Ties and zeros are ordered by X + Y, then by name, so the sort is deterministic.</p>
+        <p>Leader session 6 sorted its four rows by X + Y alone, and correctly said the order does not depend on the timeline. That holds exactly: subtracting the same H from every row cannot reorder them. The moment a second factor enters, the order below the top becomes horizon-dependent. A short-lived, high-sensitivity row (checkout, X + Y of 14, sensitivity 4) beats a long-lived, low-sensitivity row (the supplier contracts archive, X + Y of 22, sensitivity 1) when H is small, because it has plenty of overlap to multiply. As H grows the checkout overlap runs out first and the contracts archive overtakes it. Neither row changed; the assumption did.</p>
+        <p>That is the finding to carry to the board, and it is more useful than either ranking. Rows whose rank holds across every horizon you can defend (Brindle's backup archive is first from H = 0 until its overlap runs out at 24) can be handed on today without settling anything. Rows whose rank swings are where the disagreement between Preskill, the NIST draft and Aaronson actually costs something, and the paper should say so rather than pick a year to make the swing disappear.</p>
+        <p>Sources: CISA, NSA and NIST (2023). Quantum-Readiness: Migration to Post-Quantum Cryptography. Factsheet, 17 August 2023. Moody, D., Perlner, R., Regenscheid, A., Robinson, A. and Cooper, D. (2024). Transition to Post-Quantum Cryptography Standards. NIST IR 8547 ipd, initial public draft, November 2024. NIST (2024). FIPS 203, Module-Lattice-Based Key-Encapsulation Mechanism Standard. 13 August 2024. NIST (2024). FIPS 204, Module-Lattice-Based Digital Signature Standard. 13 August 2024. NIST (2024). FIPS 205, Stateless Hash-Based Digital Signature Standard. 13 August 2024. NIST (2024). NIST Releases First 3 Finalized Post-Quantum Encryption Standards. News release, 13 August 2024. Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862. Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Twelve rows, one score, two horizons</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">One file, five code steps, run in order. The catalogue is constructed: twelve Brindle systems with plausible values, none taken from any real organisation. Nothing is sampled, so every output below is exact, and it was printed by this exact code on pandas 2.1 with Python 3. The widget above holds the same twelve rows and the same rule, so you can check any horizon against it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 484" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn slope chart of what step 4 prints. Left column, the twelve constructed systems ranked at a horizon of 4 years with their exposure: 1 backup archive 80, 2 customer db 48, 3 checkout 40, 4 terminal firmware 39, 5 payroll transfer 30, 6 till updates 21, 7 contracts archive 18, 8 invoice signing 16, 9 order replication 10, 10 loyalty api 9, 11 analytics export 0, 12 staff vpn 0. Right column, the same rows at a horizon of 15 years: 1 backup archive 36, 2 contracts archive 7, 3 terminal firmware 6, 4 customer db 4, then checkout, payroll, invoice signing, till updates, order replication, loyalty, analytics and staff vpn all at 0, clear under that assumption, ordered by X plus Y. A cyan line carries contracts archive from seventh up to second; ink lines carry customer db from second down to fourth and checkout from third down to fifth. Backup archive stays first.">
+        <defs>
+          <filter id="p9cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="97" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p9cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p9cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p9cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p9cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p9cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p9cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p9cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p9cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p9cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p9cH" x="30" y="26">THE SAME TWELVE ROWS, RANKED UNDER TWO HORIZON ASSUMPTIONS: H = 4 AND H = 15 YEARS</text>
+        <text class="p9cS" x="30" y="62">rank</text>
+        <text class="p9cB" x="214" y="62" text-anchor="middle">H = 4 years</text>
+        <text class="p9cB" x="626" y="62" text-anchor="middle">H = 15 years</text>
+
+        <g filter="url(#p9cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- unchanged rows -->
+          <path d="M220 84 L620 84 M220 308 L620 308 M220 336 L620 336 M220 364 L620 364 M220 392 L620 392" stroke="#9A97D4"/>
+          <!-- moved, quieter -->
+          <path d="M220 168 L620 140 M220 196 L620 224 M220 224 L620 280 M220 280 L620 252" stroke="#9A97D4"/>
+          <!-- the two falls -->
+          <path d="M220 112 L620 168 M220 140 L620 196"/>
+          <!-- the climb -->
+          <path d="M220 252 L620 112" stroke="#0E7490" stroke-width="3"/>
+          <!-- dots, left -->
+          <circle cx="214" cy="84" r="5" fill="#FFFFFF"/><circle cx="214" cy="112" r="5" fill="#FFFFFF"/><circle cx="214" cy="140" r="5" fill="#FFFFFF"/><circle cx="214" cy="168" r="5" fill="#FFFFFF"/>
+          <circle cx="214" cy="196" r="5" fill="#FFFFFF"/><circle cx="214" cy="224" r="5" fill="#FFFFFF"/><circle cx="214" cy="252" r="5" fill="#0E7490" stroke="#0E7490"/><circle cx="214" cy="280" r="5" fill="#FFFFFF"/>
+          <circle cx="214" cy="308" r="5" fill="#FFFFFF"/><circle cx="214" cy="336" r="5" fill="#FFFFFF"/><circle cx="214" cy="364" r="5" fill="#FFFFFF"/><circle cx="214" cy="392" r="5" fill="#FFFFFF"/>
+          <!-- dots, right -->
+          <circle cx="626" cy="84" r="5" fill="#FFFFFF"/><circle cx="626" cy="112" r="5" fill="#0E7490" stroke="#0E7490"/><circle cx="626" cy="140" r="5" fill="#FFFFFF"/><circle cx="626" cy="168" r="5" fill="#FFFFFF"/>
+          <circle cx="626" cy="196" r="5" fill="#FFFFFF"/><circle cx="626" cy="224" r="5" fill="#FFFFFF"/><circle cx="626" cy="252" r="5" fill="#FFFFFF"/><circle cx="626" cy="280" r="5" fill="#FFFFFF"/>
+          <circle cx="626" cy="308" r="5" fill="#FFFFFF"/><circle cx="626" cy="336" r="5" fill="#FFFFFF"/><circle cx="626" cy="364" r="5" fill="#FFFFFF"/><circle cx="626" cy="392" r="5" fill="#FFFFFF"/>
+          <!-- band -->
+          <rect x="30" y="412" width="820" height="38" rx="10" transform="rotate(-0.15 440 431)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="846" cy="40" r="10" fill="#FFFFFF"/>
+          <path d="M846 40 L852 33"/>
+        </g>
+
+        <!-- rank numbers -->
+        <text class="p9cS" x="30" y="88">1</text>
+        <text class="p9cS" x="30" y="116">2</text>
+        <text class="p9cS" x="30" y="144">3</text>
+        <text class="p9cS" x="30" y="172">4</text>
+        <text class="p9cS" x="30" y="200">5</text>
+        <text class="p9cS" x="30" y="228">6</text>
+        <text class="p9cS" x="30" y="256">7</text>
+        <text class="p9cS" x="30" y="284">8</text>
+        <text class="p9cS" x="30" y="312">9</text>
+        <text class="p9cS" x="30" y="340">10</text>
+        <text class="p9cS" x="30" y="368">11</text>
+        <text class="p9cS" x="30" y="396">12</text>
+
+        <!-- left: H = 4 -->
+        <text class="p9cL" x="170" y="88" text-anchor="end">backup_archive</text><text class="p9cB" x="200" y="88" text-anchor="end">80</text>
+        <text class="p9cL" x="170" y="116" text-anchor="end">customer_db</text><text class="p9cB" x="200" y="116" text-anchor="end">48</text>
+        <text class="p9cL" x="170" y="144" text-anchor="end">checkout_tls</text><text class="p9cB" x="200" y="144" text-anchor="end">40</text>
+        <text class="p9cL" x="170" y="172" text-anchor="end">terminal_firmware</text><text class="p9cB" x="200" y="172" text-anchor="end">39</text>
+        <text class="p9cL" x="170" y="200" text-anchor="end">payroll_transfer</text><text class="p9cB" x="200" y="200" text-anchor="end">30</text>
+        <text class="p9cL" x="170" y="228" text-anchor="end">till_updates</text><text class="p9cB" x="200" y="228" text-anchor="end">21</text>
+        <text class="p9cL" x="170" y="256" text-anchor="end">contracts_archive</text><text class="p9cB" x="200" y="256" text-anchor="end">18</text>
+        <text class="p9cL" x="170" y="284" text-anchor="end">invoice_signing</text><text class="p9cB" x="200" y="284" text-anchor="end">16</text>
+        <text class="p9cL" x="170" y="312" text-anchor="end">order_replication</text><text class="p9cB" x="200" y="312" text-anchor="end">10</text>
+        <text class="p9cL" x="170" y="340" text-anchor="end">loyalty_api</text><text class="p9cB" x="200" y="340" text-anchor="end">9</text>
+        <text class="p9cL" x="170" y="368" text-anchor="end">analytics_export</text><text class="p9cB" x="200" y="368" text-anchor="end">0</text>
+        <text class="p9cL" x="170" y="396" text-anchor="end">staff_vpn</text><text class="p9cB" x="200" y="396" text-anchor="end">0</text>
+
+        <!-- right: H = 15 -->
+        <text class="p9cB" x="640" y="88">36</text><text class="p9cL" x="672" y="88">backup_archive</text>
+        <text class="p9cB" x="640" y="116">7</text><text class="p9cL" x="672" y="116">contracts_archive</text>
+        <text class="p9cB" x="640" y="144">6</text><text class="p9cL" x="672" y="144">terminal_firmware</text>
+        <text class="p9cB" x="640" y="172">4</text><text class="p9cL" x="672" y="172">customer_db</text>
+        <text class="p9cB" x="640" y="200">0</text><text class="p9cL" x="672" y="200">checkout_tls</text><text class="p9cS" x="806" y="200">clear</text>
+        <text class="p9cB" x="640" y="228">0</text><text class="p9cL" x="672" y="228">payroll_transfer</text><text class="p9cS" x="806" y="228">clear</text>
+        <text class="p9cB" x="640" y="256">0</text><text class="p9cL" x="672" y="256">invoice_signing</text><text class="p9cS" x="806" y="256">clear</text>
+        <text class="p9cB" x="640" y="284">0</text><text class="p9cL" x="672" y="284">till_updates</text><text class="p9cS" x="806" y="284">clear</text>
+        <text class="p9cB" x="640" y="312">0</text><text class="p9cL" x="672" y="312">order_replication</text><text class="p9cS" x="806" y="312">clear</text>
+        <text class="p9cB" x="640" y="340">0</text><text class="p9cL" x="672" y="340">loyalty_api</text><text class="p9cS" x="806" y="340">clear</text>
+        <text class="p9cB" x="640" y="368">0</text><text class="p9cL" x="672" y="368">analytics_export</text><text class="p9cS" x="806" y="368">clear</text>
+        <text class="p9cB" x="640" y="396">0</text><text class="p9cL" x="672" y="396">staff_vpn</text><text class="p9cS" x="790" y="396">post-quantum</text>
+
+        <text class="p9cH" x="46" y="436">contracts_archive climbs five places and customer_db falls two. Same rows, same code: H moved them.</text>
+        <text class="p9cN" x="30" y="472">Exposure = max(0, X + Y - H) x sensitivity; zeros and ties fall back to X + Y. All rows constructed.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the top row never moves and the clear rows were never the question. The lines that cross in the middle are the rows the timeline argument actually decides.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Declare the schema, then load the constructed catalogue</h4>
+        <p>The schema is a dictionary of column to type, and the load casts to it. Two assertions run before anything else: the key is unique, and sensitivity is on the declared scale. Twelve rows, eight families including "unknown" and "ML-KEM", eight owners.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import pandas as pd
+
+SCHEMA = {
+    "system": "str", "data_class": "str", "family": "str", "use": "str",
+    "retention_years": "int", "migration_years": "int",
+    "sensitivity": "int", "owner": "str",
+}
+rows = [  # constructed: Brindle's estate, no real organisation
+    ("checkout_tls",      "customer identity, payment session", "ECDH",                  "key exchange", 10, 4, 4, "web platform"),
+    ("till_updates",      "till software, integrity",           "ECDSA",                 "signature",     8, 3, 3, "store systems"),
+    ("backup_archive",    "full customer and order history",    "RSA key establishment", "key exchange", 20, 4, 4, "data platform"),
+    ("customer_db",       "customer identity, 12M rows",        "unknown",               "unknown",      10, 6, 4, "data platform"),
+    ("order_replication", "order history, 4M rows",             "ECDH",                  "key exchange",  7, 2, 2, "data platform"),
+    ("loyalty_api",       "loyalty points, contact details",    "finite-field DH",       "key exchange",  5, 2, 3, "marketing tech"),
+    ("payroll_transfer",  "staff pay, tax identifiers",         "RSA key establishment", "key exchange", 12, 2, 3, "finance systems"),
+    ("contracts_archive", "supplier contracts",                 "RSA key establishment", "key exchange", 20, 2, 1, "legal ops"),
+    ("staff_vpn",         "internal traffic, mixed",            "ML-KEM",                "key exchange",  3, 0, 2, "IT operations"),
+    ("invoice_signing",   "signed invoices",                    "RSA signature",         "signature",    10, 2, 2, "finance systems"),
+    ("analytics_export",  "pseudonymised purchase events",      "ECDH",                  "key exchange",  2, 1, 1, "analytics"),
+    ("terminal_firmware", "card terminal firmware, integrity",  "EdDSA",                 "signature",    12, 5, 3, "store systems"),
+]
+cat = pd.DataFrame(rows, columns=list(SCHEMA)).astype(SCHEMA)
+assert cat["system"].is_unique and cat["sensitivity"].between(1, 4).all()
+print(cat.shape, "| families:", cat["family"].nunique(), "| owners:", cat["owner"].nunique())
+# (12, 8) | families: 8 | owners: 8</div>
+      </div>
+      <div class="step">
+        <h4>Classify each family and name its replacement path</h4>
+        <p>The at-risk list is the families the factsheet and the NIST IR 8547 draft name; each maps to the standard on its replacement path. Anything already post-quantum is marked so. Everything else is unknown, and the status string carries the action, so nobody reads a blank as safe.</p>
+        <div class="prompt-box good"><span class="label">Python</span>AT_RISK = {  # family -&gt; standard on the replacement path
+    "RSA key establishment": "FIPS 203 ML-KEM",
+    "ECDH":                  "FIPS 203 ML-KEM",
+    "finite-field DH":       "FIPS 203 ML-KEM",
+    "RSA signature":         "FIPS 204 ML-DSA or FIPS 205 SLH-DSA",
+    "ECDSA":                 "FIPS 204 ML-DSA or FIPS 205 SLH-DSA",
+    "EdDSA":                 "FIPS 204 ML-DSA or FIPS 205 SLH-DSA",
+}
+ALREADY = {"ML-KEM", "ML-DSA", "SLH-DSA"}
+
+def classify(f):
+    if f in AT_RISK: return "at risk"
+    if f in ALREADY: return "post-quantum"
+    return "unknown: ask the supplier"
+
+cat["status"] = cat["family"].map(classify)
+cat["replace_with"] = cat["family"].map(AT_RISK).fillna("-")
+print(cat.groupby(["status", "replace_with"]).size().to_string())
+# status                     replace_with
+# at risk                    FIPS 203 ML-KEM                        7
+#                            FIPS 204 ML-DSA or FIPS 205 SLH-DSA    3
+# post-quantum               -                                      1
+# unknown: ask the supplier  -                                      1</div>
+      </div>
+      <div class="step">
+        <h4>Score exposure under a horizon</h4>
+        <p>X + Y is the bar from Part 1; the overlap past H is clipped at zero; sensitivity weights it. The unknown row counts as at risk, because "not post-quantum" is the only status that zeroes a row. The sort is deterministic: exposure, then X + Y, then name.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def score(cat, horizon):
+    out = cat.copy()
+    out["xy"] = out["migration_years"] + out["retention_years"]
+    overhang = (out["xy"] - horizon).clip(lower=0)
+    live = out["status"] != "post-quantum"          # unknown counts as at risk
+    out["exposure"] = overhang * out["sensitivity"] * live
+    out = out.sort_values(["exposure", "xy", "system"], ascending=[False, False, True])
+    out["rank"] = range(1, len(out) + 1)
+    return out.set_index("system")
+
+short, long_ = score(cat, 4), score(cat, 15)
+print(short[["xy", "sensitivity", "exposure", "rank"]].head(6).to_string())
+#                    xy  sensitivity  exposure  rank
+# system
+# backup_archive     24            4        80     1
+# customer_db        16            4        48     2
+# checkout_tls       14            4        40     3
+# terminal_firmware  17            3        39     4
+# payroll_transfer   14            3        30     5
+# till_updates       11            3        21     6</div>
+      </div>
+      <div class="step">
+        <h4>Rank under both horizons and name the moves</h4>
+        <p>Join the two rankings on the key and subtract. A positive move is a climb. This is the table in the figure above, and the one to paste under the board paper's recommendation.</p>
+        <div class="prompt-box good"><span class="label">Python</span>both = short[["rank", "exposure"]].join(long_[["rank", "exposure"]], lsuffix="_h4", rsuffix="_h15")
+both["move"] = both["rank_h4"] - both["rank_h15"]   # positive = moved up
+print(both.sort_values("rank_h15").to_string())
+#                    rank_h4  exposure_h4  rank_h15  exposure_h15  move
+# system
+# backup_archive           1           80         1            36     0
+# contracts_archive        7           18         2             7     5
+# terminal_firmware        4           39         3             6     1
+# customer_db              2           48         4             4    -2
+# checkout_tls             3           40         5             0    -2
+# payroll_transfer         5           30         6             0    -1
+# invoice_signing          8           16         7             0     1
+# till_updates             6           21         8             0    -2
+# order_replication        9           10         9             0     0
+# loyalty_api             10            9        10             0     0
+# analytics_export        11            0        11             0     0
+# staff_vpn               12            0        12             0     0</div>
+      </div>
+      <div class="step">
+        <h4>Assert what the horizon cannot do, and check the two edge rows</h4>
+        <p>Sorting by X + Y alone gives the same order at both horizons, which is leader session 6's claim, now asserted. Then list the rows whose rank changed, and confirm the unknown row scored as the worst case and the post-quantum row as zero. Three of the seven moves (payroll_transfer, invoice_signing, till_updates) happen only because those rows cleared and fell into X + Y order; say so when you report them.</p>
+        <div class="prompt-box good"><span class="label">Python</span>xy_short = list(short.sort_values(["xy", "system"], ascending=[False, True]).index)
+xy_long = list(long_.sort_values(["xy", "system"], ascending=[False, True]).index)
+assert xy_short == xy_long                          # session a6's X + Y order: no horizon moves it
+moved = both.index[both["move"] != 0].tolist()
+print("rank changed between the two horizons:", moved)
+print("unknown row, h=4:", short.loc["customer_db", "exposure"], "| post-quantum row:", short.loc["staff_vpn", "exposure"])
+# rank changed between the two horizons: ['customer_db', 'checkout_tls', 'terminal_firmware', 'payroll_transfer', 'till_updates', 'contracts_archive', 'invoice_signing']
+# unknown row, h=4: 48 | post-quantum row: 0</div>
+      </div>
+      <div class="step">
+        <h4>Write the paragraph before the next horizon</h4>
+        <p>Before you sweep H from 0 to 30 in the homework, write down which rows you expect to swing. Rows with a large X + Y and a low sensitivity rise as H grows; rows with a short X + Y and a high sensitivity fall and then clear. If the sweep surprises you, find the row that did it and read its four numbers before trusting the sort.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Never publish a ranking computed at one horizon. Run at least two, report the rows that hold and the rows that move, and let the contested input stay visibly contested. The rows that hold go to the key owners on Monday; the rows that move go into the paper as the part of the decision the timeline argument actually controls.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Why is the retention column, rather than the algorithm column, the one that orders a post-quantum inventory?</p>
+      <div class="qopt">A · Because the algorithm column is always the same across an estate</div>
+      <div class="qopt">B · Because under harvest now, decrypt later the risk starts when vulnerable data is sent or stored and lasts as long as it must stay secret, so years of required secrecy past the horizon are the exposure</div>
+      <div class="qopt">C · Because retention determines which FIPS standard replaces the algorithm</div>
+      <q class="qwhy">The family says whether a row is at risk at all; how long the data must stay secret, plus how long the old scheme stays in use, says how much of its life outlasts any horizon. The standard on the replacement path follows from the use, key exchange or signature, not from retention.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">The customer database's encryption is embedded by a supplier and discovery cannot name the family. How should the row be scored?</p>
+      <div class="qopt">A · As at risk, the worst case, with the status recording a finding and the question to the supplier; scoring it as zero would rank the least-understood row as the safest</div>
+      <div class="qopt">B · As zero until the supplier replies, since unknown data should not distort the ranking</div>
+      <div class="qopt">C · Leave it out of the inventory until the family is known</div>
+      <q class="qwhy">A blank that scores as best is the classic catalogue defect: in the widget, switching the rule to zero drops customer_db from second toward the bottom. The factsheet tells organisations to ask suppliers for embedded cryptography precisely because discovery tools may miss it; the row stays in, flagged, with an owner.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Your ranking at H = 4 puts checkout third; at H = 15 checkout clears and the contracts archive is second. What belongs in the board paper?</p>
+      <div class="qopt">A · The H = 15 ranking, because the NIST IR 8547 draft gives 2035 as the year</div>
+      <div class="qopt">B · Whichever ranking matches the most recent vendor estimate of the timeline</div>
+      <div class="qopt">C · Both: the backup archive first under every horizon tested, the rows that move named, and a sentence that the horizon is contested (Preskill "eventually", the NIST draft "even if a decade away", Aaronson "supposing we had one") and was not resolved</div>
+      <q class="qwhy">2030 and 2035 are proposed policy dates for retiring algorithms, not a forecast of a machine, and no primary source gives a year for one. A ranking that holds across horizons can be acted on now; the rows that swing are where the disagreement costs something, and the paper should show that rather than hide it behind one chosen year.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 10</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About forty minutes, with your build and one real system you own.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Sweep the horizon and add a rank-range column</h4>
+        <p>Run <code>score</code> for every H from 0 to 30 and record each row's best and worst rank among the horizons where it is exposed. Add the range as a column. Rows with a range of zero are the ones you can hand on without settling the timeline; compare your list with what the widget shows when you drag the slider end to end.</p>
+      </div>
+      <div class="step">
+        <h4>Fill three real rows against the schema</h4>
+        <p>Pick one system that carries data in transit, one that signs something and one that stores data for a long time. Fill all eight columns, with the source of each value in a note. Every value you cannot fill is a finding with a named person who would know. Rotation and custody of the keys you find belong to <a href="https://phoebefu6.github.io/learn-cyber-security-with-phoebe/">learn-cyber-security-with-phoebe</a>; stop at the list.</p>
+      </div>
+      <div class="step">
+        <h4>Decide who may read the inventory</h4>
+        <p>The finished table is a ranked list of where weak cryptography protects the most valuable data. Write one paragraph on who should see it, and check it against the access patterns in <a href="https://phoebefu6.github.io/learn-data-access-control-with-phoebe/">learn-data-access-control-with-phoebe</a> before you share the file.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Harvest now, decrypt later as a timing problem</span><span class="note">In the factsheet's and the NIST IR 8547 draft's terms; the risk starts when vulnerable data is stored.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The planning inequality</span><span class="note">Migration time plus secrecy life against the time to break, computed as an overlap per row.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The inventory schema</span><span class="note">Eight declared columns, a closed family list, and the existing source for each.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">FIPS 203, 204 and 205</span><span class="note">ML-KEM for key exchange, ML-DSA and SLH-DSA for signatures, all final, 13 August 2024.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">NIST IR 8547 proposed dates</span><span class="note">112-bit families deprecated after 2030 and disallowed after 2035; a draft, so proposed.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Exposure under a contested horizon</span><span class="note">Scored at two horizons in pandas and swept live; the rows that hold and the rows that move.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Unknown is a finding</span><span class="note">Scored as the worst case and flagged; the supplier question from the factsheet.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Key management after the inventory</span><span class="note">Rotation, custody and migration of keys: learn-cyber-security-with-phoebe.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Access to the inventory itself</span><span class="note">Who may read the ranked list: learn-data-access-control-with-phoebe.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Signatures as a mechanism</span><span class="note">Named for the forgery lane; walked through in learn-blockchain-with-phoebe.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Shor's algorithm and a date for the machine</span><span class="note">Shor named, not run; no year for a cryptographically relevant machine is given anywhere.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The threat.</strong> Harvest now, decrypt later: a copy taken today is read once a machine exists. The risk starts at storage, not at arrival.</div>
+      <div class="cheat-item"><strong>The inequality.</strong> Migration time X plus secrecy life Y must not exceed the time to break Z. Only Z is contested.</div>
+      <div class="cheat-item"><strong>The schema.</strong> system, data_class, family, use, retention_years, migration_years, sensitivity, owner. Each from a source you already have.</div>
+      <div class="cheat-item"><strong>The families.</strong> RSA, ECDH, finite-field DH go to FIPS 203 ML-KEM. RSA signatures, ECDSA, EdDSA go to FIPS 204 ML-DSA or FIPS 205 SLH-DSA.</div>
+      <div class="cheat-item"><strong>The dates.</strong> FIPS 203 to 205 final on 13 August 2024. NIST IR 8547 draft: 2030 and 2035, proposed policy, not a forecast.</div>
+      <div class="cheat-item"><strong>The score.</strong> max(0, X + Y - H) x sensitivity. X + Y order never moves with H; the weighted order below the top does.</div>
+      <div class="cheat-item"><strong>The unknown.</strong> Score it as the worst case and flag it. A blank that scores as zero ranks the least-known row as safest.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Rank under at least two horizons. Hand on the rows that hold; put the rows that move in the paper.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 9 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p8-reading-a-speedup-claim.html">← Practitioner session 8 · Reading a speedup claim</a>
+        <a href="p10-the-fine-print-bench.html">Practitioner session 10 · The fine-print bench →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  /* Brindle's catalogue, constructed: system, family, use, Y, X, sensitivity, status */
+  var ROWS = [
+    ["checkout_tls", "ECDH", "key exchange", 10, 4, 4, "at risk"],
+    ["till_updates", "ECDSA", "signature", 8, 3, 3, "at risk"],
+    ["backup_archive", "RSA key establishment", "key exchange", 20, 4, 4, "at risk"],
+    ["customer_db", "unknown", "unknown", 10, 6, 4, "unknown"],
+    ["order_replication", "ECDH", "key exchange", 7, 2, 2, "at risk"],
+    ["loyalty_api", "finite-field DH", "key exchange", 5, 2, 3, "at risk"],
+    ["payroll_transfer", "RSA key establishment", "key exchange", 12, 2, 3, "at risk"],
+    ["contracts_archive", "RSA key establishment", "key exchange", 20, 2, 1, "at risk"],
+    ["staff_vpn", "ML-KEM", "key exchange", 3, 0, 2, "post-quantum"],
+    ["invoice_signing", "RSA signature", "signature", 10, 2, 2, "at risk"],
+    ["analytics_export", "ECDH", "key exchange", 2, 1, 1, "at risk"],
+    ["terminal_firmware", "EdDSA", "signature", 12, 5, 3, "at risk"]
+  ];
+  var hIn = document.getElementById("p9-h");
+  var hVal = document.getElementById("p9-h-val");
+  var unkSel = document.getElementById("p9-unk");
+  var out = document.getElementById("p9-out");
+  var verdict = document.getElementById("p9-verdict");
+  var self = document.getElementById("p9-self");
+  var baseH = 4;
+
+  function rank(H, unkZero) {
+    var r = ROWS.map(function (x) {
+      var xy = x[3] + x[4];
+      var live = x[6] === "at risk" || (x[6] === "unknown" && !unkZero);
+      return { sys: x[0], fam: x[1], use: x[2], xy: xy, sens: x[5], status: x[6], exp: live ? Math.max(0, xy - H) * x[5] : 0 };
+    });
+    r.sort(function (a, b) {
+      return (b.exp - a.exp) || (b.xy - a.xy) || (a.sys < b.sys ? -1 : (a.sys > b.sys ? 1 : 0));
+    });
+    r.forEach(function (x, i) { x.rank = i + 1; });
+    return r;
+  }
+
+  function render() {
+    var H = Number(hIn.value), unkZero = unkSel.value === "zero";
+    hVal.textContent = H;
+    var now = rank(H, unkZero), before = {}, i;
+    rank(baseH, unkZero).forEach(function (x) { before[x.sys] = x.rank; });
+    var ups = [], downs = [], exposed = 0, unkRank = 0;
+    var html = '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>Rank</th><th>System</th><th>Family</th><th>Use</th><th>X + Y</th><th>Sens.</th><th>Exposure</th><th>Since H = ' + baseH + '</th></tr></thead><tbody>';
+    now.forEach(function (x) {
+      var mv = before[x.sys] - x.rank;
+      var mvTxt = mv > 0 ? "▲ up " + mv : (mv < 0 ? "▼ down " + (-mv) : "same");
+      if (mv > 0) ups.push(x.sys + " " + mv);
+      if (mv < 0) downs.push(x.sys + " " + (-mv));
+      if (x.exp > 0) exposed++;
+      if (x.status === "unknown") unkRank = x.rank;
+      var expTxt = x.status === "post-quantum" ? "0, post-quantum"
+        : (x.status === "unknown" ? (unkZero ? "0, scored as zero" : x.exp + ", finding: ask the supplier")
+        : (x.exp > 0 ? String(x.exp) : "0, clear"));
+      html += "<tr><td>" + x.rank + "</td><td>" + x.sys + "</td><td>" + x.fam + "</td><td>" + x.use + "</td><td>" + x.xy + "</td><td>" + x.sens + "</td><td><b>" + expTxt + "</b></td><td>" + mvTxt + "</td></tr>";
+    });
+    html += "</tbody></table></div>";
+    out.innerHTML = html;
+
+    var msg = "At H = " + H + " years, " + exposed + " of " + now.length + " rows are exposed and the top row is " + now[0].sys + " (" + now[0].exp + "). ";
+    if (H === baseH) {
+      msg += "The last column compares with H = " + baseH + ", where you last let go; drag to see which rows move. ";
+    } else {
+      msg += "Since H = " + baseH + ": up " + (ups.length ? ups.join(", ") : "none") + "; down " + (downs.length ? downs.join(", ") : "none") + ". ";
+    }
+    if (unkZero) {
+      msg += "customer_db, the one row nobody could classify, now ranks " + unkRank + " of " + now.length + " with exposure 0: the emptiest record looks the safest, which is the trap. ";
+    }
+    msg += "H is an assumption you chose, not a forecast: no primary source gives a year.";
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser. The ranking above does not use the quantum engine at all: it is a sort on a constructed catalogue, recomputed each time you move the slider. No machine, supplier or real estate is described."
+    : "The engine's self test did not pass in this browser, so nothing on this page should be believed.";
+
+  hIn.addEventListener("input", render);
+  hIn.addEventListener("change", function () { render(); baseH = Number(hIn.value); });
+  unkSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #p9-rank .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p9-rank input[type="range"] { max-width: 20rem; padding: 0; }
+  #p9-rank table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

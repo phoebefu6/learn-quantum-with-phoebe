@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 5 of 6. Five habits every data team relies on, and what the register does to each: the source is a cost, the state cannot be printed, the answer is a sample, depth destroys the result, and the timeline is contested. Brindle's project plan, rewritten line by line.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Why the data-team playbook breaks here - learn quantum with phoebe">
+<meta property="og:description" content="Leader session 5 of 6. You cannot print the state, the answer comes back as counts, and a longer circuit is not slower but wrong.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/a5-why-the-data-team-playbook-breaks-here.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why the data-team playbook breaks here - learn quantum with phoebe">
+<meta name="twitter:description" content="Plan on what you can measure: shots, depth, load, and how long your data must stay secret. Never on a vendor date.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 5 · Why the data-team playbook breaks here - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Leader session 5 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Leader session 5 of 6</div>
+    <h1>Why the data-team playbook <span class="accent">breaks here</span></h1>
+    <p class="sub">Every data team runs on five habits it no longer notices. The data is already there to query. You can print any table halfway through a pipeline. A query returns the exact answer. A longer pipeline is slower but still right. And a roadmap plans to a date. A quantum register breaks all five, each for a reason you can draw. Tonight draws them one at a time, with Brindle's own project template on the table, and ends with that template rewritten for a quantum pilot. No machine, vendor or roadmap is named, and no year is given for a useful machine, because the primary sources do not agree on one.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Leader track</span>
+      <span class="chip audience">Anyone who would run a quantum pilot like any other data project</span>
+      <span class="chip audience">Anyone who signs off a plan with a ship date on it</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · The source and the state</span>
+      <span class="a3" style="flex:3">18-28 · Samples and depth</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Brindle's project template, meet the register</h2>
+    </div>
+    <p class="lede">Brindle is a mid-sized retailer, constructed for these sessions, with a 12-million-row customer table, a 4-million-row order table and twenty years of encrypted backups. Its data team has a one-page project template that has shipped every project for a decade: source the data, validate it, iterate on the model, ship on a date. The board would like the vendor's quantum pilot run through the same template. Four sessions have shown what the pilot can and cannot speed up. Tonight asks a different question: if the team ran the pilot the way it runs everything else, which line of the template would fail first, and why.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Five contrasts, each drawn, between a warehouse habit and what happens on a register: the source, the identity of the state you are debugging, the ground truth, the feedback loop and the cost of being wrong. A live sample in the page that shows what 952 of 1,000 shots does and does not tell you. A noise ladder that turns a near-certain answer into the uniform floor. The three published stances on the timeline, side by side and unresolved. And Brindle's template, rewritten line by line, so that every line plans on something you can measure.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Five habits, five contrasts<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each contrast below has the same shape: a habit the data team relies on without thinking, and the specific mechanism on the register that removes it. None of them is a slogan. Each has a figure, and each figure draws where the thing actually breaks.</p>
+        <ul>
+          <li><strong>The source.</strong> In a warehouse the data is already there. On a register every classical row is written in first, so the source is a cost. Part 1, and session 3 priced it.</li>
+          <li><strong>The identity of the state.</strong> In a warehouse you print a dataframe halfway through. On a register a measurement returns one draw and ends the run. Part 1.</li>
+          <li><strong>The ground truth.</strong> In a warehouse a query returns the exact answer. On a register every probability is an estimate from shots, and every shot costs a full run. Part 2.</li>
+          <li><strong>The feedback loop.</strong> In a warehouse a longer pipeline is slower but right. On a register noise compounds per gate, and depth destroys the answer. Part 2.</li>
+          <li><strong>The cost of being wrong.</strong> A warehouse roadmap plans to a date. Here the hardware timeline is contested evidence, and the cost of guessing wrong sits on encrypted data that must stay secret for a long time. Part 3.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's constructed project template has four lines and a date box. The head of data engineering filled it in for the pilot in ten minutes: source, the customer table; validate, spot-check intermediate outputs; iterate, add qubits until it works; ship, the vendor's quarter. Every one of those four entries is a habit that works in a warehouse. Tonight walks through why each one fails on a register, and Part 3 rewrites them.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Words for tonight<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Shot.</strong> One full run of a circuit, from preparing the register to measuring it, returning one outcome. Session 1.</li>
+          <li><strong>Mid-circuit measurement.</strong> Reading the register before the circuit is finished. It returns one outcome and replaces the state with that outcome, so the rest of the circuit runs on something else.</li>
+          <li><strong>Standard error.</strong> The square root of p times one minus p over the number of shots. The same arithmetic as an A/B test, used in session 1.</li>
+          <li><strong>Depth.</strong> How many gates the register passes through. Grover on ten qubits at its optimum is 1,060 gates, counting the oracle and the multi-controlled flip as one gate each, which undercounts hardware.</li>
+          <li><strong>Depolarising noise.</strong> The declared noise model: with probability p per gate the register is scrambled to uniform. One parameter, and kinder than hardware.</li>
+          <li><strong>Secrecy life.</strong> How long a piece of data must stay confidential. The one length on tonight's timeline that Brindle can measure.</li>
+          <li><strong>Harvest now, decrypt later.</strong> Copying encrypted data today in order to read it once a capable machine exists. Named in the 2023 factsheet and the 2024 NIST draft.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What tonight does not do<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Tonight does not teach error correction. It names the fact that fault tolerance is the published long-term answer to noise, and leaves how it works to the literature; nobody on the hub teaches it, and nobody on the hub teaches hardware physics either. The simulator in the page is exact, and the noise layered on top of it is a declared one-parameter model, so every noisy number tonight is modelled and flatters real hardware.</p>
+        <p>Tonight also does not build the post-quantum inventory. It shows why the inventory matters: the asymmetric cost of being wrong about the timeline sits on long-lived encrypted data. Session 6 turns that into a list, and practitioner session 9 builds it in full.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the source and the identity</span>
+      <h2>The data is not there, and you cannot look at it</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">The first two habits are so basic that a data team would not list them as habits at all. The data is there when you start. And you can look at it whenever you like. On a register the first is a bill and the second is impossible, and both for mechanical reasons, not for lack of tooling.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 410" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison of where the data comes from. Left panel, the warehouse habit: Brindle's constructed table of 12,000,000 rows is already sitting in the warehouse, a query arrow goes straight to an answer box, and the cost tag reads zero writes, it is a given. Right panel, on the register: the same 12,000,000 rows sit on disk, five cyan write arrows carry rows one by one into an empty register drawn as a grid of cells, and a cyan cost tag reads 12,000,000 writes first, then query 1 can run. A band underneath says the warehouse treats the source as free while the register makes it the first line of cost, and that one search over fresh rows already loses at ingest because N writes exceed the N over 2 lookups of a scan. The model is load 1 per row, query cost log2 N, one search per load.">
+        <defs>
+          <filter id="a5aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="51" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a5aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a5aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a5aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a5aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a5aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a5aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a5aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a5aH" x="30" y="26">IN A WAREHOUSE THE DATA IS ALREADY THERE. ON A REGISTER EVERY ROW IS WRITTEN IN FIRST.</text>
+
+        <g filter="url(#a5aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel: the warehouse habit -->
+          <rect x="30" y="44" width="390" height="246" rx="10" transform="rotate(-0.3 225 167)" fill="#FFFFFF"/>
+          <rect x="60" y="104" width="160" height="110" rx="6" transform="rotate(0.5 140 159)" fill="url(#a5aHc)"/>
+          <path d="M66 126 L214 126"/>
+          <path d="M66 148 L214 148"/>
+          <path d="M66 170 L214 170"/>
+          <path d="M66 192 L214 192"/>
+          <path d="M228 159 L286 159" marker-end="url(#a5aAr)"/>
+          <rect x="292" y="136" width="110" height="46" rx="6" transform="rotate(0.8 347 159)" fill="#FFFFFF"/>
+          <rect x="60" y="244" width="200" height="26" rx="5" transform="rotate(-0.4 160 257)" fill="#EEEDF9"/>
+
+          <!-- right panel: on the register -->
+          <rect x="450" y="44" width="400" height="246" rx="10" transform="rotate(0.3 650 167)" fill="#FFFFFF"/>
+          <rect x="474" y="104" width="100" height="110" rx="6" transform="rotate(-0.6 524 159)" fill="url(#a5aHc)"/>
+          <path d="M480 126 L568 126"/>
+          <path d="M480 148 L568 148"/>
+          <path d="M480 170 L568 170"/>
+          <path d="M480 192 L568 192"/>
+          <path d="M580 116 L638 116" stroke="#0E7490" marker-end="url(#a5aAr)"/>
+          <path d="M580 136 L638 136" stroke="#0E7490" marker-end="url(#a5aAr)"/>
+          <path d="M580 156 L638 156" stroke="#0E7490" marker-end="url(#a5aAr)"/>
+          <path d="M580 176 L638 176" stroke="#0E7490" marker-end="url(#a5aAr)"/>
+          <path d="M580 196 L638 196" stroke="#0E7490" marker-end="url(#a5aAr)"/>
+          <rect x="648" y="104" width="184" height="110" rx="8" transform="rotate(0.4 740 159)" fill="#EEEDF9"/>
+          <rect x="662" y="116" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="704" y="116" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="746" y="116" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="788" y="116" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="662" y="140" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="704" y="140" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="746" y="140" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="788" y="140" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="662" y="164" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="704" y="164" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="746" y="164" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="788" y="164" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="662" y="188" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="704" y="188" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="746" y="188" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="788" y="188" width="34" height="16" rx="3" fill="#FFFFFF"/>
+          <rect x="474" y="244" width="196" height="26" rx="5" transform="rotate(0.4 572 257)" fill="#0E7490" stroke="#0E7490"/>
+
+          <!-- band -->
+          <rect x="30" y="310" width="820" height="60" rx="10" transform="rotate(0.15 440 340)" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a tiny dial -->
+          <circle cx="826" cy="66" r="10" fill="#FFFFFF"/>
+          <path d="M826 66 L832 59"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="a5aL" x="46" y="68">THE WAREHOUSE HABIT</text>
+        <text class="a5aS" x="46" y="84">the table is already there to query</text>
+        <text class="a5aA" x="234" y="150">query</text>
+        <text class="a5aL" x="347" y="164" text-anchor="middle">rows back</text>
+        <text class="a5aS" x="60" y="234">Brindle's 12,000,000 rows, constructed</text>
+        <text class="a5aL" x="72" y="262">0 writes: it is a given</text>
+
+        <!-- right panel text -->
+        <text class="a5aL" x="466" y="68">ON THE REGISTER</text>
+        <text class="a5aS" x="466" y="84">every classical row is written in first</text>
+        <text class="a5aA" x="584" y="106">N writes</text>
+        <text class="a5aS" x="474" y="234">same rows, on disk</text>
+        <text class="a5aS" x="648" y="234">empty until the last write</text>
+        <text class="a5aW" x="486" y="262">12,000,000 writes first</text>
+        <text class="a5aS" x="682" y="262">then query 1 can run</text>
+
+        <!-- band text -->
+        <text class="a5aH" x="46" y="334">The warehouse treats the source as free. The register makes it the first line of cost.</text>
+        <text class="a5aN" x="46" y="354">One search over fresh rows already loses at ingest: N writes is more than the N/2 lookups a scan needs.</text>
+
+        <text class="a5aN" x="30" y="394">Model, as in session 3: load 1 per row, query cost log2 N, R = 1 search per load. Brindle is constructed.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the warehouse query starts at the table. The register's query starts after 12,000,000 writes, so the source is the first line of the budget, not a given.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Contrast 1: the source is a cost, not a given<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In a warehouse the first line of a project plan, "source the data", usually means finding the right table and getting permission to read it. The data is already there. Nobody budgets for the table existing.</p>
+        <p>On a register nothing is already there. Session 3 priced it: every classical row has to be written in before the first query runs, so a load of N rows costs N writes. Under the declared model from that session (load 1 per row, query cost log2 N per oracle call, R = 1 search per load), one search over Brindle's constructed 12,000,000 customer rows costs 12,063,988, of which 12,000,000 is the load. A classical scan costs 6,000,000. The source is not a line you tick; it is the largest line in the budget.</p>
+        <p>The consequence for the plan is that "source" has to carry two numbers it never needed before: how many rows must be written, and how many searches each load will serve before the data changes. Without the second number the first cannot be judged.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's constructed template says "Source: customer table (existing)". The word existing is the habit. On a register the honest entry is "Source: 12,000,000 writes per load, reloaded nightly, so R is however many searches run in a day". The team had never had to write the word nightly into a source line before, because a warehouse never charged them for reading what it already held.</p>
+        </div>
+      </div>
+    </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 462" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison of how you inspect a running job. Top left, the warehouse habit: a pipeline of three stages, extract, join and aggregate, each with a print arrow dropping to a small intermediate table, and the note that every intermediate table is there to look at. Top right, on the register: three qubit wires pass through a Hadamard block and an oracle block, then a measurement meter reads the register halfway through. A cyan box below the meter shows one draw, 011, and the note one draw, state gone; the remaining diffusion and iteration 2 blocks are drawn dashed and labelled never runs. Bottom panel, the simulator in this page: eight bars for the outcomes 000 to 111 of Grover with three qubits, target 101, two iterations; the bar for 101 stands at 0.945313 and the other seven are slivers. The note says only a classical program can show all eight, hardware never offers this view, and on a machine you get counts, never this row.">
+        <defs>
+          <filter id="a5bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a5bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a5bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a5bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a5bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a5bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a5bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a5bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a5bH" x="30" y="26">A WAREHOUSE LETS YOU PRINT ANY STAGE. A REGISTER GIVES ONE DRAW, AND THE RUN IS OVER.</text>
+
+        <g filter="url(#a5bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel: pipeline with print taps -->
+          <rect x="30" y="44" width="390" height="196" rx="10" transform="rotate(-0.3 225 142)" fill="#FFFFFF"/>
+          <rect x="50" y="100" width="92" height="34" rx="6" fill="#EEEDF9"/>
+          <rect x="166" y="100" width="92" height="34" rx="6" fill="#EEEDF9"/>
+          <rect x="282" y="100" width="110" height="34" rx="6" fill="#EEEDF9"/>
+          <path d="M144 117 L162 117" marker-end="url(#a5bAr)"/>
+          <path d="M260 117 L278 117" marker-end="url(#a5bAr)"/>
+          <path d="M96 136 L96 166" marker-end="url(#a5bAr)"/>
+          <path d="M212 136 L212 166" marker-end="url(#a5bAr)"/>
+          <path d="M337 136 L337 166" marker-end="url(#a5bAr)"/>
+          <rect x="66" y="170" width="60" height="36" rx="3" transform="rotate(-1.5 96 188)" fill="#FFFFFF"/>
+          <rect x="182" y="170" width="60" height="36" rx="3" transform="rotate(1.2 212 188)" fill="#FFFFFF"/>
+          <rect x="307" y="170" width="60" height="36" rx="3" transform="rotate(-1 337 188)" fill="#FFFFFF"/>
+          <path d="M70 182 L122 182" stroke="#C9C9DF"/>
+          <path d="M70 194 L122 194" stroke="#C9C9DF"/>
+          <path d="M186 182 L238 182" stroke="#C9C9DF"/>
+          <path d="M186 194 L238 194" stroke="#C9C9DF"/>
+          <path d="M311 182 L363 182" stroke="#C9C9DF"/>
+          <path d="M311 194 L363 194" stroke="#C9C9DF"/>
+
+          <!-- right panel: the register -->
+          <rect x="450" y="44" width="400" height="196" rx="10" transform="rotate(0.3 650 142)" fill="#FFFFFF"/>
+          <path d="M470 102 L600 102"/>
+          <path d="M470 126 L484 126 M510 126 L526 126 M586 126 L600 126"/><rect x="484" y="113" width="26" height="26" rx="3" fill="#FFFFFF"/><rect x="526" y="113" width="60" height="26" rx="3" fill="#FFFFFF"/>
+          <path d="M470 150 L600 150"/>
+          <rect x="480" y="90" width="34" height="72" rx="5" fill="#EEEDF9"/>
+          <rect x="526" y="90" width="60" height="72" rx="5" fill="#EEEDF9"/>
+          <rect x="600" y="104" width="44" height="36" rx="4" fill="#FFFFFF"/>
+          <path d="M606 134 A16 16 0 0 1 638 134"/>
+          <path d="M622 134 L632 114"/>
+          <path d="M650 102 L834 102" stroke="#C9C9DF" stroke-dasharray="5 6"/>
+          <path d="M650 126 L666 126 M730 126 L748 126 M824 126 L834 126" stroke="#C9C9DF" stroke-dasharray="5 6"/><rect x="666" y="113" width="64" height="26" rx="3" fill="#FFFFFF" stroke="#C9C9DF" stroke-dasharray="5 6"/><rect x="748" y="113" width="76" height="26" rx="3" fill="#FFFFFF" stroke="#C9C9DF" stroke-dasharray="5 6"/>
+          <path d="M650 150 L834 150" stroke="#C9C9DF" stroke-dasharray="5 6"/>
+          <rect x="660" y="90" width="76" height="72" rx="5" stroke="#C9C9DF" stroke-dasharray="5 6" fill="#FFFFFF"/>
+          <rect x="748" y="90" width="76" height="72" rx="5" stroke="#C9C9DF" stroke-dasharray="5 6" fill="#FFFFFF"/>
+          <path d="M622 142 L622 176" marker-end="url(#a5bAr)"/>
+          <rect x="580" y="182" width="84" height="30" rx="6" transform="rotate(-1 622 197)" fill="#0E7490" stroke="#0E7490"/>
+
+          <!-- bottom panel: the simulator -->
+          <rect x="30" y="262" width="820" height="158" rx="10" transform="rotate(0.15 440 341)" fill="#FFFFFF"/>
+          <path d="M370 392 L790 392"/>
+          <rect x="380" y="389" width="30" height="3" fill="#EEEDF9"/>
+          <rect x="432" y="389" width="30" height="3" fill="#EEEDF9"/>
+          <rect x="484" y="389" width="30" height="3" fill="#EEEDF9"/>
+          <rect x="536" y="389" width="30" height="3" fill="#EEEDF9"/>
+          <rect x="588" y="389" width="30" height="3" fill="#EEEDF9"/>
+          <rect x="640" y="316" width="30" height="76" fill="url(#a5bHc)"/>
+          <rect x="692" y="389" width="30" height="3" fill="#EEEDF9"/>
+          <rect x="744" y="389" width="30" height="3" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a tiny die -->
+          <rect x="806" y="274" width="22" height="22" rx="4" fill="#FFFFFF"/>
+          <circle cx="812" cy="280" r="1.6" fill="#16153A"/>
+          <circle cx="817" cy="285" r="1.6" fill="#16153A"/>
+          <circle cx="822" cy="290" r="1.6" fill="#16153A"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="a5bL" x="46" y="68">THE WAREHOUSE HABIT</text>
+        <text class="a5bS" x="46" y="84">print any stage, then carry on</text>
+        <text class="a5bL" x="96" y="122" text-anchor="middle">extract</text>
+        <text class="a5bL" x="212" y="122" text-anchor="middle">join</text>
+        <text class="a5bL" x="337" y="122" text-anchor="middle">aggregate</text>
+        <text class="a5bA" x="106" y="156">print</text>
+        <text class="a5bA" x="222" y="156">print</text>
+        <text class="a5bA" x="347" y="156">print</text>
+        <text class="a5bS" x="46" y="228">every intermediate table is there to look at</text>
+
+        <!-- right panel text -->
+        <text class="a5bL" x="466" y="68">ON THE REGISTER</text>
+        <text class="a5bS" x="466" y="84">a read mid-circuit returns one draw and ends the run</text>
+        <text class="a5bL" x="497" y="131" text-anchor="middle">H</text>
+        <text class="a5bS" x="556" y="130" text-anchor="middle">oracle</text>
+        <text class="a5bS" x="698" y="130" text-anchor="middle">diffusion</text>
+        <text class="a5bS" x="786" y="130" text-anchor="middle">iteration 2</text>
+        <text class="a5bB" x="672" y="182">never runs</text>
+        <text class="a5bW" x="622" y="202" text-anchor="middle">011</text>
+        <text class="a5bS" x="676" y="202">one draw, state gone</text>
+
+        <!-- bottom panel text -->
+        <text class="a5bL" x="46" y="286">THE SIMULATOR IN THIS PAGE</text>
+        <text class="a5bS" x="46" y="302">a classical program, so it can show every squared amplitude</text>
+        <text class="a5bB" x="655" y="309" text-anchor="middle">0.945313</text>
+        <text class="a5bL" x="46" y="340">Hardware never offers this view.</text>
+        <text class="a5bS" x="46" y="358">On a machine you get counts, never this row.</text>
+        <text class="a5bS" x="46" y="376">Grover, n = 3, target 101, k = 2.</text>
+        <text class="a5bS" x="395" y="408" text-anchor="middle">000</text>
+        <text class="a5bS" x="759" y="408" text-anchor="middle">111</text>
+        <text class="a5bB" x="655" y="408" text-anchor="middle">101</text>
+
+        <text class="a5bN" x="30" y="446">Bars are exact squared amplitudes from QS.probs. On hardware they exist, but only shots can estimate them.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the warehouse prints every stage and carries on. The register gives one draw and the run is over; only a classical simulation can show the full row of amplitudes.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Contrast 2: you cannot print the state<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every data engineer debugs the same way. Something looks wrong at the end, so you print the table after the join, then after the filter, and find the stage where the row count jumps. It works because reading a dataframe does not change it. You can look as often as you like and the pipeline carries on with exactly what you looked at.</p>
+        <p>A register does not allow that. Session 1 established that a measurement returns one outcome, drawn with probability equal to the squared amplitude, and that afterwards the amplitudes are gone. So a read halfway through a circuit does not show you the state; it replaces the state with one draw, and the rest of the circuit runs on that draw instead of on what you wanted to inspect. In the figure, the read after the oracle returns 011 and the diffusion step that would have done the work never sees the superposition it needed.</p>
+        <p>There is no "print" that leaves the state alone. To learn what the register held at a given step you stop the circuit there, measure, and repeat the whole thing from the start many times, building a histogram one run at a time. Each step you want to inspect becomes its own experiment with its own shot budget.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the page can show you what hardware cannot<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every session so far has shown you the full row of amplitudes: the bars in the figure, the curves in session 2, the table in session 1's widget. That view exists only because the simulator in this page is a classical program. It holds the 2 to the n numbers in ordinary memory and prints them, which is precisely what a real register forbids. The simulator is a teaching instrument and a test harness, and its honesty depends on saying so.</p>
+        <p>Two consequences for a plan. First, validation done on a simulator, where every amplitude is visible, is not the same activity as validation on hardware, where only counts are. Both are needed, and they are different line items. Second, the simulator only reaches the low twenties of qubits, as session 1's table showed, so beyond that there is no full view to compare against at all, and validation has to lean on problems whose answer is known in advance.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's constructed template has a validate line that says "spot-check intermediate outputs". The analytics lead's first rewrite was "spot-check intermediate amplitudes on the vendor's machine". There is no such check. The honest version has two lines: inspect amplitudes on a simulator at small sizes, and on hardware compare sampled outputs against a case whose answer the team already knows.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers ground truth and the feedback loop</span>
+      <h2>The answer is a sample, and depth makes it wrong</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">The next two habits are about the answer itself. A warehouse query returns an exact number once. A warehouse pipeline that runs longer is slower, never less correct. On a register the answer arrives as counts with an error bar, every count costs a full run, and every extra gate is another chance for the answer to be scrambled.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison of what an answer looks like. Left panel, the warehouse habit: a table, a query arrow down to a result box reading 0.945313, labelled one query, one exact number, no error bar, no second run. Middle panel, on the register: a histogram of 1,000 shots with seed 7 from Grover with three qubits and two iterations; the cyan bar for outcome 101 stands at 952 and the other seven outcomes are slivers with counts 12, 7, 4, 3, 6, 8 and 8. Right panel, what you can say: an estimate of 0.952 from 952 of 1,000 shots, a standard error of about 0.007 from the square root of p times one minus p over shots, and the exact 0.945313 which only a simulator knows. A band says every shot is a full run of all 31 gates, a thousand times, with the note that 31 counts the oracle and the multi-controlled flip as one gate each, which undercounts hardware. The bottom note says one qubit after H at 100 shots with seed 7 gives 43 and 57 against an exact 50 and 50.">
+        <defs>
+          <filter id="a5cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="57" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a5cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a5cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a5cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a5cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a5cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a5cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a5cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a5cH" x="30" y="26">A QUERY RETURNS THE ANSWER. A REGISTER RETURNS COUNTS; EVERY PROBABILITY IS AN ESTIMATE.</text>
+
+        <g filter="url(#a5cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel -->
+          <rect x="30" y="44" width="250" height="250" rx="10" transform="rotate(-0.4 155 169)" fill="#FFFFFF"/>
+          <rect x="56" y="100" width="198" height="56" rx="6" transform="rotate(0.5 155 128)" fill="url(#a5cHc)"/>
+          <path d="M62 118 L248 118"/>
+          <path d="M62 138 L248 138"/>
+          <path d="M155 160 L155 194" marker-end="url(#a5cAr)"/>
+          <rect x="70" y="200" width="170" height="40" rx="6" transform="rotate(-0.6 155 220)" fill="#FFFFFF"/>
+
+          <!-- middle panel -->
+          <rect x="300" y="44" width="340" height="250" rx="10" transform="rotate(0.3 470 169)" fill="#FFFFFF"/>
+          <path d="M320 250 L624 250"/>
+          <rect x="328" y="247" width="22" height="3" fill="#EEEDF9"/>
+          <rect x="364" y="248" width="22" height="2" fill="#EEEDF9"/>
+          <rect x="400" y="248" width="22" height="2" fill="#EEEDF9"/>
+          <rect x="436" y="248" width="22" height="2" fill="#EEEDF9"/>
+          <rect x="472" y="248" width="22" height="2" fill="#EEEDF9"/>
+          <rect x="508" y="110" width="22" height="140" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="544" y="248" width="22" height="2" fill="#EEEDF9"/>
+          <rect x="580" y="248" width="22" height="2" fill="#EEEDF9"/>
+
+          <!-- right panel -->
+          <rect x="660" y="44" width="190" height="250" rx="10" transform="rotate(-0.3 755 169)" fill="#EEEDF9"/>
+
+          <!-- band -->
+          <rect x="30" y="316" width="820" height="60" rx="10" transform="rotate(-0.15 440 346)" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a tiny coin -->
+          <circle cx="262" cy="66" r="10" fill="#FFFFFF"/>
+          <path d="M262 60 L262 72 M256 66 L268 66"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="a5cL" x="46" y="68">THE WAREHOUSE HABIT</text>
+        <text class="a5cS" x="46" y="84">a query returns the exact figure</text>
+        <text class="a5cA" x="168" y="182">query</text>
+        <text class="a5cV" x="155" y="226" text-anchor="middle">0.945313</text>
+        <text class="a5cS" x="46" y="262">one query, one exact number</text>
+        <text class="a5cS" x="46" y="278">no error bar, no second run</text>
+
+        <!-- middle panel text -->
+        <text class="a5cL" x="316" y="68">ON THE REGISTER</text>
+        <text class="a5cS" x="316" y="84">1,000 shots, seed 7, Grover n = 3, k = 2</text>
+        <text class="a5cV" x="519" y="104" text-anchor="middle">952</text>
+        <text class="a5cB" x="519" y="266" text-anchor="middle">101</text>
+        <text class="a5cS" x="316" y="284">the other seven: 12, 7, 4, 3, 6, 8, 8</text>
+
+        <!-- right panel text -->
+        <text class="a5cL" x="676" y="72">WHAT YOU CAN SAY</text>
+        <text class="a5cA" x="676" y="98">ESTIMATE</text>
+        <text class="a5cV" x="676" y="120">0.952</text>
+        <text class="a5cS" x="676" y="138">952 of 1,000 shots</text>
+        <text class="a5cA" x="676" y="170">STANDARD ERROR</text>
+        <text class="a5cV" x="676" y="192">about 0.007</text>
+        <text class="a5cS" x="676" y="210">sqrt(p(1 - p)/shots)</text>
+        <text class="a5cA" x="676" y="240">EXACT</text>
+        <text class="a5cB" x="676" y="258">0.945313</text>
+        <text class="a5cS" x="676" y="276">only a simulator knows</text>
+
+        <!-- band text -->
+        <text class="a5cH" x="46" y="340">Every shot is a full run: all 31 gates of this circuit, again, a thousand times.</text>
+        <text class="a5cN" x="46" y="360">31 counts the oracle and the multi-controlled flip as one gate each, which undercounts hardware.</text>
+
+        <text class="a5cN" x="30" y="404">Same rule on one qubit after H: 100 shots, seed 7, gives 43 / 57 against an exact 50 / 50.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the warehouse hands back 0.945313 once. The register hands back 952 of 1,000, an estimate of 0.952 with an error of about 0.007, and every one of those thousand counts was a full run.</figcaption>
+    </figure>
+
+    <div class="wk" id="a5-shots">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Sampled from the simulator; hardware adds noise. Grover on three qubits, target 101, two iterations, run in this page by the course's statevector simulator. Every count, estimate and error below is computed now; nothing is looked up.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a5-shots-n">How many shots to take</label>
+        <select class="sql-code" id="a5-shots-n">
+          <option value="10">10</option>
+          <option value="100">100</option>
+          <option value="1000" selected>1,000</option>
+          <option value="10000">10,000</option>
+        </select>
+        <label class="sql-label" for="a5-shots-seed">Which draw</label>
+        <select class="sql-code" id="a5-shots-seed">
+          <option value="7" selected>Seed 7</option>
+          <option value="11">Seed 11</option>
+          <option value="2026">Seed 2026</option>
+        </select>
+        <div id="a5-shots-out"></div>
+        <p class="sql-note" id="a5-shots-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a5-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Contrast 3: the ground truth is a sample<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Leave the widget at 1,000 shots and seed 7. The target comes back 952 times. The honest report is not "the probability is 0.952". It is "an estimate of 0.952 with a standard error of about 0.007", using the square root of p times one minus p over the number of shots, the same arithmetic session 1 used and every A/B test uses. The exact figure, 0.945313, sits inside one standard error of the estimate. You can see it here only because the simulator is a classical program; on hardware it is the thing you are trying to estimate and you never get to read it.</p>
+        <p>Now drop to 100 shots and change the seed. The estimate moves by several hundredths from draw to draw, and the error bar widens to match. Drop to 10 shots and some draws put every shot on the target, which makes the formula return an error of zero. That is not certainty. It is a sample too small to measure its own uncertainty, and a team that reports it as certain has made the oldest mistake in statistics on the newest machine.</p>
+        <p>Then look at the shot bill. Each shot is a complete run of the circuit, 31 gates here with the oracle and the multi-controlled flip counted as one each, which undercounts hardware. Halving the error needs four times the shots, so precision is bought in whole runs. In a warehouse the second decimal place is free. Here it has a price, and the plan has to state it.</p>
+      </div>
+    </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 446" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn comparison of what length does. Left panel, the warehouse habit: three pipelines of growing length, a short one, one twice as long and one four times as long, each labelled still right; time grows and the answer does not move. Middle panel, on the register at depth: ten qubits, 1,060 gates deep; success probability bars for an error of p per gate: 0.999461 at p equal to 0, a cyan bar of 0.346724 at p equal to 0.001, and 0.001000 at p equal to 0.01, which lands on the uniform floor of one over N. Right panel, the anti-lever: success at p equal to 0.005 with each qubit count at its optimum, a falling line of nine points from 0.9562 at two qubits to 0.0059 at ten. A band says a warehouse pays for length in minutes and a register pays in correctness, and that the kept fraction after G gates is one minus p to the G, which at p equal to 0.01 and 1,060 gates is 0.00002. The bottom note says the model is one global depolarising parameter per gate with the oracle counted as one gate, so real hardware does worse.">
+        <defs>
+          <filter id="a5dSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="59" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5dHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5dH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a5dL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a5dS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a5dB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a5dV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a5dW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a5dA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a5dN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a5dH" x="30" y="26">A LONGER PIPELINE IS SLOWER BUT RIGHT. A DEEPER CIRCUIT IS WRONG.</text>
+
+        <g filter="url(#a5dSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left panel -->
+          <rect x="30" y="44" width="260" height="280" rx="10" transform="rotate(-0.4 160 184)" fill="#FFFFFF"/>
+          <rect x="46" y="112" width="70" height="14" rx="3" fill="#EEEDF9"/>
+          <rect x="46" y="160" width="140" height="14" rx="3" fill="#EEEDF9"/>
+          <rect x="46" y="208" width="230" height="14" rx="3" transform="rotate(-0.3 161 215)" fill="#EEEDF9"/>
+
+          <!-- middle panel -->
+          <rect x="310" y="44" width="260" height="280" rx="10" transform="rotate(0.3 440 184)" fill="#FFFFFF"/>
+          <path d="M326 262 L556 262"/>
+          <rect x="334" y="112" width="36" height="150" fill="#EEEDF9"/>
+          <rect x="418" y="210" width="36" height="52" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="502" y="260" width="36" height="2" fill="#EEEDF9"/>
+
+          <!-- right panel -->
+          <rect x="590" y="44" width="260" height="280" rx="10" transform="rotate(-0.3 720 184)" fill="#FFFFFF"/>
+          <path d="M604 262 L836 262"/>
+          <path d="M616 118.6 L642 137.9 L668 151.8 L694 166.2 L720 194.3 L746 217.9 L772 242.8 L798 256.1 L824 261.1" stroke="#3730A3"/>
+          <circle cx="616" cy="118.6" r="4" fill="#FFFFFF"/>
+          <circle cx="642" cy="137.9" r="4" fill="#FFFFFF"/>
+          <circle cx="668" cy="151.8" r="4" fill="#FFFFFF"/>
+          <circle cx="694" cy="166.2" r="4" fill="#FFFFFF"/>
+          <circle cx="720" cy="194.3" r="4" fill="#FFFFFF"/>
+          <circle cx="746" cy="217.9" r="4" fill="#FFFFFF"/>
+          <circle cx="772" cy="242.8" r="4" fill="#FFFFFF"/>
+          <circle cx="798" cy="256.1" r="4" fill="#FFFFFF"/>
+          <circle cx="824" cy="261.1" r="4" fill="#FFFFFF"/>
+
+          <!-- band -->
+          <rect x="30" y="344" width="820" height="60" rx="10" transform="rotate(0.15 440 374)" fill="#EEEDF9"/>
+
+          <!-- doodle anchor: a tiny dial -->
+          <circle cx="268" cy="66" r="10" fill="#FFFFFF"/>
+          <path d="M268 66 L274 59"/>
+        </g>
+
+        <!-- left panel text -->
+        <text class="a5dL" x="46" y="68">THE WAREHOUSE HABIT</text>
+        <text class="a5dS" x="46" y="84">add stages, wait longer</text>
+        <text class="a5dS" x="46" y="106">short pipeline: right</text>
+        <text class="a5dS" x="46" y="154">twice as long: slower, still right</text>
+        <text class="a5dS" x="46" y="202">four times as long: still right</text>
+        <text class="a5dS" x="46" y="256">time grows; the answer does not move</text>
+        <text class="a5dS" x="46" y="272">length costs minutes, never correctness</text>
+
+        <!-- middle panel text -->
+        <text class="a5dL" x="326" y="68">ON THE REGISTER: DEPTH</text>
+        <text class="a5dS" x="326" y="84">10 qubits, 1,060 gates deep</text>
+        <text class="a5dB" x="352" y="106" text-anchor="middle">0.999461</text>
+        <text class="a5dB" x="436" y="204" text-anchor="middle">0.346724</text>
+        <text class="a5dB" x="520" y="254" text-anchor="middle">0.001000</text>
+        <text class="a5dS" x="352" y="280" text-anchor="middle">p = 0</text>
+        <text class="a5dS" x="436" y="280" text-anchor="middle">p = 0.001</text>
+        <text class="a5dS" x="520" y="280" text-anchor="middle">p = 0.01</text>
+        <text class="a5dS" x="326" y="304">p = 0.01 lands on the floor, 1/N</text>
+
+        <!-- right panel text -->
+        <text class="a5dL" x="606" y="68">ADD QUBITS, SAME NOISE</text>
+        <text class="a5dS" x="606" y="84">p = 0.005, each n at its optimum</text>
+        <text class="a5dB" x="616" y="108" text-anchor="middle">0.9562</text>
+        <text class="a5dB" x="840" y="244" text-anchor="end">0.0059</text>
+        <text class="a5dS" x="616" y="280" text-anchor="middle">n = 2</text>
+        <text class="a5dS" x="824" y="280" text-anchor="middle">n = 10</text>
+        <text class="a5dS" x="606" y="304">the lever that always makes it worse</text>
+
+        <!-- band text -->
+        <text class="a5dH" x="46" y="368">A warehouse pays for length in minutes. A register pays in correctness, and it compounds.</text>
+        <text class="a5dN" x="46" y="388">Kept fraction after G gates is (1 - p) to the G: at p = 0.01 and 1,060 gates it is 0.00002.</text>
+
+        <text class="a5dN" x="30" y="430">Modelled: one global depolarising parameter per gate, oracle counted as one gate. Real hardware does worse.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a longer warehouse job is late; a deeper circuit is wrong. One error per thousand gates takes ten qubits from 0.999461 to 0.346724, and adding qubits under the same noise only makes it worse.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Contrast 4: depth destroys the answer<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In a warehouse the feedback loop is forgiving. A pipeline that grew from three stages to twelve is slower, maybe embarrassingly so, but the number at the end is still right. So the team's instinct when something is not good enough is to add: more stages, more features, more data.</p>
+        <p>On a register every gate carries a chance of scrambling the state, and the chances multiply. The noise here is modelled: one global depolarising parameter per gate, which is kinder than hardware because real errors are structured and a real oracle is many gates, not one. Even so, Grover on ten qubits at its ideal depth of 1,060 gates (oracle and multi-controlled flip counted as one gate each, which undercounts hardware) succeeds with probability 0.999461 with no noise. At one error per thousand gates it falls to 0.346724. At one per hundred it is 0.001000, which is the uniform floor of one over 1,024 to three decimals: the circuit is now a very expensive random number generator.</p>
+        <p>And the instinct to add makes it worse. At p = 0.005 per gate, each qubit count run at its own optimum, success falls from 0.9562 on two qubits to 0.0059 on ten, monotonically, every step of the way. Each added qubit doubles the search space and lengthens the circuit, and length is what the noise charges for. "Add more qubits" is the lever that always makes the number worse.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's constructed template says "Iterate: add qubits until it works", which is the warehouse instinct of adding features until the model is good enough. Under realistic noise that loop runs the wrong way. The honest iterate line caps depth first and asks how many gates the answer can survive, and only then asks how big a problem fits under that cap.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where serious people disagree: when a useful machine arrives<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The fifth habit, planning to a date, needs a date to plan to. The primary sources do not supply one, and they disagree in ways that are worth reading side by side rather than averaging.</p>
+        <ul>
+          <li><strong>Preskill 2018.</strong> Noisy intermediate-scale devices are the near term; noise in the gates limits the size of circuit that can run reliably; more accurate gates and "eventually" fault tolerance are the longer path. No date is given.</li>
+          <li><strong>NIST IR 8547, initial public draft, 2024.</strong> Plans as if a capable machine may arrive within the secrecy life of data encrypted today, and says the migration must begin "even if quantum computers are a decade away". It proposes 2030 and 2035 as deprecation and disallowance years for today's public-key algorithms. Those are proposed policy dates in a draft, not a forecast of hardware.</li>
+          <li><strong>Aaronson 2015.</strong> Writes "supposing we had a quantum computer" and spends the essay on what it would be good for. The question of when is set aside, not answered.</li>
+        </ul>
+        <p>These sessions resolve nothing and give no year for a useful machine. What they do instead is notice that the three stances lead to the same action on one specific asset. Part 3 draws it.</p>
+        <p>Sources: Preskill, J. (2018). Quantum computing in the NISQ era and beyond. Quantum 2, 79; arXiv 1801.00862. Moody, D., Perlner, R., Regenscheid, A., Robinson, A. and Cooper, D. (2024). Transition to Post-Quantum Cryptography Standards. NIST IR 8547 ipd, initial public draft, November 2024. Aaronson, S. (2015). Quantum machine learning algorithms: read the fine print. Nature Physics 11, 291-293. CISA, NSA and NIST (2023). Quantum-Readiness: Migration to Post-Quantum Cryptography. Factsheet, 17 August 2023.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Rewrite the project plan</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Brindle's constructed project template has four lines and a date box: source, validate, iterate, ship on a date. Six steps rewrite it for a quantum pilot, one contrast at a time, and the last line is one the template never had. The drawing is the fifth contrast, the one the date box hides.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 426" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn timeline with no dates. From a circle marked today, three arrows diverge to the right with no axis and no years. The top arrow, dashed, ends at Preskill 2018: fault tolerance eventually, no date. The middle arrow, solid, ends at NIST IR 8547, draft: migrate now, even if a decade away. The bottom arrow, dotted, ends at Aaronson 2015: supposing we had one, what for. Underneath all three runs a long cyan bar for Brindle's constructed encrypted backups, data that must stay secret long after today, and it extends past the tip of every arrow, with a small padlock at its start. Notes say harvest now, decrypt later means a copy taken today can be read whenever any arrow arrives, and give NIST IR 8547's planning rule: migration time plus secrecy life must not exceed the time to a relevant machine. The bottom note says there is no axis on purpose because no source gives a year, and the draft's 2030 and 2035 are proposed policy dates.">
+        <defs>
+          <filter id="a5eSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="61" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="a5eHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="a5eAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .a5eH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .a5eL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .a5eS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .a5eB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .a5eV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .a5eW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a5eA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .a5eN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="a5eH" x="30" y="26">THREE STANCES, NO DATES. THE ARCHIVE'S SECRECY LIFE IS THE LENGTH BRINDLE CAN MEASURE.</text>
+
+        <g filter="url(#a5eSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- today -->
+          <circle cx="90" cy="170" r="18" fill="#EEEDF9"/>
+
+          <!-- three diverging arrows, no axis -->
+          <path d="M110 162 C 260 120, 420 90, 552 82" stroke-dasharray="8 7" marker-end="url(#a5eAr)"/>
+          <path d="M110 170 L552 170" marker-end="url(#a5eAr)"/>
+          <path d="M110 178 C 260 220, 420 250, 552 258" stroke-dasharray="2 6" marker-end="url(#a5eAr)"/>
+
+          <!-- stance boxes -->
+          <rect x="560" y="56" width="280" height="52" rx="8" transform="rotate(-0.4 700 82)" fill="#FFFFFF"/>
+          <rect x="560" y="144" width="280" height="52" rx="8" transform="rotate(0.3 700 170)" fill="#EEEDF9"/>
+          <rect x="560" y="232" width="280" height="52" rx="8" transform="rotate(-0.3 700 258)" fill="#FFFFFF"/>
+
+          <!-- the archive: secrecy life outlasts every arrow -->
+          <rect x="60" y="316" width="790" height="28" rx="6" transform="rotate(0.1 455 330)" fill="#0E7490" stroke="#0E7490"/>
+          <path d="M846 330 L870 330" stroke="#0E7490" marker-end="url(#a5eAr)"/>
+
+          <!-- doodle anchor: a tiny padlock -->
+          <rect x="34" y="324" width="18" height="16" rx="3" fill="#FFFFFF"/>
+          <path d="M37 324 L37 318 A6 6 0 0 1 49 318 L49 324"/>
+        </g>
+
+        <text class="a5eL" x="90" y="206" text-anchor="middle">today</text>
+
+        <text class="a5eL" x="576" y="78">Preskill 2018</text>
+        <text class="a5eS" x="576" y="96">fault tolerance "eventually"; no date</text>
+        <text class="a5eL" x="576" y="166">NIST IR 8547, draft</text>
+        <text class="a5eS" x="576" y="184">migrate now, "even if a decade away"</text>
+        <text class="a5eL" x="576" y="254">Aaronson 2015</text>
+        <text class="a5eS" x="576" y="272">"supposing we had one"; what for?</text>
+
+        <text class="a5eW" x="76" y="335">Brindle's encrypted backups, constructed: data that must stay secret long after today</text>
+
+        <text class="a5eS" x="46" y="366">Harvest now, decrypt later: a copy taken today can be read whenever any arrow above arrives.</text>
+        <text class="a5eN" x="46" y="386">NIST IR 8547's planning rule: migration time + secrecy life must not exceed time to a relevant machine.</text>
+
+        <text class="a5eN" x="30" y="414">No axis on purpose: no source gives a year. The draft's 2030 and 2035 are proposed policy dates.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the three arrows disagree on when, and none gives a year. The cyan bar does not depend on which one is right: the archive has to stay secret past every one of them.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step"><div>
+        <h4>Copy the template exactly</h4>
+        <p>Four lines and a box: Source, the customer table (existing). Validate, spot-check intermediate outputs. Iterate, add qubits until it works. Ship, the vendor's quarter. Write them down the left of a page, word for word, and leave the right half empty. Each habit gets rewritten in its own words, not paraphrased away.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Rewrite Source as a cost</h4>
+        <p>Replace "existing" with the load. 12,000,000 writes per load, and how often the table is reloaded, so R, the searches per load, is a number. Copy the session 3 model beside it: load 1 per row, query cost log2 N, R searches per load. If R is 1, write "a scan wins" on the line and stop there; the other lines only matter if the window is open.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Split Validate in two</h4>
+        <p>"Spot-check intermediate outputs" becomes two lines. One: inspect amplitudes on a simulator at small sizes, where the full row is visible because it is a classical program. Two: on hardware, compare sampled outputs against a case whose answer is already known, because there is no intermediate state to print and every look is a fresh experiment.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Add a Measure line with a shot budget</h4>
+        <p>The template never had one, because a warehouse query is exact. Write the error you need, then the shots it costs: near a probability of 0.95, about 0.007 takes 1,000 shots, and halving it takes four times as many. Every shot is a full run of the circuit. Put the number of runs in the budget column, not the number of answers.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Turn Iterate round</h4>
+        <p>Cross out "add qubits until it works" and write "cap depth, then size the problem under the cap". Quote the anti-lever beside it: at a modelled p = 0.005 per gate, success falls from 0.9562 on two qubits to 0.0059 on ten, and the model is kinder than hardware. The question for the vendor is how many gates their answer survives, not how many qubits they have.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Replace the date box with a secrecy life</h4>
+        <p>Delete the vendor's quarter. In its place write the three stances, Preskill "eventually", NIST draft "even if a decade away", Aaronson "supposing we had one", and no year. Under them write the one length Brindle can measure: how long the twenty years of encrypted backups must stay secret. That number, not a vendor date, is what session 6 builds the inventory on.</p>
+      </div></div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Plan on what you can measure: the load in writes, the depth in gates, the precision in shots, and how long your data must stay secret. Never plan on a vendor date. The first four are numbers your team can check this week; the date is a stance in a contested literature, and a plan built on it inherits the dispute.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Brindle's analyst wants to debug the pilot circuit the way she debugs a pipeline: print the state after the oracle, then carry on. Why can she not?</p>
+      <div class="qopt">A · She can, but printing slows the circuit and adds noise</div>
+      <div class="qopt">B · The vendor's tools do not yet support a print command, though a later version might</div>
+      <div class="qopt">C · Reading the register returns one sampled outcome and replaces the state with it, so the rest of the circuit runs on that draw; the full row of amplitudes is visible only in a classical simulation, which hardware never offers</div>
+      <q class="qwhy">This is mechanism, not tooling, so no later version fixes it. A measurement is a draw that ends the superposition the circuit needed. To learn what the register held at a step you stop there, measure, and repeat the whole run many times, which makes each inspection its own experiment with its own shot budget.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Grover on three qubits, target 101, two iterations, 1,000 shots with seed 7, puts 952 shots on the target. What does that tell the team, and with what error?</p>
+      <div class="qopt">A · An estimate of 0.952 with a standard error of about 0.007, the square root of p(1 - p) over 1,000; the exact 0.945313 lies within one standard error, and on hardware the exact figure is never available to compare against</div>
+      <div class="qopt">B · The target's probability is exactly 0.952, because 1,000 shots is a large sample</div>
+      <div class="qopt">C · The circuit is faulty, because 952 is not 945</div>
+      <q class="qwhy">Counts estimate a probability; they never read it. The gap of about 0.007 between 0.952 and 0.945313 is ordinary sampling, the same arithmetic as an A/B test. Halving the error would take about 4,000 shots, each one a full run of the 31-gate circuit, counted with the oracle as one gate, which undercounts hardware.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A vendor proposes to improve a disappointing result by moving from six qubits to ten at the same error rate per gate. Under the modelled noise, what happens?</p>
+      <div class="qopt">A · Success improves, because ten qubits search a larger space with more precision</div>
+      <div class="qopt">B · Success falls, because each added qubit doubles the space and lengthens the circuit at its optimum, and noise compounds per gate: at p = 0.005 it goes from 0.4511 on six qubits to 0.0059 on ten</div>
+      <div class="qopt">C · Nothing changes, because the noise rate per gate is the same</div>
+      <q class="qwhy">The rate per gate is the same, but the number of gates is not: 162 at six qubits against 1,060 at ten, counting the oracle as one gate, which undercounts hardware. The kept fraction is (1 - p) to the number of gates, so more gates means less of the answer survives. The model is one global depolarising parameter and kinder than hardware, so the real fall is steeper.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 6</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, with your own organisation in mind rather than Brindle. Session 6 builds an inventory, and it starts from the list you bring.</p>
+    <div class="steps">
+      <div class="step"><div>
+        <h4>List three systems that hold long-lived secrets</h4>
+        <p>Name three systems at your organisation that hold data which must stay secret for more than ten years. Backups and archives are the obvious first place to look; records kept for legal or contractual reasons, and anything personal or medical, are the usual next ones. Session 6 inventories them.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Give each one a secrecy life and an owner</h4>
+        <p>Beside each system write how long its data must stay secret, in years, with the reason, and the name of the team that owns it. Where you do not know the number, write "unknown" and the person who would; that is a finding, not a gap.</p>
+      </div></div>
+      <div class="step"><div>
+        <h4>Bring the rewritten plan</h4>
+        <p>The six lines from the build-along. Session 6 sorts every line into what carries over from a data team's practice, what has to be learned, and what has to be unlearned.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The source as a cost</span><span class="note">N writes before the first query; one search over fresh rows loses at ingest (load 1 per row, query cost log2 N, R = 1).</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">No intermediate inspection</span><span class="note">A read mid-circuit returns one draw and ends the run; no debugging by printing state.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Sampled ground truth and shot cost</span><span class="note">952 of 1,000 as an estimate with an error of about 0.007; every shot a full run, sampled live in the page.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Noise with depth</span><span class="note">Ten qubits, 1,060 gates: 0.999461 ideal, 0.346724 at p = 0.001, the floor at p = 0.01. Modelled, kinder than hardware.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The anti-lever</span><span class="note">More qubits under fixed noise: 0.9562 on two to 0.0059 on ten at p = 0.005, modelled.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The contested timeline</span><span class="note">Preskill, the NIST draft and Aaronson side by side; no year given; harvest now, decrypt later.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The post-quantum inventory</span><span class="note">Motivated by the archive's secrecy life; session 6 and practitioner session 9 build it.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Error correction</span><span class="note">Named as the published long-term answer to noise; not taught here or anywhere on the hub.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Hardware physics</span><span class="note">How any machine realises a qubit is out of scope; the simulator is the hardware here.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The source.</strong> Not a given. N classical rows cost N writes before query 1 (model: load 1 per row, query cost log2 N, R per load).</div>
+      <div class="cheat-item"><strong>The state.</strong> No printing it. A read mid-circuit returns one draw and ends the run; each inspection is its own experiment.</div>
+      <div class="cheat-item"><strong>The simulator.</strong> Shows every amplitude because it is a classical program. Hardware never offers that view.</div>
+      <div class="cheat-item"><strong>The ground truth.</strong> A count, not an answer. 952 of 1,000 is 0.952 with a standard error of about 0.007; exact is 0.945313.</div>
+      <div class="cheat-item"><strong>The shot bill.</strong> Every shot is a full run. Halving the error costs four times the shots. Budget runs, not answers.</div>
+      <div class="cheat-item"><strong>The depth.</strong> Modelled, kinder than hardware: ten qubits, 1,060 gates, 0.999461 becomes 0.346724 at p = 0.001 and the floor at p = 0.01.</div>
+      <div class="cheat-item"><strong>The anti-lever.</strong> At p = 0.005 each added qubit makes it worse: 0.9562 on two to 0.0059 on ten.</div>
+      <div class="cheat-item"><strong>The timeline.</strong> Preskill "eventually", NIST draft "even if a decade away", Aaronson "supposing we had one". No year. Plan on secrecy life.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 5 of 6 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a4-when-the-classical-algorithm-catches-up.html">← Leader session 4 · When the classical algorithm catches up</a>
+        <a href="a6-from-data-team-to-quantum-ready.html">Leader session 6 · From data team to quantum-ready: the transfer map →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var shotsSel = document.getElementById("a5-shots-n");
+  var seedSel = document.getElementById("a5-shots-seed");
+  var out = document.getElementById("a5-shots-out");
+  var verdict = document.getElementById("a5-shots-verdict");
+  var self = document.getElementById("a5-self");
+  var N_QUBITS = 3, TARGET = 5, K = 2;
+
+  function comma(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function bits(i) {
+    var s = "";
+    for (var q = N_QUBITS - 1; q >= 0; q--) s += String((i >> q) & 1);
+    return s;
+  }
+
+  function render() {
+    var shots = Number(shotsSel.value), seed = Number(seedSel.value);
+    var s = QS.grover(N_QUBITS, TARGET, K);
+    var exact = QS.probs(s)[TARGET];
+    var counts = QS.sample(s, shots, seed);
+    var est = counts[TARGET] / shots;
+    var se = Math.sqrt(est * (1 - est) / shots);
+    var gap = Math.abs(est - exact);
+
+    var html = '<table class="sql-table"><thead><tr><th>Outcome</th>';
+    for (var i = 0; i < s.N; i++) html += "<th>" + bits(i) + "</th>";
+    html += "</tr></thead><tbody><tr><td>Counts in " + comma(shots) + " shots</td>";
+    for (var j = 0; j < s.N; j++) html += "<td>" + (j === TARGET ? "<b>" + comma(counts[j]) + "</b>" : comma(counts[j])) + "</td>";
+    html += "</tr></tbody></table>";
+    html += '<table class="sql-table"><thead><tr><th>Quantity</th><th>Value</th><th>What it is</th></tr></thead><tbody>';
+    html += "<tr><td>Estimated probability of " + bits(TARGET) + "</td><td><b>" + est.toFixed(3) + "</b></td><td>counts on the target over shots; all a data team ever receives</td></tr>";
+    html += "<tr><td>Standard error</td><td>" + se.toFixed(3) + "</td><td>sqrt(p(1 - p)/shots), from the estimate</td></tr>";
+    html += "<tr><td>Exact probability, from the amplitudes</td><td>" + exact.toFixed(6) + "</td><td>visible only because this is a classical simulation</td></tr>";
+    html += "<tr><td>Full runs of the circuit</td><td>" + comma(shots) + "</td><td>" + s.gates + " gates each, " + comma(shots * s.gates) + " gate applications; oracle counted as one gate, which undercounts hardware</td></tr>";
+    html += "</tbody></table>";
+    out.innerHTML = html;
+
+    var msg = "The target " + bits(TARGET) + " came up " + comma(counts[TARGET]) + " times in " + comma(shots) + " shots: an estimate of " + est.toFixed(3)
+      + " with a standard error of about " + se.toFixed(3) + ", against an exact " + exact.toFixed(6) + ". ";
+    if (se === 0) {
+      msg += "Every shot landed on one side, so the formula returns zero error. That is a sample too small to measure its own uncertainty, not certainty.";
+    } else if (gap <= 2 * se) {
+      msg += "The gap of " + gap.toFixed(3) + " is within two standard errors: ordinary sampling, not a fault.";
+    } else {
+      msg += "The gap of " + gap.toFixed(3) + " is beyond two standard errors, which happens about one draw in twenty.";
+    }
+    msg += " On hardware the exact figure is never shown, and noise moves the counts further.";
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The simulator's seven properties pass in this browser, so the counts above are the counts any correct run gives for this seed. The simulator is exact and noiseless; no real machine is."
+    : "The simulator's self test did not pass in this browser, so nothing above should be believed.";
+
+  shotsSel.addEventListener("change", render);
+  seedSel.addEventListener("change", render);
+  render();
+})();
+</script>
+<style>
+  #a5-shots .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 14rem; }
+  #a5-shots table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+</style>
+</body>
+</html>

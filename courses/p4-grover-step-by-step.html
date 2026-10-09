@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 4 of 10. Grover's search is two moves on an array: negate one entry, then reflect every entry about the mean. Step it one press at a time to the optimum and past it, then build it in numpy from an empty file and match five exact numbers.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Grover step by step - learn quantum with phoebe">
+<meta property="og:description" content="Practitioner session 4 of 10. One sign flip, one reflection, repeated about pi/4 sqrt N times. Then stop, because the next iteration makes it worse.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/courses/p4-grover-step-by-step.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Grover step by step - learn quantum with phoebe">
+<meta name="twitter:description" content="0.125, 0.781, 0.945, 0.330. The third iteration on three qubits is the one that teaches you to compute k first.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 4 · Grover step by step - learn quantum with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-quantum-with-phoebe</a> / Practitioner session 4 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Quantum with Phoebe · Practitioner session 4 of 10</div>
+    <h1>Grover <span class="accent">step by step</span></h1>
+    <p class="sub">Brindle's engineer has been handed the one slide in the vendor deck that promises faster search, and has decided to implement the algorithm underneath it before anyone argues about it. It turns out to be two moves on an array: negate one entry, then reflect every entry about the mean. Today you watch those two moves on eight amplitudes, press them one iteration at a time up to the optimum and past it, and build the whole thing in numpy from an empty file, with five exact numbers to check yourself against.</p>
+    <div class="chip-row">
+      <span class="chip level">🔧 Practitioner track</span>
+      <span class="chip audience">Anyone who will be asked whether quantum search applies to their data</span>
+      <span class="chip audience">Has the session 1 simulator, or reads numpy comfortably</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-15 · Oracle and diffusion</span>
+      <span class="a3" style="flex:3">15-25 · Step to the optimum</span>
+      <span class="a4" style="flex:7">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Brindle's engineer opens the algorithm under the word search</h2>
+    </div>
+    <p class="lede">Every quantum search claim descends from one algorithm, Grover's, and the algorithm is small enough to read in full. It does not look anything up. It starts from a register where every index is equally likely, applies a sign flip and a reflection, and repeats that pair a number of times fixed by the size of the register. Leader session 2 argues about what the picture means; this session writes the code, counts the gates and finds the iteration where the answer is best and the one after it where the answer gets worse.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> A numpy Grover of about forty lines that prints 0.1250, 0.7813, 0.9453, 0.3301 and 0.0122 for the target on three qubits, the same five numbers the page's engine prints. The gate sequence of the diffusion step, and the one line of algebra it equals. The rule for how many iterations to run, computed before running, and the reason one iteration too many is a worse answer rather than a safer one.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The slide, and the function it reduces to<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Strip the adjectives off a quantum search claim and it reduces to one function with three arguments: the number of qubits, the item being searched for, and the number of iterations. It returns a register whose target square is close to one, so a single measurement probably returns the target. The first two arguments are the problem. The third is the one no slide mentions, and it is the one this session is about: it has to be computed from the size of the register, and a larger value than the right one gives a worse answer.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle is a constructed retailer, and its engineer is too. She started from the 12 million customer rows the deck gestures at. Twenty-four qubits give 16,777,216 indices, enough to hold them, and the closed form puts the optimum at about 3,217 iterations against 8,388,608 classical lookups for a one-half chance, a factor of about 2,600. Those three numbers are arithmetic from the closed form, not a simulation, because twenty-four qubits is past the simulator. She wrote them on the whiteboard, noted that session 6 still has to say what loading the rows costs, and went back to three qubits, where every line can be checked.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The vocabulary, in code terms<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Oracle.</strong> The operation that marks the item being searched for. In the simulator, one line that negates the amplitude at the target index. On a real problem, a circuit that recognises the target, whatever index it is handed.</li>
+          <li><strong>Phase flip.</strong> Multiplying one amplitude by -1. Its square, and so every measurement probability, is unchanged.</li>
+          <li><strong>Diffusion.</strong> The second move of each iteration. As gates: H on every qubit, X on every qubit, one phase flip on the all-ones index, X back, H back.</li>
+          <li><strong>Inversion about the mean.</strong> What the diffusion does to the array: each amplitude a becomes 2 x mean - a. Entries below the mean rise above it and entries above it fall.</li>
+          <li><strong>Iteration.</strong> One oracle followed by one diffusion. 4n + 2 gates by the engine's count, which treats the oracle and the multi-controlled flip as one gate each.</li>
+          <li><strong>Optimum.</strong> The iteration count k at which the target's square peaks. About pi/4 sqrt N; computed before running, never discovered by running more.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the oracle and diffusion</span>
+      <h2>Two moves: flip one sign, then reflect about the mean</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Start from H on every qubit of three: eight amplitudes of 0.354. The oracle negates one of them. The diffusion replaces every amplitude a with 2 x mean - a. That pair is one iteration, and the figure draws it bar by bar on index 5, the same target the build-along uses.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 428" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn schematic of one Grover iteration on three qubits as eight amplitude bars, in three panels. Panel one, the start after H on every qubit: eight bars of height 0.354, so the target at index 5 has probability 0.125. Panel two, after the oracle: the bar at index 5 now points down to minus 0.354, the other seven are unchanged, the mean of the eight drops to 0.265 and is drawn as a dashed line, and the target's probability is still 0.125 because only a sign moved. Panel three, after the diffusion: every bar is reflected about that mean, so the seven others fall to 0.177 and the target rises to 0.884, which is 2 times 0.265 plus 0.354, giving a probability of 0.781. A band says amplitude drains from seven bars into one, nothing was read, and the squares still sum to one.">
+        <defs>
+          <filter id="p4aSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p4aHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p4aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p4aH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p4aL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p4aS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p4aB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p4aV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p4aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p4aA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p4aN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p4aH" x="30" y="30">ONE ITERATION, THREE QUBITS, TARGET 5: FLIP ONE SIGN, THEN REFLECT EVERY BAR ABOUT THE MEAN.</text>
+
+        <g filter="url(#p4aSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- panels -->
+          <rect x="30" y="50" width="255" height="294" rx="10" transform="rotate(-0.3 157 197)" fill="#FFFFFF"/>
+          <rect x="312" y="50" width="255" height="294" rx="10" transform="rotate(0.25 439 197)" fill="#FFFFFF"/>
+          <rect x="594" y="50" width="255" height="294" rx="10" transform="rotate(-0.2 721 197)" fill="#FFFFFF"/>
+          <!-- arrows between panels -->
+          <path d="M288 140 L309 140" marker-end="url(#p4aAr)"/>
+          <path d="M570 140 L591 140" marker-end="url(#p4aAr)"/>
+
+          <!-- panel 1: uniform, centres 60..256 step 28, target 200 -->
+          <path d="M45 210 L275 210"/>
+          <rect x="51" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="79" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="107" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="135" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="163" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="191" y="171" width="18" height="39" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="219" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="247" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+
+          <!-- panel 2: oracle, centres 342..538, target 482 -->
+          <path d="M327 210 L557 210"/>
+          <rect x="333" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="361" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="389" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="417" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="445" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="473" y="210" width="18" height="39" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="501" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <rect x="529" y="171" width="18" height="39" fill="url(#p4aHc)"/>
+          <path d="M327 181 L557 181" stroke="#3730A3" stroke-dasharray="5 5"/>
+
+          <!-- panel 3: diffusion, centres 624..820, target 764 -->
+          <path d="M609 210 L839 210"/>
+          <rect x="615" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <rect x="643" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <rect x="671" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <rect x="699" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <rect x="727" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <rect x="755" y="113" width="18" height="97" fill="#0E7490" stroke="#0E7490"/>
+          <rect x="783" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <rect x="811" y="190.5" width="18" height="19.5" fill="url(#p4aHc)"/>
+          <path d="M609 181 L839 181" stroke="#3730A3" stroke-dasharray="5 5"/>
+          <!-- ghost of the flipped bar -->
+          <rect x="755" y="210" width="18" height="39" fill="none" stroke="#9A97D4" stroke-dasharray="4 4"/>
+
+          <!-- band -->
+          <rect x="30" y="358" width="790" height="40" rx="10" transform="rotate(0.15 425 378)" fill="#EEEDF9"/>
+          <!-- doodle anchor: a bead on a string -->
+          <path d="M845 360 L845 396"/>
+          <circle cx="845" cy="378" r="9" fill="url(#p4aHc)"/>
+        </g>
+
+        <!-- panel 1 text -->
+        <text class="p4aL" x="46" y="72">1 · START: H ON EVERY QUBIT</text>
+        <text class="p4aS" x="46" y="90">eight equal amplitudes, 1 / sqrt 8</text>
+        <text class="p4aA" x="158" y="160" text-anchor="middle">0.354 each</text>
+        <text class="p4aS" x="60" y="288" text-anchor="middle">0</text>
+        <text class="p4aS" x="88" y="288" text-anchor="middle">1</text>
+        <text class="p4aS" x="116" y="288" text-anchor="middle">2</text>
+        <text class="p4aS" x="144" y="288" text-anchor="middle">3</text>
+        <text class="p4aS" x="172" y="288" text-anchor="middle">4</text>
+        <text class="p4aB" x="200" y="288" text-anchor="middle">5</text>
+        <text class="p4aS" x="228" y="288" text-anchor="middle">6</text>
+        <text class="p4aS" x="256" y="288" text-anchor="middle">7</text>
+        <text class="p4aB" x="46" y="312">p(target) = 0.125</text>
+        <text class="p4aS" x="46" y="330">the square of 0.354, in every slot</text>
+
+        <!-- panel 2 text -->
+        <text class="p4aL" x="328" y="72">2 · ORACLE: FLIP INDEX 5</text>
+        <text class="p4aS" x="328" y="90">one sign changes; the mean drops</text>
+        <text class="p4aA" x="328" y="160">dashed line: mean 0.265</text>
+        <text class="p4aB" x="482" y="266" text-anchor="middle">-0.354</text>
+        <text class="p4aS" x="342" y="288" text-anchor="middle">0</text>
+        <text class="p4aS" x="370" y="288" text-anchor="middle">1</text>
+        <text class="p4aS" x="398" y="288" text-anchor="middle">2</text>
+        <text class="p4aS" x="426" y="288" text-anchor="middle">3</text>
+        <text class="p4aS" x="454" y="288" text-anchor="middle">4</text>
+        <text class="p4aB" x="482" y="288" text-anchor="middle">5</text>
+        <text class="p4aS" x="510" y="288" text-anchor="middle">6</text>
+        <text class="p4aS" x="538" y="288" text-anchor="middle">7</text>
+        <text class="p4aB" x="328" y="312">p(target) = 0.125, unchanged</text>
+        <text class="p4aS" x="328" y="330">a sign moved; the square did not</text>
+
+        <!-- panel 3 text -->
+        <text class="p4aL" x="610" y="72">3 · DIFFUSION: 2 x MEAN - a</text>
+        <text class="p4aS" x="610" y="90">every bar reflected about the mean</text>
+        <text class="p4aV" x="780" y="126">0.884</text>
+        <text class="p4aS" x="610" y="160">others 0.177</text>
+        <text class="p4aA" x="610" y="176">mirror at 0.265</text>
+        <text class="p4aS" x="764" y="266" text-anchor="middle">was -0.354</text>
+        <text class="p4aS" x="624" y="288" text-anchor="middle">0</text>
+        <text class="p4aS" x="652" y="288" text-anchor="middle">1</text>
+        <text class="p4aS" x="680" y="288" text-anchor="middle">2</text>
+        <text class="p4aS" x="708" y="288" text-anchor="middle">3</text>
+        <text class="p4aS" x="736" y="288" text-anchor="middle">4</text>
+        <text class="p4aB" x="764" y="288" text-anchor="middle">5</text>
+        <text class="p4aS" x="792" y="288" text-anchor="middle">6</text>
+        <text class="p4aS" x="820" y="288" text-anchor="middle">7</text>
+        <text class="p4aB" x="610" y="312">p(target) = 0.781</text>
+        <text class="p4aS" x="610" y="330">0.884 = 2 x 0.265 + 0.354</text>
+
+        <text class="p4aH" x="46" y="383">Amplitude drains from seven bars into one. Nothing was read, and the eight squares still sum to 1.</text>
+        <text class="p4aN" x="30" y="420">Rounded amplitudes. The gate-built diffusion flips all eight signs at once, a global sign no read can see.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the oracle alone changes no probability; it only moves the mean. The reflection is what turns that one negative bar into the tallest one.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The oracle is a phase flip on one index<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In code the oracle is one line: negate the amplitude at the target index. It changes no probability, because the square of -0.354 is the square of 0.354, so a measurement straight after the oracle sees exactly the uniform distribution it saw before. What it does change is the mean of the eight amplitudes, from 0.354 to 0.265, and the second move is built to exploit exactly that difference.</p>
+        <p>The oracle is the question, not the answer. On a real problem it is a circuit that checks "is this the item I want" for whichever index it is handed and flips the sign when the answer is yes. Building it needs a way to recognise the target, never its location. In the simulator the target is a plain parameter because the simulator is testing the mechanism; on any real search, whoever builds the oracle has to build the recogniser as a reversible circuit, and that cost appears in no count on this page.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Brindle's engineer (constructed, like everything about Brindle) wrote her first oracle as "set slot 5 to 1, everything else to 0". It found the item in zero iterations, every time. It was also not an oracle: it destroyed the other amplitudes, it could not be undone, and it needed the answer as input. The check that caught it is the one worth keeping: an oracle applied on its own must leave every square exactly where it was.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Diffusion is five layers of gates<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>As algebra the diffusion is 2|s&gt;&lt;s| - I, where |s&gt; is the uniform state; in numpy that is one line, <code>2 * psi.mean() - psi</code>, the inversion about the mean. As gates it is H on every qubit, X on every qubit, one phase flip on the all-ones index, X back, H back. The H layers move the uniform state to the all-zeros state and back; the X layers turn "flip the all-zeros state" into "flip the all-ones state", which is the single multi-controlled flip a circuit can express directly.</p>
+        <p>Count it: n + n + 1 + n + n is 4n + 1 for the diffusion, plus 1 for the oracle, so 4n + 2 per iteration. That is 14 on three qubits, and with n Hadamards to start, 31 at the optimum of two iterations; on ten qubits it is 1,060 at the optimum of 25. Both numbers count the oracle and the multi-controlled flip as ONE gate each, which undercounts hardware: on a device both are built from many native gates, so these counts are a floor, never an estimate of real depth.</p>
+        <p>One wrinkle the build-along shows on purpose. The gate sequence produces I - 2|s&gt;&lt;s|, the negative of the reflection, so every amplitude comes out with its sign flipped. A sign shared by every amplitude is a global phase and no measurement can see it. The page's engine builds the diffusion from gates, the one-line numpy version reflects, and the probabilities agree to the last digit.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where it comes from: Grover 1996<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Grover, L. K. (1996). A fast quantum mechanical algorithm for database search. STOC 1996; arXiv quant-ph/9605043.</p>
+        <p>The abstract's own setting is a phone directory of N entries in no particular order. Any classical method, deterministic or randomised, needs at least N/2 lookups to find the target with probability one half; the quantum algorithm needs on the order of sqrt N steps, and the abstract claims that is within a small constant factor of the fastest possible quantum algorithm. Its account of the mechanism is phases: the operations are tuned so the correct path reinforces and the others cancel. That is the sign flip and the reflection, described before anyone drew them as bars.</p>
+        <p>The abstract does not give the exact number of iterations. The pages derive it on the simulator and check it against a closed form, which is Part 2. Session 5 takes the N/2 against sqrt N comparison and counts it, query by query, from two qubits to ten.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers amplitude per iteration and the optimum</span>
+      <h2>Step it yourself, and stop at the top</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">One iteration took the target from 0.125 to 0.781. The second takes it to 0.945. The third takes it to 0.330. The curve below is the engine's run on three qubits, and the widget under it lets you press the iteration yourself at any size from two qubits to six, reading the gate count as it grows.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn chart of the target's probability after each Grover iteration on three qubits, measured on the engine. Five plotted points: k equals 0 gives 0.125 at 3 gates, k equals 1 gives 0.781 at 17 gates, k equals 2 gives 0.945 at 31 gates and is marked as the optimum, k equals 3 gives 0.330 at 45 gates, k equals 4 gives 0.012 at 59 gates. The segments after the optimum are dashed, and an arrow marks the overshoot: one iteration too many takes 0.945 down to 0.330. A tick on the axis marks pi over 4 times the square root of 8, which is 2.22, so the computed k is 2. A band says iterations are not retries.">
+        <defs>
+          <filter id="p4bSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="43" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p4bHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p4bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p4bH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p4bL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p4bS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p4bB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p4bV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p4bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p4bA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p4bN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p4bH" x="30" y="26">THREE QUBITS, ONE PRESS AT A TIME: THE TOP IS AT k = 2 AND IT DOES NOT STAY THERE.</text>
+
+        <g filter="url(#p4bSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="30" y="44" width="820" height="330" rx="10" transform="rotate(-0.2 440 209)" fill="#FFFFFF"/>
+          <!-- gridlines -->
+          <path d="M90 100 L790 100 M90 210 L790 210" stroke="#E4E4F1"/>
+          <!-- axes -->
+          <path d="M90 100 L90 320 L790 320"/>
+          <!-- pi/4 sqrt 8 tick -->
+          <path d="M495 313 L495 327" stroke="#0E7490" stroke-width="2.4"/>
+          <!-- climb, solid -->
+          <path d="M140 292.5 L300 148.1 L460 112"/>
+          <!-- past the optimum, dashed -->
+          <path d="M460 112 L620 247.4 L780 317.3" stroke="#3730A3" stroke-dasharray="6 5"/>
+          <!-- overshoot arrow -->
+          <path d="M650 138 Q 642 190 606 220" marker-end="url(#p4bAr)" stroke="#3730A3"/>
+          <!-- points -->
+          <circle cx="140" cy="292.5" r="6" fill="#FFFFFF"/>
+          <circle cx="300" cy="148.1" r="6" fill="#FFFFFF"/>
+          <circle cx="460" cy="112" r="7" fill="#0E7490" stroke="#0E7490"/>
+          <circle cx="620" cy="247.4" r="6" fill="#FFFFFF"/>
+          <circle cx="780" cy="317.3" r="6" fill="#FFFFFF"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="815" cy="72" r="11" fill="url(#p4bHc)"/>
+          <path d="M815 72 L822 64"/>
+          <!-- band -->
+          <rect x="30" y="386" width="820" height="36" rx="10" transform="rotate(0.15 440 404)" fill="#EEEDF9"/>
+        </g>
+
+        <text class="p4bA" x="96" y="88">p(target)</text>
+        <text class="p4bS" x="80" y="104" text-anchor="end">1.0</text>
+        <text class="p4bS" x="80" y="214" text-anchor="end">0.5</text>
+        <text class="p4bS" x="80" y="324" text-anchor="end">0</text>
+
+        <text class="p4bL" x="128" y="296" text-anchor="end">0.125</text>
+        <text class="p4bL" x="288" y="142" text-anchor="end">0.781</text>
+        <text class="p4bB" x="460" y="90" text-anchor="middle">0.945, the optimum</text>
+        <text class="p4bL" x="608" y="270" text-anchor="end">0.330</text>
+        <text class="p4bL" x="794" y="312">0.012</text>
+        <text class="p4bA" x="560" y="128">one too many: 0.945 falls to 0.330</text>
+
+        <text class="p4bS" x="140" y="342" text-anchor="middle">k = 0, 3 gates</text>
+        <text class="p4bS" x="300" y="342" text-anchor="middle">k = 1, 17 gates</text>
+        <text class="p4bS" x="460" y="342" text-anchor="middle">k = 2, 31 gates</text>
+        <text class="p4bS" x="620" y="342" text-anchor="middle">k = 3, 45 gates</text>
+        <text class="p4bS" x="780" y="342" text-anchor="middle">k = 4, 59 gates</text>
+        <text class="p4bB" x="495" y="362" text-anchor="middle">pi/4 sqrt 8 = 2.22, so compute k = 2</text>
+
+        <text class="p4bH" x="46" y="409">Iterations are not retries. The third one carries the amplitude past the top: 0.945 becomes 0.330.</text>
+        <text class="p4bN" x="30" y="444">Engine run, n = 3, target N - 1; any target gives the same curve. Segments only join measured points.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - five measured points, one optimum. Gate counts treat the oracle and the multi-controlled flip as one gate each, which undercounts hardware.</figcaption>
+    </figure>
+
+    <div class="wk" id="p4-step">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Grover on the page's engine, one iteration per press. The target is the last index, N - 1. Every probability and gate count below is computed on each press; the oracle and the multi-controlled flip count as one gate each, which undercounts hardware.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p4-n">Qubits</label>
+        <select class="sql-code" id="p4-n">
+          <option value="2">2 qubits, N = 4</option>
+          <option value="3" selected>3 qubits, N = 8</option>
+          <option value="4">4 qubits, N = 16</option>
+          <option value="5">5 qubits, N = 32</option>
+          <option value="6">6 qubits, N = 64</option>
+        </select>
+        <div class="sql-label">Apply one iteration</div>
+        <div class="p4-btns">
+          <button class="btn primary" id="p4-go" type="button">Step: oracle, then diffusion</button>
+          <button class="btn" id="p4-reset" type="button">Reset to the uniform start</button>
+        </div>
+        <div id="p4-out"></div>
+        <p class="sql-note" id="p4-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p4-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Three runs worth doing first<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Three qubits, four presses.</strong> 0.7813 at 17 gates, then 0.9453 at 31, against pi/4 sqrt 8 = 2.22. The third press gives 0.3301 and the fourth 0.0122, which is a tenth of where the search started. Every one of those numbers is the build-along's, to four places.</li>
+          <li><strong>Two qubits, two presses.</strong> One press gives 1.0000 at 12 gates: certainty, the only size where Grover is exact. A second press gives 0.2500, straight back to the uniform start.</li>
+          <li><strong>Five qubits, five presses.</strong> Four presses give 0.9992 at 93 gates, against pi/4 sqrt 32 = 4.44. The fifth gives 0.8596. The fall is gentler than on three qubits because each step turns the state by a smaller angle, but it is still a fall.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Compute k before you run<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The rule from the canon run: the optimum sits at floor(pi/4 sqrt N) or one below it, at every size from two qubits to ten. On those nine sizes it lands on the floor each time, at 1, 2, 3, 4, 6, 8, 12, 17 and 25 iterations. The reason for "or one below" is in the algebra: the exact best real-valued k is pi / (4 theta) - 1/2, where sin theta = 1/sqrt N, and because theta is slightly larger than 1/sqrt N that value always sits a little under pi/4 sqrt N, so rounding it lands on the floor or the integer below.</p>
+        <p>The widget scans the curve, and that is a luxury of the simulator. On a device you choose k once, run, and measure; there is no curve to look at and every measurement destroys the state. Computing k from N before running is not a shortcut; it is the only procedure that exists.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Past the optimum the amplitude keeps rotating<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each iteration is a rotation by a fixed angle 2 theta in a plane with two directions: the target, and the even mixture of everything else. The uniform start sits at angle theta from the "everything else" direction; after k iterations it sits at (2k + 1) theta, and the target's probability is the squared sine of that angle. Nothing in the two moves knows where the target direction is, so nothing stops the rotation when it gets there. On three qubits the second iteration lands nearest the target and the third carries the state well past it.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>In Brindle's code review (constructed) a colleague suggested running "a couple of extra iterations to be safe", the way a data team adds retries to a flaky job. On three qubits that turns 0.9453 into 0.3301 and then 0.0122. A retry repeats an attempt; an iteration continues a rotation. The review note that went into the repository was one line: k is computed from N and is never a tuning knob.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The closed form, and the gap that vouches for the engine<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The probability after k iterations is sin^2((2k + 1) theta) with sin theta = 1/sqrt N. The engine checks itself against that formula on five qubits at every iteration on every page load, and the worst gap is 6.4e-15, which is floating point. The widget above prints the gap to the closed form on every press so you can watch the two agree, and step 5 of the build-along prints both columns side by side.</p>
+        <p>Two qubits is the case that makes the formula feel real. There sin theta = 1/2, so theta is exactly 30 degrees, and one iteration puts the state at 90 degrees: certainty. The canon curve on two qubits reads 0.25, 1.0, 0.25, 0.25, 1.0, a rotation in steps of 60 degrees that comes back to the top every third iteration.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Grover in numpy, from an empty file</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">Open a fresh file or notebook and run each step in order; each one builds on the last. The statevector is one complex numpy array, both moves start as one line each, and step 4 rebuilds the diffusion from gates to prove the two agree. Three qubits, target 5 (binary 101), to match the bars in Part 1. Every output below was printed by this exact code on numpy 1.26.4. The probabilities are exact and will match yours; the counts in step 6 will not.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hand drawn circuit of one Grover iteration on three wires, q0 on top. First an oracle box spanning all three wires that flips the sign of index 5, counted as one gate. Then the diffusion in five layers: H on each of the three wires, X on each wire, a three-qubit controlled phase flip drawn as two control dots on q0 and q1 joined to a Z box on q2, then X on each wire and H on each wire. Counts underneath: 1, 3, 3, 1, 3, 3, summing to 14, which is 4n plus 2 for n equals 3. Two boxes below: the engine counts each box as one gate, 14 per iteration and 3, 17, 31, 45, 59 including the opening Hadamards; and the oracle and the three-control flip each become many native gates on hardware, so 14 is a floor.">
+        <defs>
+          <filter id="p4cSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="47" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="p4cHc" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#3730A3" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="p4cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .p4cH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .p4cL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .p4cS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .p4cB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .p4cV { font: 800 16px Inter, sans-serif; fill: #242070; }
+          .p4cW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p4cA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .p4cN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+        </style>
+
+        <text class="p4cH" x="30" y="26">ONE ITERATION ON THREE WIRES: AN ORACLE, THEN FIVE LAYERS OF DIFFUSION.</text>
+        <text class="p4cA" x="170" y="56" text-anchor="middle">oracle: 1 gate</text>
+        <text class="p4cA" x="490" y="56" text-anchor="middle">diffusion: 4n + 1 = 13 gates</text>
+
+        <g filter="url(#p4cSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- brackets -->
+          <path d="M135 72 L135 64 L205 64 L205 72" stroke="#3730A3"/>
+          <path d="M272 72 L272 64 L708 64 L708 72" stroke="#3730A3"/>
+          <!-- wires -->
+          <path d="M70 110 L135 110 M205 110 L273 110 M307 110 L373 110 M407 110 L573 110 M607 110 L673 110 M707 110 L830 110 M70 160 L135 160 M205 160 L273 160 M307 160 L373 160 M407 160 L573 160 M607 160 L673 160 M707 160 L830 160 M70 210 L135 210 M205 210 L273 210 M307 210 L373 210 M407 210 L473 210 M507 210 L573 210 M607 210 L673 210 M707 210 L830 210"/>
+          <!-- oracle -->
+          <rect x="135" y="90" width="70" height="140" rx="8" transform="rotate(-0.5 170 160)" fill="#0E7490" stroke="#0E7490"/>
+          <!-- H layer -->
+          <rect x="273" y="93" width="34" height="34" rx="5" transform="rotate(-2 290 110)" fill="#FFFFFF"/>
+          <rect x="273" y="143" width="34" height="34" rx="5" transform="rotate(1.5 290 160)" fill="#FFFFFF"/>
+          <rect x="273" y="193" width="34" height="34" rx="5" transform="rotate(-1 290 210)" fill="#FFFFFF"/>
+          <!-- X layer -->
+          <rect x="373" y="93" width="34" height="34" rx="5" transform="rotate(1.5 390 110)" fill="#EEEDF9"/>
+          <rect x="373" y="143" width="34" height="34" rx="5" transform="rotate(-1.5 390 160)" fill="#EEEDF9"/>
+          <rect x="373" y="193" width="34" height="34" rx="5" transform="rotate(2 390 210)" fill="#EEEDF9"/>
+          <!-- multi-controlled flip -->
+          <path d="M490 110 L490 193"/>
+          <circle cx="490" cy="110" r="5" fill="#16153A"/>
+          <circle cx="490" cy="160" r="5" fill="#16153A"/>
+          <rect x="473" y="193" width="34" height="34" rx="5" transform="rotate(-1 490 210)" fill="#E3F3F7" stroke="#0B5A70"/>
+          <!-- X back -->
+          <rect x="573" y="93" width="34" height="34" rx="5" transform="rotate(-1.5 590 110)" fill="#EEEDF9"/>
+          <rect x="573" y="143" width="34" height="34" rx="5" transform="rotate(2 590 160)" fill="#EEEDF9"/>
+          <rect x="573" y="193" width="34" height="34" rx="5" transform="rotate(-1 590 210)" fill="#EEEDF9"/>
+          <!-- H back -->
+          <rect x="673" y="93" width="34" height="34" rx="5" transform="rotate(1 690 110)" fill="#FFFFFF"/>
+          <rect x="673" y="143" width="34" height="34" rx="5" transform="rotate(-2 690 160)" fill="#FFFFFF"/>
+          <rect x="673" y="193" width="34" height="34" rx="5" transform="rotate(1.5 690 210)" fill="#FFFFFF"/>
+          <!-- doodle anchor: a dial -->
+          <circle cx="836" cy="252" r="10" fill="url(#p4cHc)"/>
+          <path d="M836 252 L842 245"/>
+          <!-- count boxes -->
+          <rect x="30" y="296" width="400" height="74" rx="10" transform="rotate(-0.3 230 333)" fill="#FFFFFF"/>
+          <rect x="450" y="296" width="400" height="74" rx="10" transform="rotate(0.3 650 333)" fill="#EEEDF9"/>
+        </g>
+
+        <text class="p4cL" x="40" y="114">q0</text>
+        <text class="p4cL" x="40" y="164">q1</text>
+        <text class="p4cL" x="40" y="214">q2</text>
+
+        <text class="p4cW" x="170" y="156" text-anchor="middle">ORACLE</text>
+        <text class="p4cW" x="170" y="174" text-anchor="middle">flip 5</text>
+        <text class="p4cL" x="290" y="114" text-anchor="middle">H</text>
+        <text class="p4cL" x="290" y="164" text-anchor="middle">H</text>
+        <text class="p4cL" x="290" y="214" text-anchor="middle">H</text>
+        <text class="p4cL" x="390" y="114" text-anchor="middle">X</text>
+        <text class="p4cL" x="390" y="164" text-anchor="middle">X</text>
+        <text class="p4cL" x="390" y="214" text-anchor="middle">X</text>
+        <text class="p4cB" x="490" y="215" text-anchor="middle">Z</text>
+        <text class="p4cL" x="590" y="114" text-anchor="middle">X</text>
+        <text class="p4cL" x="590" y="164" text-anchor="middle">X</text>
+        <text class="p4cL" x="590" y="214" text-anchor="middle">X</text>
+        <text class="p4cL" x="690" y="114" text-anchor="middle">H</text>
+        <text class="p4cL" x="690" y="164" text-anchor="middle">H</text>
+        <text class="p4cL" x="690" y="214" text-anchor="middle">H</text>
+
+        <text class="p4cS" x="170" y="252" text-anchor="middle">1 gate</text>
+        <text class="p4cS" x="290" y="252" text-anchor="middle">3 gates</text>
+        <text class="p4cS" x="390" y="252" text-anchor="middle">3 gates</text>
+        <text class="p4cS" x="490" y="252" text-anchor="middle">flip 111: 1 gate</text>
+        <text class="p4cS" x="590" y="252" text-anchor="middle">3 gates</text>
+        <text class="p4cS" x="690" y="252" text-anchor="middle">3 gates</text>
+        <text class="p4cB" x="430" y="278" text-anchor="middle">1 + 3 + 3 + 1 + 3 + 3 = 14 = 4n + 2 for n = 3</text>
+
+        <text class="p4cL" x="46" y="318">THE ENGINE'S COUNT</text>
+        <text class="p4cS" x="46" y="338">each box above is one gate: 14 per iteration</text>
+        <text class="p4cS" x="46" y="356">with 3 opening Hadamards: 3, 17, 31, 45, 59</text>
+        <text class="p4cL" x="466" y="318">WHAT 14 LEAVES OUT</text>
+        <text class="p4cS" x="466" y="338">the oracle and the three-control flip each</text>
+        <text class="p4cS" x="466" y="356">become many native gates, so 14 is a floor</text>
+
+        <text class="p4cN" x="30" y="392">Qubit q is bit q of the index, q0 on top. The order matches the engine and step 4 below.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the diffusion is a reflection built from gates the hardware can express: two layers in, one flip, two layers out. Fourteen boxes, and two of them hide most of the real cost.</figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <h4>The uniform start</h4>
+        <p>One complex array of length 8, every entry 1/sqrt 8. That is H on every qubit, written as its result. The target's square is 1/8 before anything happens.</p>
+        <div class="prompt-box good"><span class="label">Python</span>import numpy as np
+
+n, target = 3, 5
+N = 2 ** n
+psi = np.full(N, 1 / np.sqrt(N), dtype=complex)
+
+def p_target(state):
+    return abs(state[target]) ** 2
+
+print("step 1: N =", N, "| every amplitude", round(psi[0].real, 4), "| p(target) =", f"{p_target(psi):.7f}")
+# step 1: N = 8 | every amplitude 0.3536 | p(target) = 0.1250000</div>
+      </div>
+      <div class="step">
+        <h4>The oracle: negate one entry</h4>
+        <p>Copy, flip, return. The target's square does not move; the mean drops from 0.3536 to 0.2652. Check both before going on, because an oracle that changes a probability is not an oracle.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def oracle(state):
+    out = state.copy()
+    out[target] *= -1
+    return out
+
+flipped = oracle(psi)
+print("step 2:", np.round(flipped.real, 4))
+print("step 2: p(target) =", f"{p_target(flipped):.7f}", "| mean amplitude =", round(flipped.real.mean(), 4))
+# step 2: [ 0.3536  0.3536  0.3536  0.3536  0.3536 -0.3536  0.3536  0.3536]
+# step 2: p(target) = 0.1250000 | mean amplitude = 0.2652</div>
+      </div>
+      <div class="step">
+        <h4>Diffusion as the inversion about the mean</h4>
+        <p>2|s&gt;&lt;s| - I in one line: every entry becomes twice the mean minus itself. The target jumps to 0.8839, the others fall to 0.1768, and the norm is still 1.</p>
+        <div class="prompt-box good"><span class="label">Python</span>def diffusion(state):
+    return 2 * state.mean() - state
+
+one = diffusion(oracle(psi))
+print("step 3:", np.round(one.real, 4))
+print("step 3: p(target) =", f"{p_target(one):.7f}", "| norm =", round(float(np.sum(abs(one) ** 2)), 12))
+# step 3: [0.1768 0.1768 0.1768 0.1768 0.1768 0.8839 0.1768 0.1768]
+# step 3: p(target) = 0.7812500 | norm = 1.0</div>
+      </div>
+      <div class="step">
+        <h4>The same diffusion, built from gates</h4>
+        <p>H, X, flip the all-ones index, X, H, applied with the pair loop from session 1, counting every call. Fourteen gates per iteration with the oracle, which is 4n + 2 and undercounts hardware. The result is the reflection with every sign flipped: a gap of 1.77 to the one-liner and 3.3e-16 to its negative. A global sign, invisible to any measurement.</p>
+        <div class="prompt-box good"><span class="label">Python</span>H1 = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
+X1 = np.array([[0, 1], [1, 0]])
+gates = [0]
+
+def on_qubit(state, gate, q):
+    out = state.copy()
+    bit = 1 &lt;&lt; q
+    for i in range(N):
+        if i &amp; bit:
+            continue
+        j = i | bit
+        out[i] = gate[0, 0] * state[i] + gate[0, 1] * state[j]
+        out[j] = gate[1, 0] * state[i] + gate[1, 1] * state[j]
+    gates[0] += 1
+    return out
+
+def flip_all_ones(state):
+    out = state.copy()
+    out[N - 1] *= -1
+    gates[0] += 1
+    return out
+
+def diffusion_gates(state):
+    for q in range(n): state = on_qubit(state, H1, q)
+    for q in range(n): state = on_qubit(state, X1, q)
+    state = flip_all_ones(state)
+    for q in range(n): state = on_qubit(state, X1, q)
+    for q in range(n): state = on_qubit(state, H1, q)
+    return state
+
+a = diffusion_gates(oracle(psi)); gates[0] += 1   # the oracle counts as one gate
+b = diffusion(oracle(psi))
+print("step 4: gate-built p(target) =", f"{p_target(a):.7f}", "| gates in one iteration =", gates[0])
+print("step 4: gap to 2|s&gt;&lt;s| - I:", f"{np.max(abs(a - b)):.2f}", "| gap to its negative:", f"{np.max(abs(a + b)):.1e}")
+# step 4: gate-built p(target) = 0.7812500 | gates in one iteration = 14
+# step 4: gap to 2|s&gt;&lt;s| - I: 1.77 | gap to its negative: 3.3e-16</div>
+      </div>
+      <div class="step">
+        <h4>Compute k, then run k = 0 to 4</h4>
+        <p>Compute the optimum first, then run past it on purpose and print the closed form beside each value. Seven places show the exact values: 0.78125 is a tie at four places, which Python's format rounds to even (0.7812) and the page's engine rounds up (0.7813). Rounded half up, the column is the canon's 0.1250, 0.7813, 0.9453, 0.3301, 0.0122, and the gate column is 3, 17, 31, 45, 59.</p>
+        <div class="prompt-box good"><span class="label">Python</span>k_opt = int(np.floor(np.pi / 4 * np.sqrt(N)))
+print("step 5: pi/4 sqrt N =", round(np.pi / 4 * np.sqrt(N), 2), "-&gt; compute k =", k_opt, "before running")
+theta = np.arcsin(1 / np.sqrt(N))
+state = psi.copy()
+for k in range(5):
+    closed = np.sin((2 * k + 1) * theta) ** 2
+    print(f"k = {k}  p(target) = {p_target(state):.7f}  closed form = {closed:.7f}  gates = {n + k * (4 * n + 2)}")
+    state = diffusion(oracle(state))
+# step 5: pi/4 sqrt N = 2.22 -&gt; compute k = 2 before running
+# k = 0  p(target) = 0.1250000  closed form = 0.1250000  gates = 3
+# k = 1  p(target) = 0.7812500  closed form = 0.7812500  gates = 17
+# k = 2  p(target) = 0.9453125  closed form = 0.9453125  gates = 31
+# k = 3  p(target) = 0.3300781  closed form = 0.3300781  gates = 45
+# k = 4  p(target) = 0.0122070  closed form = 0.0122070  gates = 59</div>
+      </div>
+      <div class="step">
+        <h4>Measure once, at the optimum</h4>
+        <p>Stop at k = 2 and take 1,000 shots. The page's engine, drawing with its own mulberry32 generator on seed 7, puts 952 of 1,000 on index 5 (12 / 7 / 4 / 3 / 6 / 952 / 8 / 8). numpy's generator is a different stream, so your counts will differ from the engine's; the run below printed 945. Both are samples of the same exact 0.9453125.</p>
+        <div class="prompt-box good"><span class="label">Python</span>state = psi.copy()
+for _ in range(k_opt):
+    state = diffusion(oracle(state))
+p = abs(state) ** 2
+rng = np.random.default_rng(7)
+counts = np.bincount(rng.choice(N, size=1000, p=p / p.sum()), minlength=N)
+print("step 6: exact p(target) at k =", k_opt, "is", f"{p[target]:.7f}")
+print("step 6: 1,000 shots:", counts, "| on target:", counts[target])
+# step 6: exact p(target) at k = 2 is 0.9453125
+# step 6: 1,000 shots: [  6   9   4   9  14 945   7   6] | on target: 945</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Stop at the optimum, and compute k before you run. Write floor(pi/4 sqrt N) at the top of the file, run exactly that many iterations, measure once. A loop that runs "until it looks good" only works on a simulator, where you can look; on a device the look is the measurement and it ends the run.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">On three qubits after H on every qubit, the oracle for target 5 runs once. What has changed in the register?</p>
+      <div class="qopt">A · The amplitude at index 5 has been set to 1 and the others to 0</div>
+      <div class="qopt">B · The amplitude at index 5 has changed sign, from 0.354 to -0.354; every square, and so every measurement probability, is unchanged, but the mean has dropped to 0.265</div>
+      <div class="qopt">C · Each index has been checked and the register now records which one matched</div>
+      <q class="qwhy">The oracle is a phase flip on one index. A measurement right after it still returns the uniform 0.125 everywhere. What changed is the sign, and with it the mean, which is exactly what the diffusion's reflection turns into a taller target bar.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">On three qubits the target reads 0.9453 after two iterations and 0.3301 after three. Why is the third iteration worse?</p>
+      <div class="qopt">A · Noise accumulates with every gate, and 45 gates is too many</div>
+      <div class="qopt">B · The oracle can only be called twice before it stops marking the target</div>
+      <div class="qopt">C · Each iteration rotates the state by the same angle, and nothing in the two moves knows where the target is; two iterations land nearest it and the third carries the state past</div>
+      <q class="qwhy">The simulator is exact, so noise cannot be the reason; session 7 adds noise on top. The probability is sin^2((2k + 1) theta), which peaks and then falls as k grows. The amplitude keeps rotating, which is why k is computed from N rather than raised to be safe.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">The register grows from 4 qubits (N = 16) to 8 qubits (N = 256). How does the optimal number of iterations change?</p>
+      <div class="qopt">A · It grows as sqrt N: N went up sixteenfold, so k goes up about fourfold, from 3 to 12</div>
+      <div class="qopt">B · It grows as N/2, from 8 to 128</div>
+      <div class="qopt">C · It grows as log2 N, from 4 to 8</div>
+      <q class="qwhy">The optimum is floor(pi/4 sqrt N) or one below: 3.14 gives 3 at N = 16 and 12.57 gives 12 at N = 256, both measured on the engine. N/2 is the classical figure for a one-half chance, and session 5 sets the two side by side.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 5</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">About thirty minutes, with your build from Part 3.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Make n a parameter and run two to six qubits</h4>
+        <p>Wrap the build in a function of n and target. For each n from 2 to 6, write floor(pi/4 sqrt N) down first, then run and record the k where the target peaks and its probability. Compare every row with the widget in Part 2; they must agree to four places.</p>
+      </div>
+      <div class="step">
+        <h4>Count the oracle calls</h4>
+        <p>Add a counter inside oracle() and print it at the optimum for each n, beside N/2. That table, quantum oracle calls against classical lookups for a one-half chance, is where session 5 starts, and it runs it out to ten qubits.</p>
+      </div>
+      <div class="step">
+        <h4>Break it, after predicting</h4>
+        <p>Write down what happens to the target's probability at every k if the oracle does nothing. Then make it a no-op and run. If your prediction was not "it stays at 1/N forever", the build or the prediction is wrong; the page's engine checks exactly this on every load.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The oracle as a phase flip</span><span class="note">One index negated; no square moves, the mean does. The question, not the answer.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Diffusion</span><span class="note">Inversion about the mean, built as H, X, one flip, X, H; equal up to a global sign.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Amplitude per iteration</span><span class="note">0.1250, 0.7813, 0.9453, 0.3301, 0.0122 on three qubits, stepped live and rebuilt in numpy.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Optimum and overshoot</span><span class="note">floor(pi/4 sqrt N) or one below; past it the amplitude keeps rotating and the answer gets worse.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The closed form</span><span class="note">sin^2((2k + 1) theta), sin theta = 1/sqrt N; worst gap 6.4e-15 on five qubits.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The gate count convention</span><span class="note">4n + 2 per iteration plus n to start; the oracle and the multi-controlled flip count as one each, which undercounts hardware.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Query counting</span><span class="note">Oracle calls against N/2 classical lookups, two to ten qubits: session 5.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Noise</span><span class="note">The exact simulator has none; session 7 adds a declared, modelled channel per gate.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">The hardware cost of an oracle</span><span class="note">Building the recogniser as a reversible circuit; not counted anywhere in these sessions.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The start.</strong> H on every qubit: N equal amplitudes of 1/sqrt N. The target's square is 1/N.</div>
+      <div class="cheat-item"><strong>The oracle.</strong> Negate the target's amplitude. No probability moves; the mean drops. It needs a recogniser, not a location.</div>
+      <div class="cheat-item"><strong>The diffusion.</strong> Every amplitude a becomes 2 x mean - a. As gates: H, X, flip all-ones, X, H.</div>
+      <div class="cheat-item"><strong>The global sign.</strong> The gate-built diffusion is minus the reflection. Every sign flips together; no measurement can tell.</div>
+      <div class="cheat-item"><strong>The count.</strong> 4n + 2 gates per iteration, n to start: 31 at the optimum on three qubits. A floor, because the oracle and the flip count as one.</div>
+      <div class="cheat-item"><strong>The optimum.</strong> floor(pi/4 sqrt N) or one below. Two qubits: 1, certain. Three: 2, at 0.9453. Ten: 25.</div>
+      <div class="cheat-item"><strong>The overshoot.</strong> One iteration past the top on three qubits gives 0.3301. Iterations are a rotation, not retries.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Compute k before you run, stop there, measure once. sin^2((2k + 1) theta) is the check.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 4 of 10 · learn-quantum-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p3-entanglement-measured.html">← Practitioner session 3 · Entanglement, measured</a>
+        <a href="p5-counting-queries.html">Practitioner session 5 · Counting queries →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/qs-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof QS === "undefined") return;
+  var nSel = document.getElementById("p4-n");
+  var goBtn = document.getElementById("p4-go");
+  var resetBtn = document.getElementById("p4-reset");
+  var out = document.getElementById("p4-out");
+  var verdict = document.getElementById("p4-verdict");
+  var self = document.getElementById("p4-self");
+  var MAXK = 24;
+  var st;
+
+  function bits(i, n) { var s = i.toString(2); while (s.length < n) s = "0" + s; return s; }
+  function signed(d) { if (Math.abs(d) < 5e-5) return "0.0000"; return (d > 0 ? "+" : "") + d.toFixed(4); }
+
+  function snap() {
+    return { k: st.k, p: QS.probs(st.s)[st.target], gates: st.s.gates, closed: QS.closedForm(st.n, st.k) };
+  }
+
+  function reset() {
+    var n = Number(nSel.value), s = QS.newState(n);
+    QS.hadamardAll(s);
+    st = { n: n, N: s.N, target: s.N - 1, s: s, k: 0, opt: QS.optimalK(n), rows: [] };
+    st.rows.push(snap());
+    goBtn.disabled = false;
+    render();
+  }
+
+  function step() {
+    if (st.k >= MAXK) return;
+    QS.applyPhaseFlip(st.s, st.target);
+    QS.diffusion(st.s);
+    st.k++;
+    st.rows.push(snap());
+    if (st.k >= MAXK) goBtn.disabled = true;
+    render();
+  }
+
+  function render() {
+    var piq = Math.PI / 4 * Math.sqrt(st.N), kf = Math.floor(piq);
+    var last = st.rows[st.rows.length - 1];
+    var prev = st.rows.length > 1 ? st.rows[st.rows.length - 2] : null;
+    var perIter = 4 * st.n + 2;
+
+    var html = '<p class="p4-read">Iteration <b>k = ' + last.k + '</b> · target ' + bits(st.target, st.n) +
+      ' probability <b>' + last.p.toFixed(4) + '</b> · gates so far <b>' + last.gates + '</b> · pi/4 sqrt N = <b>' +
+      piq.toFixed(2) + '</b> (floor ' + kf + ')</p>';
+    html += '<div class="sql-tablewrap"><table class="sql-table"><thead><tr><th>k</th><th>p(target)</th><th>Change</th><th>Gates so far</th><th>Gap to closed form</th><th></th></tr></thead><tbody>';
+    for (var i = 0; i < st.rows.length; i++) {
+      var r = st.rows[i];
+      var ch = i === 0 ? "start" : signed(r.p - st.rows[i - 1].p);
+      var tag = r.k === st.opt.k ? "<b>optimum</b>" : (r.k > st.opt.k ? "past the top" : "");
+      var cell = r.k === st.opt.k ? "<b>" + r.p.toFixed(4) + "</b>" : r.p.toFixed(4);
+      html += "<tr><td>" + r.k + "</td><td>" + cell + "</td><td>" + ch + "</td><td>" + r.gates + "</td><td>" + Math.abs(r.p - r.closed).toExponential(1) + "</td><td>" + tag + "</td></tr>";
+    }
+    html += "</tbody></table></div>";
+    out.innerHTML = html;
+
+    var gap = Math.abs(last.p - last.closed);
+    var msg;
+    if (last.k === 0) {
+      msg = "Uniform start: every one of the " + st.N + " slots reads 1/N = " + last.p.toFixed(4) + ". Compute k before you press: floor(pi/4 sqrt N) = " + kf + ". Each press adds " + perIter + " gates (4n + 2).";
+    } else if (last.k < st.opt.k) {
+      var left = st.opt.k - last.k;
+      msg = "Climbing. " + left + " more press" + (left === 1 ? "" : "es") + " to the optimum the engine finds at k = " + st.opt.k + ", which is floor(pi/4 sqrt N)" + (st.opt.k === kf ? "" : " minus one") + ".";
+    } else if (last.k === st.opt.k) {
+      msg = "This is the top: " + last.p.toFixed(4) + " after " + last.k + " iteration" + (last.k === 1 ? "" : "s") + " and " + last.gates + " gates. Stop and measure here. The count treats the oracle and the multi-controlled flip as one gate each, which undercounts hardware.";
+    } else if (prev && last.p < prev.p - 1e-12) {
+      msg = "Past the top. The amplitude kept rotating and the probability fell from " + prev.p.toFixed(4) + " to " + last.p.toFixed(4) + ". An extra iteration is not a retry; it moves the state away from the answer and adds " + perIter + " gates of depth.";
+    } else if (prev && last.p > prev.p + 1e-12) {
+      msg = "Climbing again, because the rotation is periodic, but every press since k = " + st.opt.k + " has added " + perIter + " gates of depth for a number the optimum already reached or beat.";
+    } else {
+      msg = "No change on this press: the rotation has carried the state to a point with the same square. Still past the optimum at k = " + st.opt.k + ".";
+    }
+    msg += " Engine against sin^2((2k + 1) theta) at this k: gap " + gap.toExponential(1) + ".";
+    if (last.k >= MAXK) msg += " Stopped at " + MAXK + " presses; reset to start again.";
+    verdict.textContent = msg;
+  }
+
+  var t = QS.selfTest();
+  self.textContent = t.ok
+    ? "The engine's seven properties pass in this browser, including the closed-form check on five qubits and the property that fails on a silent oracle. The simulator is exact; no real machine is."
+    : "The engine's self test did not pass in this browser, so nothing above should be believed.";
+
+  nSel.addEventListener("change", reset);
+  goBtn.addEventListener("click", step);
+  resetBtn.addEventListener("click", reset);
+  reset();
+})();
+</script>
+<style>
+  #p4-step .sql-code { border: 1px solid var(--hairline); border-radius: 8px; max-width: 24rem; }
+  #p4-step .p4-btns { display: flex; flex-wrap: wrap; gap: .5rem; padding: .3rem .9rem .6rem; }
+  #p4-step .btn:disabled { opacity: 1; cursor: default; background: var(--indigo-50); color: var(--indigo-deep); border-color: var(--indigo-soft); }
+  #p4-step .p4-read { font-size: .9rem; margin: .4rem 0 .2rem; }
+  #p4-step table.sql-table { margin: .6rem 0 .2rem; font-size: .85rem; }
+  #p4-step .sql-tablewrap { max-height: 22rem; overflow-y: auto; }
+</style>
+</body>
+</html>
