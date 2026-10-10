@@ -468,26 +468,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">What did Tang's 2018 paper show about the Kerenidis-Prakash recommendation algorithm?</p>
-      <div class="qopt">A · That the quantum algorithm contained an error and does not produce good recommendations</div>
-      <div class="qopt">B · That a classical algorithm working directly on the raw preference table is faster than the quantum algorithm</div>
-      <div class="qopt">C · That a classical algorithm, given a data structure supporting l2-norm sampling, the classical analogue of the quantum memory assumption, samples from a rank-k approximation in O(poly(k) log(mn)), only polynomially slower, so the speedup is not exponential</div>
-      <q class="qwhy">The quantum algorithm was not wrong; its exponential advantage depended on the comparison. Tang's classical algorithm needs the same kind of preprocessed structure, not the raw table, and her abstract's conclusion is that under matched access the gap is polynomial rather than exponential.</q>
+      <button class="qopt" type="button">A · That the quantum algorithm contained an error and does not produce good recommendations</button>
+      <button class="qopt" type="button">B · That a classical algorithm working directly on the raw preference table is faster than the quantum algorithm</button>
+      <button class="qopt" type="button">C · That a classical algorithm, given a data structure supporting l2-norm sampling, the classical analogue of the quantum memory assumption, samples from a rank-k approximation in O(poly(k) log(mn)), only polynomially slower, so the speedup is not exponential</button>
+      <p class="qwhy">The quantum algorithm was not wrong; its exponential advantage depended on the comparison. Tang's classical algorithm needs the same kind of preprocessed structure, not the raw table, and her abstract's conclusion is that under matched access the gap is polynomial rather than exponential.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Why is the data structure, the tree of squared norms, the hinge of the whole story?</p>
-      <div class="qopt">A · The quantum algorithm's speed depends on a structure built in one linear-time pass; that structure is classical, so a classical algorithm can be given it too, and comparing quantum-with-the-structure against classical-without-it measures the structure, not the quantum step</div>
-      <div class="qopt">B · Because only a quantum computer can read a tree of squared norms</div>
-      <div class="qopt">C · Because the structure makes the quantum algorithm exponentially faster than any classical algorithm that also has it</div>
-      <q class="qwhy">The paper itself says the structure takes linear time to build from a plain array and sits in classical memory with quantum access. B is false, since Tang's sampler reads it classically. C is exactly what Tang's result refuted: with the same structure, the classical side is only polynomially slower.</q>
+      <button class="qopt" type="button">A · The quantum algorithm's speed depends on a structure built in one linear-time pass; that structure is classical, so a classical algorithm can be given it too, and comparing quantum-with-the-structure against classical-without-it measures the structure, not the quantum step</button>
+      <button class="qopt" type="button">B · Because only a quantum computer can read a tree of squared norms</button>
+      <button class="qopt" type="button">C · Because the structure makes the quantum algorithm exponentially faster than any classical algorithm that also has it</button>
+      <p class="qwhy">The paper itself says the structure takes linear time to build from a plain array and sits in classical memory with quantum access. B is false, since Tang's sampler reads it classically. C is exactly what Tang's result refuted: with the same structure, the classical side is only polynomially slower.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A board member hears "the quantum recommendation algorithm was dequantized" and concludes that quantum computers have no speedups left. What is the honest reply?</p>
-      <div class="qopt">A · Correct: Tang's result showed every quantum algorithm can be matched classically</div>
-      <div class="qopt">B · Dequantized means this algorithm's exponential gap closed to a polynomial once the classical side got matched data access; it does not mean every speedup is gone, and Grover's square-root query advantage in the black-box model is a proven bound, as session 2 showed</div>
-      <div class="qopt">C · Dequantized means the quantum algorithm was run on a classical simulator instead of quantum hardware</div>
-      <q class="qwhy">Dequantization is a statement about one algorithm under one access assumption. In the black-box query model, a classical search needs about N over 2 lookups for an even chance and the quantum one about the square root of N, and that bound is proven, not a belief waiting to be dequantized. C confuses dequantization with simulation; session 1's simulator imitates a circuit, it does not find a faster classical algorithm.</q>
+      <button class="qopt" type="button">A · Correct: Tang's result showed every quantum algorithm can be matched classically</button>
+      <button class="qopt" type="button">B · Dequantized means this algorithm's exponential gap closed to a polynomial once the classical side got matched data access; it does not mean every speedup is gone, and Grover's square-root query advantage in the black-box model is a proven bound, as session 2 showed</button>
+      <button class="qopt" type="button">C · Dequantized means the quantum algorithm was run on a classical simulator instead of quantum hardware</button>
+      <p class="qwhy">Dequantization is a statement about one algorithm under one access assumption. In the black-box query model, a classical search needs about N over 2 lookups for an even chance and the quantum one about the square root of N, and that bound is proven, not a belief waiting to be dequantized. C confuses dequantization with simulation; session 1's simulator imitates a circuit, it does not find a faster classical algorithm.</p>
     </div>
 
     <div class="quiz-score"></div>

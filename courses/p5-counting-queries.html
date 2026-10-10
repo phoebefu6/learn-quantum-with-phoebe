@@ -618,26 +618,26 @@ print("arithmetic from the closed form; no statevector was built")
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">At 1,024 items the table shows 512 classical lookups against 25 oracle calls. Why is the factor about 20, and not 1,024?</p>
-      <div class="qopt">A · Because the simulator stops at ten qubits; on a real machine the factor at 1,024 items would be the full 1,024</div>
-      <div class="qopt">B · Because the gain is quadratic: classical needs N/2 lookups for a one-half chance and quantum needs about pi/4 sqrt N calls, so the factor is about (2 / pi) sqrt N, roughly 0.64 x 32</div>
-      <div class="qopt">C · Because 25 iterations is a safety margin, and the true quantum count at 1,024 items is one call</div>
-      <q class="qwhy">The factor is N/2 over k, and k grows as sqrt N, so the factor grows as sqrt N too. At N = 1,024 that is about 20, measured. The simulator is exact, so a machine cannot do better on query count; and k is computed from N, never padded, because extra iterations make the answer worse.</q>
+      <button class="qopt" type="button">A · Because the simulator stops at ten qubits; on a real machine the factor at 1,024 items would be the full 1,024</button>
+      <button class="qopt" type="button">B · Because the gain is quadratic: classical needs N/2 lookups for a one-half chance and quantum needs about pi/4 sqrt N calls, so the factor is about (2 / pi) sqrt N, roughly 0.64 x 32</button>
+      <button class="qopt" type="button">C · Because 25 iterations is a safety margin, and the true quantum count at 1,024 items is one call</button>
+      <p class="qwhy">The factor is N/2 over k, and k grows as sqrt N, so the factor grows as sqrt N too. At N = 1,024 that is about 20, measured. The simulator is exact, so a machine cannot do better on query count; and k is computed from N, never padded, because extra iterations make the answer worse.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A manager reads "25 oracle calls" as "25 steps of work". What does the query count leave out?</p>
-      <div class="qopt">A · Nothing; in the black-box model a query is the whole cost of the search</div>
-      <div class="qopt">B · Only the classical lookups, which are counted on the other bar</div>
-      <div class="qopt">C · Loading the data where the oracle can see it, every gate in the diffusion and inside the oracle, and wall-clock time; it counts calls to the black box and nothing else</div>
-      <q class="qwhy">Query complexity counts oracle calls by design. The ten-qubit optimum is 1,060 gates by the engine's count, which treats the oracle and the multi-controlled flip as one gate each and so undercounts hardware, and none of that is time. Loading N rows costs order N, which session 6 prices.</q>
+      <button class="qopt" type="button">A · Nothing; in the black-box model a query is the whole cost of the search</button>
+      <button class="qopt" type="button">B · Only the classical lookups, which are counted on the other bar</button>
+      <button class="qopt" type="button">C · Loading the data where the oracle can see it, every gate in the diffusion and inside the oracle, and wall-clock time; it counts calls to the black box and nothing else</button>
+      <p class="qwhy">Query complexity counts oracle calls by design. The ten-qubit optimum is 1,060 gates by the engine's count, which treats the oracle and the multi-controlled flip as one gate each and so undercounts hardware, and none of that is time. Loading N rows costs order N, which session 6 prices.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A deck says quantum computers give "an exponential speedup on search". Why is that wrong for unstructured black-box search?</p>
-      <div class="qopt">A · The gain is quadratic: k grows as sqrt N, so each doubling of N widens the gap by about 1.4, and the BBBV bound says no quantum black-box search needs fewer than about sqrt N queries</div>
-      <div class="qopt">B · It is right, because the register holds 2 to the n amplitudes and the oracle touches all of them in one call</div>
-      <div class="qopt">C · It is wrong only because today's machines are noisy; on an ideal machine the gain would be exponential</div>
-      <q class="qwhy">The table is measured on an ideal simulator and still shows a square root: 1, 2, 3, 4, 6, 8, 12, 17, 25 against 2 up to 512. Touching every amplitude is not the same as reading every answer, and the black-box bound Grover's algorithm sits at rules out doing better without structure.</q>
+      <button class="qopt" type="button">A · The gain is quadratic: k grows as sqrt N, so each doubling of N widens the gap by about 1.4, and the BBBV bound says no quantum black-box search needs fewer than about sqrt N queries</button>
+      <button class="qopt" type="button">B · It is right, because the register holds 2 to the n amplitudes and the oracle touches all of them in one call</button>
+      <button class="qopt" type="button">C · It is wrong only because today's machines are noisy; on an ideal machine the gain would be exponential</button>
+      <p class="qwhy">The table is measured on an ideal simulator and still shows a square root: 1, 2, 3, 4, 6, 8, 12, 17, 25 against 2 up to 512. Touching every amplitude is not the same as reading every answer, and the black-box bound Grover's algorithm sits at rules out doing better without structure.</p>
     </div>
 
     <div class="quiz-score"></div>

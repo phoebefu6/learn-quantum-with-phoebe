@@ -442,26 +442,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Two qubits are prepared as (0.707, 0.707) and (0.707, -0.707). Each is measured a thousand times. What does the data team see, and what does it mean?</p>
-      <div class="qopt">A · Different counts, because the second state is mostly one</div>
-      <div class="qopt">B · The same counts within sampling error, because the squares are equal; the sign is real but is not visible in a measurement, only in what a later gate does</div>
-      <div class="qopt">C · The second qubit cannot be measured because its amplitude is negative</div>
-      <q class="qwhy">Probabilities are the squares, and 0.707 squared equals negative 0.707 squared. The two states give identical samples and behave differently under gates, which is exactly why amplitudes rather than probabilities are the object of study.</q>
+      <button class="qopt" type="button">A · Different counts, because the second state is mostly one</button>
+      <button class="qopt" type="button">B · The same counts within sampling error, because the squares are equal; the sign is real but is not visible in a measurement, only in what a later gate does</button>
+      <button class="qopt" type="button">C · The second qubit cannot be measured because its amplitude is negative</button>
+      <p class="qwhy">Probabilities are the squares, and 0.707 squared equals negative 0.707 squared. The two states give identical samples and behave differently under gates, which is exactly why amplitudes rather than probabilities are the object of study.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A deck says a ten-qubit register "processes 1,024 values at once". What is the honest reading?</p>
-      <div class="qopt">A · Correct: ten qubits run 1,024 computations in parallel</div>
-      <div class="qopt">B · Wrong: ten qubits hold ten values</div>
-      <div class="qopt">C · The register is described by 1,024 amplitudes, which is a statement about the size of its state, not about computations run; a measurement returns one of the 1,024 outcomes and nothing else</div>
-      <q class="qwhy">A ten-column row is not ten rows. The 1,024 numbers describe one state, and reading it produces one outcome. Any speedup has to come from arranging those numbers so the wrong outcomes cancel, which is session 2, not from the count of them.</q>
+      <button class="qopt" type="button">A · Correct: ten qubits run 1,024 computations in parallel</button>
+      <button class="qopt" type="button">B · Wrong: ten qubits hold ten values</button>
+      <button class="qopt" type="button">C · The register is described by 1,024 amplitudes, which is a statement about the size of its state, not about computations run; a measurement returns one of the 1,024 outcomes and nothing else</button>
+      <p class="qwhy">A ten-column row is not ten rows. The 1,024 numbers describe one state, and reading it produces one outcome. Any speedup has to come from arranging those numbers so the wrong outcomes cancel, which is session 2, not from the count of them.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">The register reads 43 zeros in 100 shots at an angle of 45 degrees. Brindle's analyst reports "the amplitude for zero is 0.656". What went wrong?</p>
-      <div class="qopt">A · A count estimates a probability, and 0.43 is an estimate of a² near 0.5 with a standard error of about 0.05; the amplitude is the square root of the probability and is never read directly, so the honest report is a probability with its uncertainty</div>
-      <div class="qopt">B · Nothing: 0.656 is the square root of 0.43</div>
-      <div class="qopt">C · The analyst should have reported 0.57, the count for one</div>
-      <q class="qwhy">The arithmetic in B is right and the inference is wrong. One hundred shots at p of one half have a standard error of 0.05, so 0.43 is consistent with the true half. Reporting a three-decimal amplitude from it is false precision, and the register's numbers are never observed in any case.</q>
+      <button class="qopt" type="button">A · A count estimates a probability, and 0.43 is an estimate of a² near 0.5 with a standard error of about 0.05; the amplitude is the square root of the probability and is never read directly, so the honest report is a probability with its uncertainty</button>
+      <button class="qopt" type="button">B · Nothing: 0.656 is the square root of 0.43</button>
+      <button class="qopt" type="button">C · The analyst should have reported 0.57, the count for one</button>
+      <p class="qwhy">The arithmetic in B is right and the inference is wrong. One hundred shots at p of one half have a standard error of 0.05, so 0.43 is consistent with the true half. Reporting a three-decimal amplitude from it is false precision, and the register's numbers are never observed in any case.</p>
     </div>
 
     <div class="quiz-score"></div>

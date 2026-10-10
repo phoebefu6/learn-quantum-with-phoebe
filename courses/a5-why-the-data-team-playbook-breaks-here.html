@@ -735,26 +735,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Brindle's analyst wants to debug the pilot circuit the way she debugs a pipeline: print the state after the oracle, then carry on. Why can she not?</p>
-      <div class="qopt">A · She can, but printing slows the circuit and adds noise</div>
-      <div class="qopt">B · The vendor's tools do not yet support a print command, though a later version might</div>
-      <div class="qopt">C · Reading the register returns one sampled outcome and replaces the state with it, so the rest of the circuit runs on that draw; the full row of amplitudes is visible only in a classical simulation, which hardware never offers</div>
-      <q class="qwhy">This is mechanism, not tooling, so no later version fixes it. A measurement is a draw that ends the superposition the circuit needed. To learn what the register held at a step you stop there, measure, and repeat the whole run many times, which makes each inspection its own experiment with its own shot budget.</q>
+      <button class="qopt" type="button">A · She can, but printing slows the circuit and adds noise</button>
+      <button class="qopt" type="button">B · The vendor's tools do not yet support a print command, though a later version might</button>
+      <button class="qopt" type="button">C · Reading the register returns one sampled outcome and replaces the state with it, so the rest of the circuit runs on that draw; the full row of amplitudes is visible only in a classical simulation, which hardware never offers</button>
+      <p class="qwhy">This is mechanism, not tooling, so no later version fixes it. A measurement is a draw that ends the superposition the circuit needed. To learn what the register held at a step you stop there, measure, and repeat the whole run many times, which makes each inspection its own experiment with its own shot budget.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Grover on three qubits, target 101, two iterations, 1,000 shots with seed 7, puts 952 shots on the target. What does that tell the team, and with what error?</p>
-      <div class="qopt">A · An estimate of 0.952 with a standard error of about 0.007, the square root of p(1 - p) over 1,000; the exact 0.945313 lies within one standard error, and on hardware the exact figure is never available to compare against</div>
-      <div class="qopt">B · The target's probability is exactly 0.952, because 1,000 shots is a large sample</div>
-      <div class="qopt">C · The circuit is faulty, because 952 is not 945</div>
-      <q class="qwhy">Counts estimate a probability; they never read it. The gap of about 0.007 between 0.952 and 0.945313 is ordinary sampling, the same arithmetic as an A/B test. Halving the error would take about 4,000 shots, each one a full run of the 31-gate circuit, counted with the oracle as one gate, which undercounts hardware.</q>
+      <button class="qopt" type="button">A · An estimate of 0.952 with a standard error of about 0.007, the square root of p(1 - p) over 1,000; the exact 0.945313 lies within one standard error, and on hardware the exact figure is never available to compare against</button>
+      <button class="qopt" type="button">B · The target's probability is exactly 0.952, because 1,000 shots is a large sample</button>
+      <button class="qopt" type="button">C · The circuit is faulty, because 952 is not 945</button>
+      <p class="qwhy">Counts estimate a probability; they never read it. The gap of about 0.007 between 0.952 and 0.945313 is ordinary sampling, the same arithmetic as an A/B test. Halving the error would take about 4,000 shots, each one a full run of the 31-gate circuit, counted with the oracle as one gate, which undercounts hardware.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A vendor proposes to improve a disappointing result by moving from six qubits to ten at the same error rate per gate. Under the modelled noise, what happens?</p>
-      <div class="qopt">A · Success improves, because ten qubits search a larger space with more precision</div>
-      <div class="qopt">B · Success falls, because each added qubit doubles the space and lengthens the circuit at its optimum, and noise compounds per gate: at p = 0.005 it goes from 0.4511 on six qubits to 0.0059 on ten</div>
-      <div class="qopt">C · Nothing changes, because the noise rate per gate is the same</div>
-      <q class="qwhy">The rate per gate is the same, but the number of gates is not: 162 at six qubits against 1,060 at ten, counting the oracle as one gate, which undercounts hardware. The kept fraction is (1 - p) to the number of gates, so more gates means less of the answer survives. The model is one global depolarising parameter and kinder than hardware, so the real fall is steeper.</q>
+      <button class="qopt" type="button">A · Success improves, because ten qubits search a larger space with more precision</button>
+      <button class="qopt" type="button">B · Success falls, because each added qubit doubles the space and lengthens the circuit at its optimum, and noise compounds per gate: at p = 0.005 it goes from 0.4511 on six qubits to 0.0059 on ten</button>
+      <button class="qopt" type="button">C · Nothing changes, because the noise rate per gate is the same</button>
+      <p class="qwhy">The rate per gate is the same, but the number of gates is not: 162 at six qubits against 1,060 at ten, counting the oracle as one gate, which undercounts hardware. The kept fraction is (1 - p) to the number of gates, so more gates means less of the answer survives. The model is one global depolarising parameter and kinder than hardware, so the real fall is steeper.</p>
     </div>
 
     <div class="quiz-score"></div>

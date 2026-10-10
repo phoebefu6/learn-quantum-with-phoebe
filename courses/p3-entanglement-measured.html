@@ -699,26 +699,26 @@ two_basis_report("mixture", mixture_counts(False, 7), mixture_counts(True, 7))
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A monitoring job reports, for each qubit separately, the fraction of shots that read 1. Why can it never tell the Bell pair from the product pair?</p>
-      <div class="qopt">A · Because 1,000 shots is too few; at a million shots the Bell pair's margins would drift away from a half</div>
-      <div class="qopt">B · Because both states have each qubit at exactly 0.5 on its own; they differ only in how the two bits of the same shot line up, which a per-qubit summary never reads</div>
-      <div class="qopt">C · Because the Bell pair's qubits are random and the product pair's are not</div>
-      <q class="qwhy">P(q0 = 1) is the 01 slot plus the 11 slot: 0 + 0.5 for the Bell pair, 0.25 + 0.25 for the product pair. Both are 0.5 exactly, so more shots only sharpen the same answer. The difference lives in the joint table, so any check that could see it has to read both bits of each shot together.</q>
+      <button class="qopt" type="button">A · Because 1,000 shots is too few; at a million shots the Bell pair's margins would drift away from a half</button>
+      <button class="qopt" type="button">B · Because both states have each qubit at exactly 0.5 on its own; they differ only in how the two bits of the same shot line up, which a per-qubit summary never reads</button>
+      <button class="qopt" type="button">C · Because the Bell pair's qubits are random and the product pair's are not</button>
+      <p class="qwhy">P(q0 = 1) is the 01 slot plus the 11 slot: 0 + 0.5 for the Bell pair, 0.25 + 0.25 for the product pair. Both are 0.5 exactly, so more shots only sharpen the same answer. The difference lives in the joint table, so any check that could see it has to read both bits of each shot together.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A deck shows 1,000 shots of a two-qubit device: about 500 on 00, about 500 on 11, nothing else, captioned "perfect entanglement". Why is that not proof?</p>
-      <div class="qopt">A · A classical box that flips one coin per run and prepares 00 or 11 produces exactly the same counts; in a single basis the two cannot be told apart</div>
-      <div class="qopt">B · Because entanglement can only be shown on hardware, never in counts</div>
-      <div class="qopt">C · Because a real Bell pair would show some 01 and 10 counts from sampling noise</div>
-      <q class="qwhy">The widget's classical mixture prints 500 / 0 / 0 / 500 with agreement 1.000 on every seed, the same column of probabilities as the Bell pair. Counts in one basis are consistent with both. And a Bell pair's 01 and 10 squares are exactly zero, so sampling never puts a shot there.</q>
+      <button class="qopt" type="button">A · A classical box that flips one coin per run and prepares 00 or 11 produces exactly the same counts; in a single basis the two cannot be told apart</button>
+      <button class="qopt" type="button">B · Because entanglement can only be shown on hardware, never in counts</button>
+      <button class="qopt" type="button">C · Because a real Bell pair would show some 01 and 10 counts from sampling noise</button>
+      <p class="qwhy">The widget's classical mixture prints 500 / 0 / 0 / 500 with agreement 1.000 on every seed, the same column of probabilities as the Bell pair. Counts in one basis are consistent with both. And a Bell pair's 01 and 10 squares are exactly zero, so sampling never puts a shot there.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">You apply H to both qubits before measuring. What does that show for each of the three states?</p>
-      <div class="qopt">A · All three spread to 0.25 on every slot, because H always produces an even spread</div>
-      <div class="qopt">B · The Bell pair spreads to 0.25 everywhere, the mixture keeps 00 and 11, and the product pair is unchanged</div>
-      <div class="qopt">C · The Bell pair stays at 0.5, 0, 0, 0.5 with each qubit near a half; each mixture branch spreads to 0.25 per slot so agreement falls to about a half; the product pair reads 00 every shot, agreeing only because both qubits are certain</div>
-      <q class="qwhy">H on both returns the Bell pair to itself and the product pair to 00, and turns 00 and 11 each into an even spread. The widget prints agreement 1.000, 1.000 and 0.482 on seed 7 respectively, and only the Bell pair keeps both agreement and uncertain margins. That pattern is the simplest honest check; Bell inequalities are the formal one.</q>
+      <button class="qopt" type="button">A · All three spread to 0.25 on every slot, because H always produces an even spread</button>
+      <button class="qopt" type="button">B · The Bell pair spreads to 0.25 everywhere, the mixture keeps 00 and 11, and the product pair is unchanged</button>
+      <button class="qopt" type="button">C · The Bell pair stays at 0.5, 0, 0, 0.5 with each qubit near a half; each mixture branch spreads to 0.25 per slot so agreement falls to about a half; the product pair reads 00 every shot, agreeing only because both qubits are certain</button>
+      <p class="qwhy">H on both returns the Bell pair to itself and the product pair to 00, and turns 00 and 11 each into an even spread. The widget prints agreement 1.000, 1.000 and 0.482 on seed 7 respectively, and only the Bell pair keeps both agreement and uncertain margins. That pattern is the simplest honest check; Bell inequalities are the formal one.</p>
     </div>
 
     <div class="quiz-score"></div>

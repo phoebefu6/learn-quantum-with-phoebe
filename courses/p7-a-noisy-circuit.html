@@ -700,26 +700,26 @@ for n in range(2, 11):
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">On ten qubits at p = 0.01 the modelled success at 25 iterations is 0.001000. What does that number tell you?</p>
-      <div class="qopt">A · The search has failed: the uniform floor is 0.000977, so the target turns up about as often as any other row and the answer cannot be told from a random draw</div>
-      <div class="qopt">B · The search works one time in a thousand, so run it a thousand times and take the most frequent result</div>
-      <div class="qopt">C · The simulator has a bug, because Grover's search cannot score below 0.5 at its optimum</div>
-      <q class="qwhy">With 1,060 gates at one error per hundred, keep is 0.00002 and almost nothing of the ideal state survives. 0.001000 is the floor plus a crumb. A thousand runs would return the target about as often as each of the other 1,023 items, so the most frequent result is decided by the random draw, not the oracle.</q>
+      <button class="qopt" type="button">A · The search has failed: the uniform floor is 0.000977, so the target turns up about as often as any other row and the answer cannot be told from a random draw</button>
+      <button class="qopt" type="button">B · The search works one time in a thousand, so run it a thousand times and take the most frequent result</button>
+      <button class="qopt" type="button">C · The simulator has a bug, because Grover's search cannot score below 0.5 at its optimum</button>
+      <p class="qwhy">With 1,060 gates at one error per hundred, keep is 0.00002 and almost nothing of the ideal state survives. 0.001000 is the floor plus a crumb. A thousand runs would return the target about as often as each of the other 1,023 items, so the most frequent result is decided by the random draw, not the oracle.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">At p = 0.001 the ideal optimum is 25 iterations, but the best modelled success, 0.393189, comes at 19. Why does noise move the optimum earlier?</p>
-      <div class="qopt">A · Noise changes the rotation angle of each Grover iteration, so the peak shifts</div>
-      <div class="qopt">B · Each iteration adds 42 gates of risk while its gain in ideal amplitude shrinks near the peak; past 19 the loss in keep outweighs the gain, so a shorter circuit does better</div>
-      <div class="qopt">C · The engine stops early to save time when p is not zero</div>
-      <q class="qwhy">The ideal curve flattens as it approaches its peak, so the last few iterations add very little amplitude. Each still costs 4n + 2 = 42 gates, and each gate multiplies keep by 0.999. The product of the two peaks earlier. The amplitudes themselves are untouched: the same exact statevector, weighted by a smaller keep.</q>
+      <button class="qopt" type="button">A · Noise changes the rotation angle of each Grover iteration, so the peak shifts</button>
+      <button class="qopt" type="button">B · Each iteration adds 42 gates of risk while its gain in ideal amplitude shrinks near the peak; past 19 the loss in keep outweighs the gain, so a shorter circuit does better</button>
+      <button class="qopt" type="button">C · The engine stops early to save time when p is not zero</button>
+      <p class="qwhy">The ideal curve flattens as it approaches its peak, so the last few iterations add very little amplitude. Each still costs 4n + 2 = 42 gates, and each gate multiplies keep by 0.999. The product of the two peaks earlier. The amplitudes themselves are untouched: the same exact statevector, weighted by a smaller keep.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A constructed pilot proposal says the ten-qubit demo is too small and the fix is a bigger register at the same error rate per gate. What does the anti-lever table predict?</p>
-      <div class="qopt">A · Success rises, because a bigger register gives the search more room</div>
-      <div class="qopt">B · Success stays the same, because the error rate per gate has not changed</div>
-      <div class="qopt">C · Success falls: each added qubit raises both the iterations needed, about pi/4 sqrt N, and the gates per iteration, 4n + 2, so the depth G grows and keep = (1 - p) to the G shrinks at every step</div>
-      <q class="qwhy">The table falls at every row at p = 0.005 and at p = 0.01: at p = 0.005 from 0.9562 at two qubits to 0.0059 at ten, modelled. A fixed per-gate error is not a fixed per-run error; the per-run survival is (1 - p) to the G, and G is what a bigger register raises.</q>
+      <button class="qopt" type="button">A · Success rises, because a bigger register gives the search more room</button>
+      <button class="qopt" type="button">B · Success stays the same, because the error rate per gate has not changed</button>
+      <button class="qopt" type="button">C · Success falls: each added qubit raises both the iterations needed, about pi/4 sqrt N, and the gates per iteration, 4n + 2, so the depth G grows and keep = (1 - p) to the G shrinks at every step</button>
+      <p class="qwhy">The table falls at every row at p = 0.005 and at p = 0.01: at p = 0.005 from 0.9562 at two qubits to 0.0059 at ten, modelled. A fixed per-gate error is not a fixed per-run error; the per-run survival is (1 - p) to the G, and G is what a bigger register raises.</p>
     </div>
 
     <div class="quiz-score"></div>

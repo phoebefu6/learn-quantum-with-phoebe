@@ -631,26 +631,26 @@ for label, cost in knobs:
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">For one search over Brindle's 12,000,000 constructed rows, the model prints 12,063,988 operations for the quantum path against 6,000,000 for brute force. Why does the quantum path lose?</p>
-      <div class="qopt">A · Because 2,721 oracle calls is more than the 6,000,000 lookups brute force needs</div>
-      <div class="qopt">B · Because the load alone is 12,000,000 writes, twice the brute-force search; the search itself adds only 63,988</div>
-      <div class="qopt">C · Because the simulator stops at ten qubits, so a 24-qubit search cannot be priced</div>
-      <q class="qwhy">The square-root gain is intact: 2,721 calls at 23.5 each is 63,988. What loses is the load, one write per row, paid before the first call and twice the N/2 lookups brute force needed. The loading tax is a declared model, not a simulation, so the ten-qubit limit does not apply to it.</q>
+      <button class="qopt" type="button">A · Because 2,721 oracle calls is more than the 6,000,000 lookups brute force needs</button>
+      <button class="qopt" type="button">B · Because the load alone is 12,000,000 writes, twice the brute-force search; the search itself adds only 63,988</button>
+      <button class="qopt" type="button">C · Because the simulator stops at ten qubits, so a 24-qubit search cannot be priced</button>
+      <p class="qwhy">The square-root gain is intact: 2,721 calls at 23.5 each is 63,988. What loses is the load, one write per row, paid before the first call and twice the N/2 lookups brute force needed. The loading tax is a declared model, not a simulation, so the ten-qubit limit does not apply to it.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">The model says the quantum path beats brute force from 3 searches per load on Brindle's table. What is the honest next sentence?</p>
-      <div class="qopt">A · So the pilot should be sized for three searches</div>
-      <div class="qopt">B · So quantum wins for every workload with three or more searches per load</div>
-      <div class="qopt">C · But a workload with many searches per load is exactly where a classical index is built, and the index overtakes the quantum path past 4,224 searches, so the window is 3 to 4,224 under load 1 per row and query cost log2 N</div>
-      <q class="qwhy">The first crossing compares against a brute-force scan that nobody runs thousands of times. The second compares against an index, the fair rival at large R. Both edges move when the query cost or the load per row moves, which is why the parameters go in the sentence.</q>
+      <button class="qopt" type="button">A · So the pilot should be sized for three searches</button>
+      <button class="qopt" type="button">B · So quantum wins for every workload with three or more searches per load</button>
+      <button class="qopt" type="button">C · But a workload with many searches per load is exactly where a classical index is built, and the index overtakes the quantum path past 4,224 searches, so the window is 3 to 4,224 under load 1 per row and query cost log2 N</button>
+      <p class="qwhy">The first crossing compares against a brute-force scan that nobody runs thousands of times. The second compares against an index, the fair rival at large R. Both edges move when the query cost or the load per row moves, which is why the parameters go in the sentence.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">What does the Giovannetti-Lloyd-Maccone quantum RAM proposal change about the loading tax?</p>
-      <div class="qopt">A · It makes one query cost about log N switches instead of N; it does nothing to make writing N classical values cost less than N writes, and it is a proposed architecture</div>
-      <div class="qopt">B · It makes the load cost log N instead of N, which removes the loading tax</div>
-      <div class="qopt">C · It removes the need for an oracle, so a search costs one call</div>
-      <q class="qwhy">The proposal is about the READ: a memory call through log N switches. The page's model uses that for its query cost, 23.5 on 12,000,000 rows. The WRITE of N rows stays order N, and every claim that relies on the memory relies on a design, not a device.</q>
+      <button class="qopt" type="button">A · It makes one query cost about log N switches instead of N; it does nothing to make writing N classical values cost less than N writes, and it is a proposed architecture</button>
+      <button class="qopt" type="button">B · It makes the load cost log N instead of N, which removes the loading tax</button>
+      <button class="qopt" type="button">C · It removes the need for an oracle, so a search costs one call</button>
+      <p class="qwhy">The proposal is about the READ: a memory call through log N switches. The page's model uses that for its query cost, 23.5 on 12,000,000 rows. The WRITE of N rows stays order N, and every claim that relies on the memory relies on a design, not a device.</p>
     </div>
 
     <div class="quiz-score"></div>

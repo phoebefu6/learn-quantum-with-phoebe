@@ -648,26 +648,26 @@ print("step 6: 1,000 shots:", counts, "| on target:", counts[target])
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">On three qubits after H on every qubit, the oracle for target 5 runs once. What has changed in the register?</p>
-      <div class="qopt">A · The amplitude at index 5 has been set to 1 and the others to 0</div>
-      <div class="qopt">B · The amplitude at index 5 has changed sign, from 0.354 to -0.354; every square, and so every measurement probability, is unchanged, but the mean has dropped to 0.265</div>
-      <div class="qopt">C · Each index has been checked and the register now records which one matched</div>
-      <q class="qwhy">The oracle is a phase flip on one index. A measurement right after it still returns the uniform 0.125 everywhere. What changed is the sign, and with it the mean, which is exactly what the diffusion's reflection turns into a taller target bar.</q>
+      <button class="qopt" type="button">A · The amplitude at index 5 has been set to 1 and the others to 0</button>
+      <button class="qopt" type="button">B · The amplitude at index 5 has changed sign, from 0.354 to -0.354; every square, and so every measurement probability, is unchanged, but the mean has dropped to 0.265</button>
+      <button class="qopt" type="button">C · Each index has been checked and the register now records which one matched</button>
+      <p class="qwhy">The oracle is a phase flip on one index. A measurement right after it still returns the uniform 0.125 everywhere. What changed is the sign, and with it the mean, which is exactly what the diffusion's reflection turns into a taller target bar.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">On three qubits the target reads 0.9453 after two iterations and 0.3301 after three. Why is the third iteration worse?</p>
-      <div class="qopt">A · Noise accumulates with every gate, and 45 gates is too many</div>
-      <div class="qopt">B · The oracle can only be called twice before it stops marking the target</div>
-      <div class="qopt">C · Each iteration rotates the state by the same angle, and nothing in the two moves knows where the target is; two iterations land nearest it and the third carries the state past</div>
-      <q class="qwhy">The simulator is exact, so noise cannot be the reason; session 7 adds noise on top. The probability is sin^2((2k + 1) theta), which peaks and then falls as k grows. The amplitude keeps rotating, which is why k is computed from N rather than raised to be safe.</q>
+      <button class="qopt" type="button">A · Noise accumulates with every gate, and 45 gates is too many</button>
+      <button class="qopt" type="button">B · The oracle can only be called twice before it stops marking the target</button>
+      <button class="qopt" type="button">C · Each iteration rotates the state by the same angle, and nothing in the two moves knows where the target is; two iterations land nearest it and the third carries the state past</button>
+      <p class="qwhy">The simulator is exact, so noise cannot be the reason; session 7 adds noise on top. The probability is sin^2((2k + 1) theta), which peaks and then falls as k grows. The amplitude keeps rotating, which is why k is computed from N rather than raised to be safe.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">The register grows from 4 qubits (N = 16) to 8 qubits (N = 256). How does the optimal number of iterations change?</p>
-      <div class="qopt">A · It grows as sqrt N: N went up sixteenfold, so k goes up about fourfold, from 3 to 12</div>
-      <div class="qopt">B · It grows as N/2, from 8 to 128</div>
-      <div class="qopt">C · It grows as log2 N, from 4 to 8</div>
-      <q class="qwhy">The optimum is floor(pi/4 sqrt N) or one below: 3.14 gives 3 at N = 16 and 12.57 gives 12 at N = 256, both measured on the engine. N/2 is the classical figure for a one-half chance, and session 5 sets the two side by side.</q>
+      <button class="qopt" type="button">A · It grows as sqrt N: N went up sixteenfold, so k goes up about fourfold, from 3 to 12</button>
+      <button class="qopt" type="button">B · It grows as N/2, from 8 to 128</button>
+      <button class="qopt" type="button">C · It grows as log2 N, from 4 to 8</button>
+      <p class="qwhy">The optimum is floor(pi/4 sqrt N) or one below: 3.14 gives 3 at N = 16 and 12.57 gives 12 at N = 256, both measured on the engine. N/2 is the classical figure for a one-half chance, and session 5 sets the two side by side.</p>
     </div>
 
     <div class="quiz-score"></div>

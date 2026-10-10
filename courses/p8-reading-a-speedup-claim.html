@@ -705,26 +705,26 @@ run("CLAIM C: 4,000,000 order rows, 'exponentially faster recommendations'", {
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A constructed claim says a ten-qubit search found one row among 1,000 in 25 oracle calls, against 500 lookups classically. Which gate does it fail first, and why?</p>
-      <div class="qopt">A · Output readout, because a quantum computer cannot return a single row</div>
-      <div class="qopt">B · Input loading: the 1,000 rows must be written in before the first call, so one search costs 1,249 against 500 under the declared model (load 1 per row, query cost log2 N, one search per load)</div>
-      <div class="qopt">C · None: 25 against 500 is twenty times fewer, and that is what was measured</div>
-      <q class="qwhy">The 25 oracle calls are real, but they assume the data is already inside the machine. Writing 1,000 rows costs 1,000 before the search begins, and the search itself is 25 calls at log2 N each, 249 in all. The load alone is twice the brute-force bill, so for one search the claim loses; from four searches per load it starts to win.</q>
+      <button class="qopt" type="button">A · Output readout, because a quantum computer cannot return a single row</button>
+      <button class="qopt" type="button">B · Input loading: the 1,000 rows must be written in before the first call, so one search costs 1,249 against 500 under the declared model (load 1 per row, query cost log2 N, one search per load)</button>
+      <button class="qopt" type="button">C · None: 25 against 500 is twenty times fewer, and that is what was measured</button>
+      <p class="qwhy">The 25 oracle calls are real, but they assume the data is already inside the machine. Writing 1,000 rows costs 1,000 before the search begins, and the search itself is 25 calls at log2 N each, 249 in all. The load alone is twice the brute-force bill, so for one search the claim loses; from four searches per load it starts to win.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A constructed recommender claim reports an exponential speedup over classical, measured against brute force on the raw preference matrix. What is the right response?</p>
-      <div class="qopt">A · Accept it, because brute force over a large matrix really is that slow</div>
-      <div class="qopt">B · Reject every quantum recommender, because Tang 2018 proved them useless</div>
-      <div class="qopt">C · Ask which classical algorithm was compared, given the same data-structure access the quantum method assumed: Tang 2018 shows a classical algorithm with l2-norm sampling from that structure is only polynomially slower</div>
-      <q class="qwhy">The quantum algorithm needs its data in a preprocessed structure. Give the classical side the same structure and Tang's algorithm runs in poly(k) log(mn), so the exponential gap was a gap against the wrong baseline. Tang's result does not make the quantum algorithm wrong or useless; it removes the exponential claim.</q>
+      <button class="qopt" type="button">A · Accept it, because brute force over a large matrix really is that slow</button>
+      <button class="qopt" type="button">B · Reject every quantum recommender, because Tang 2018 proved them useless</button>
+      <button class="qopt" type="button">C · Ask which classical algorithm was compared, given the same data-structure access the quantum method assumed: Tang 2018 shows a classical algorithm with l2-norm sampling from that structure is only polynomially slower</button>
+      <p class="qwhy">The quantum algorithm needs its data in a preprocessed structure. Give the classical side the same structure and Tang's algorithm runs in poly(k) log(mn), so the exponential gap was a gap against the wrong baseline. Tang's result does not make the quantum algorithm wrong or useless; it removes the exponential claim.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A claim gives no error per gate and no gate count. How should the scorer record the noise-and-depth gate?</p>
-      <div class="qopt">A · Undeclared, which is not a pass: on ten qubits and 1,060 gates the modelled success already falls from 0.999461 to 0.346724 at 0.001 per gate, so the missing numbers decide whether the claim works</div>
-      <div class="qopt">B · Holds, because noise is an engineering detail the vendor will fix</div>
-      <div class="qopt">C · Fails, because every noisy circuit returns the uniform floor</div>
-      <q class="qwhy">Without a depth and an error rate there is nothing to compute, so the honest status is undeclared and the honest action is to ask. It is not a fail: at 0.001 per gate ten qubits still succeed about a third of the time, modelled, and well above the floor. It is not a pass either: the same model at 0.01 per gate gives 0.001000 against a floor of 0.000977.</q>
+      <button class="qopt" type="button">A · Undeclared, which is not a pass: on ten qubits and 1,060 gates the modelled success already falls from 0.999461 to 0.346724 at 0.001 per gate, so the missing numbers decide whether the claim works</button>
+      <button class="qopt" type="button">B · Holds, because noise is an engineering detail the vendor will fix</button>
+      <button class="qopt" type="button">C · Fails, because every noisy circuit returns the uniform floor</button>
+      <p class="qwhy">Without a depth and an error rate there is nothing to compute, so the honest status is undeclared and the honest action is to ask. It is not a fail: at 0.001 per gate ten qubits still succeed about a third of the time, modelled, and well above the floor. It is not a pass either: the same model at 0.01 per gate gives 0.001000 against a floor of 0.000977.</p>
     </div>
 
     <div class="quiz-score"></div>

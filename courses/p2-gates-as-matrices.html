@@ -667,26 +667,26 @@ show("wrong kron", psi)
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">X is applied to qubit 0 of a two-qubit register. What happens to the four amplitudes?</p>
-      <div class="qopt">A · The amplitude on every slot where qubit 0 is 1 changes sign, and nothing moves</div>
-      <div class="qopt">B · Each pair of slots that differ only in qubit 0, (00, 01) and (10, 11), swaps its two amplitudes</div>
-      <div class="qopt">C · The amplitude on 01 is set to 1 and every other amplitude is set to 0</div>
-      <q class="qwhy">X is the swap [[0, 1], [1, 0]] applied to every pair that differs in bit 0. Option A is Z. Option C describes the result of X on 00 only; started from any other column, X swaps whatever is there rather than overwriting it.</q>
+      <button class="qopt" type="button">A · The amplitude on every slot where qubit 0 is 1 changes sign, and nothing moves</button>
+      <button class="qopt" type="button">B · Each pair of slots that differ only in qubit 0, (00, 01) and (10, 11), swaps its two amplitudes</button>
+      <button class="qopt" type="button">C · The amplitude on 01 is set to 1 and every other amplitude is set to 0</button>
+      <p class="qwhy">X is the swap [[0, 1], [1, 0]] applied to every pair that differs in bit 0. Option A is Z. Option C describes the result of X on 00 only; started from any other column, X swaps whatever is there rather than overwriting it.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">After H, Z, CNOT and H again, the norm column still reads 1. Why?</p>
-      <div class="qopt">A · The engine renormalises the register after every gate so the norm cannot drift</div>
-      <div class="qopt">B · Because the amplitudes in these circuits are all real, so their squares cannot add to more than 1</div>
-      <div class="qopt">C · Because every gate is unitary, U.conj().T @ U = I, which means it preserves the sum of squared magnitudes; a product of unitaries is unitary too</div>
-      <q class="qwhy">Unitarity is length preservation, and the norm is the squared length. Renormalising would hide a wrong matrix rather than prevent one, and the engine never does it. Real amplitudes can still produce a norm far from 1 under a wrong matrix: a 0.5 in place of 0.7071 in H gives 0.5 on the first call.</q>
+      <button class="qopt" type="button">A · The engine renormalises the register after every gate so the norm cannot drift</button>
+      <button class="qopt" type="button">B · Because the amplitudes in these circuits are all real, so their squares cannot add to more than 1</button>
+      <button class="qopt" type="button">C · Because every gate is unitary, U.conj().T @ U = I, which means it preserves the sum of squared magnitudes; a product of unitaries is unitary too</button>
+      <p class="qwhy">Unitarity is length preservation, and the norm is the squared length. Renormalising would hide a wrong matrix rather than prevent one, and the engine never does it. Real amplitudes can still produce a norm far from 1 under a wrong matrix: a 0.5 in place of 0.7071 in H gives 0.5 on the first call.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">The Bell pair is H on qubit 0 then CNOT 0 to 1, starting from 00. Which basis states can a measurement of it read?</p>
-      <div class="qopt">A · Only 00 and 11, each with probability 0.5; 01 and 10 have amplitude exactly zero and are never read</div>
-      <div class="qopt">B · Any of the four, each with probability 0.25, because two qubits are in play</div>
-      <div class="qopt">C · Only 00 and 01, because H acted on qubit 0 and qubit 1 was never put into superposition</div>
-      <q class="qwhy">H puts 0.7071 on 00 and 01; CNOT then swaps 01 with 11, leaving 0.7071 on 00 and 11 and zero elsewhere. Option C is the column after H alone, before the CNOT moved anything. Option B is the product pair, H on both qubits, which session 3 compares against.</q>
+      <button class="qopt" type="button">A · Only 00 and 11, each with probability 0.5; 01 and 10 have amplitude exactly zero and are never read</button>
+      <button class="qopt" type="button">B · Any of the four, each with probability 0.25, because two qubits are in play</button>
+      <button class="qopt" type="button">C · Only 00 and 01, because H acted on qubit 0 and qubit 1 was never put into superposition</button>
+      <p class="qwhy">H puts 0.7071 on 00 and 01; CNOT then swaps 01 with 11, leaving 0.7071 on 00 and 11 and zero elsewhere. Option C is the column after H alone, before the CNOT moved anything. Option B is the product pair, H on both qubits, which session 3 compares against.</p>
     </div>
 
     <div class="quiz-score"></div>

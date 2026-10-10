@@ -518,26 +518,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Under the declared model, one quantum search over a freshly loaded table always costs more than a classical brute-force scan, at every table size in the widget. Why?</p>
-      <div class="qopt">A · Because each oracle call is slower than a classical lookup, and there are too many of them</div>
-      <div class="qopt">B · Because loading N rows costs N, which is already more than the N over 2 lookups a scan needs; the square-root search gain is spent before the first query runs</div>
-      <div class="qopt">C · Because a quantum memory large enough does not exist yet</div>
-      <q class="qwhy">The oracle calls are the cheap part: 63,988 against a 12,000,000 load on Brindle's constructed table (load 1 per row, query cost log2 N, one search per load). The loss is structural, N against N over 2, and it holds whatever the size. C may be true but is not the reason; the model assumes the memory exists and the search still loses.</q>
+      <button class="qopt" type="button">A · Because each oracle call is slower than a classical lookup, and there are too many of them</button>
+      <button class="qopt" type="button">B · Because loading N rows costs N, which is already more than the N over 2 lookups a scan needs; the square-root search gain is spent before the first query runs</button>
+      <button class="qopt" type="button">C · Because a quantum memory large enough does not exist yet</button>
+      <p class="qwhy">The oracle calls are the cheap part: 63,988 against a 12,000,000 load on Brindle's constructed table (load 1 per row, query cost log2 N, one search per load). The loss is structural, N against N over 2, and it holds whatever the size. C may be true but is not the reason; the model assumes the memory exists and the search still loses.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Giovannetti, Lloyd and Maccone's 2008 qRAM design is often cited as the answer to the loading problem. What does it reduce, and what does it leave alone?</p>
-      <div class="qopt">A · It reduces each query to about log N switches instead of N; nothing in it makes filling the memory with N classical values cost less than N writes</div>
-      <div class="qopt">B · It reduces both the query and the initial write to about log N</div>
-      <div class="qopt">C · It reduces the number of oracle calls a search needs from the square root of N to log N</div>
-      <q class="qwhy">The 2008 design is about the memory call: n qubits of address, about log N switches per call. The N writes that put the data in are untouched, which is why caveat 1 survives it. The number of oracle calls is set by the search bound, not by the memory, so C confuses two different costs.</q>
+      <button class="qopt" type="button">A · It reduces each query to about log N switches instead of N; nothing in it makes filling the memory with N classical values cost less than N writes</button>
+      <button class="qopt" type="button">B · It reduces both the query and the initial write to about log N</button>
+      <button class="qopt" type="button">C · It reduces the number of oracle calls a search needs from the square root of N to log N</button>
+      <p class="qwhy">The 2008 design is about the memory call: n qubits of address, about log N switches per call. The N writes that put the data in are untouched, which is why caveat 1 survives it. The number of oracle calls is set by the search bound, not by the memory, so C confuses two different costs.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Aaronson closes his essay with a check to run on any proposed application. What are its two parts?</p>
-      <div class="qopt">A · Is the qubit count high enough, and is the noise low enough</div>
-      <div class="qopt">B · Is the speedup exponential, and has it been published</div>
-      <div class="qopt">C · Does the application satisfy all of the fine print, and once the fine print is included, does a fast classical algorithm give the same information</div>
-      <q class="qwhy">The check is about the algorithm and its assumptions, not the hardware or the venue. Part (a) is the four caveats. Part (b) asks whether the same assumptions hand a classical algorithm the same speed, and session 4 is a published case where they did.</q>
+      <button class="qopt" type="button">A · Is the qubit count high enough, and is the noise low enough</button>
+      <button class="qopt" type="button">B · Is the speedup exponential, and has it been published</button>
+      <button class="qopt" type="button">C · Does the application satisfy all of the fine print, and once the fine print is included, does a fast classical algorithm give the same information</button>
+      <p class="qwhy">The check is about the algorithm and its assumptions, not the hardware or the venue. Part (a) is the four caveats. Part (b) asks whether the same assumptions hand a classical algorithm the same speed, and session 4 is a published case where they did.</p>
     </div>
 
     <div class="quiz-score"></div>

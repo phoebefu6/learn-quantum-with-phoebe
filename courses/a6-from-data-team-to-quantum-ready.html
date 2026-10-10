@@ -539,26 +539,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Brindle's engineers want to keep "debugging by printing state" in their quantum plan, since it served them well in the warehouse. Which column does it belong in, and why?</p>
-      <div class="qopt">A · Carries over, because the simulator in the page can print every amplitude</div>
-      <div class="qopt">B · Must learn, because the team needs a new printing tool for registers</div>
-      <div class="qopt">C · Must unlearn, because on hardware a read mid-circuit returns one draw and ends the run; the only output is the sample at the end, so checks move to assertions on that sample and to tests on a simulator</div>
-      <q class="qwhy">The simulator can print because it is not hardware, which is exactly the trap: a habit that works on the simulator teaches the wrong instinct for the machine. No tool fixes it, because the constraint is the measurement itself.</q>
+      <button class="qopt" type="button">A · Carries over, because the simulator in the page can print every amplitude</button>
+      <button class="qopt" type="button">B · Must learn, because the team needs a new printing tool for registers</button>
+      <button class="qopt" type="button">C · Must unlearn, because on hardware a read mid-circuit returns one draw and ends the run; the only output is the sample at the end, so checks move to assertions on that sample and to tests on a simulator</button>
+      <p class="qwhy">The simulator can print because it is not hardware, which is exactly the trap: a habit that works on the simulator teaches the wrong instinct for the machine. No tool fixes it, because the constraint is the measurement itself.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">The planning inequality says migration time plus secrecy life must not exceed the time until a cryptographically relevant quantum computer exists. What does it need that nobody can supply, and why does the inventory proceed anyway?</p>
-      <div class="qopt">A · It needs the date of such a machine, which no primary source gives; the inventory proceeds because migration time and secrecy life can be collected, and a row like the twenty-year archive fails under any short horizon whichever stance turns out right</div>
-      <div class="qopt">B · It needs the 2035 date from NIST IR 8547, which settles the question</div>
-      <div class="qopt">C · It needs the secrecy life, which only the security team can supply, so the inventory waits for them</div>
-      <q class="qwhy">2030 and 2035 are proposed policy dates for retiring algorithms, not a forecast of hardware. The secrecy life is a retention question the data team answers routinely. Only the date is missing, and the row ordering does not depend on it.</q>
+      <button class="qopt" type="button">A · It needs the date of such a machine, which no primary source gives; the inventory proceeds because migration time and secrecy life can be collected, and a row like the twenty-year archive fails under any short horizon whichever stance turns out right</button>
+      <button class="qopt" type="button">B · It needs the 2035 date from NIST IR 8547, which settles the question</button>
+      <button class="qopt" type="button">C · It needs the secrecy life, which only the security team can supply, so the inventory waits for them</button>
+      <p class="qwhy">2030 and 2035 are proposed policy dates for retiring algorithms, not a forecast of hardware. The secrecy life is a retention question the data team answers routinely. Only the date is missing, and the row ordering does not depend on it.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">What does FIPS 203 standardise?</p>
-      <div class="qopt">A · ML-DSA, a lattice-based digital signature scheme</div>
-      <div class="qopt">B · ML-KEM, a module-lattice-based key-encapsulation mechanism, published 13 August 2024, which is how two parties agree a key</div>
-      <div class="qopt">C · SLH-DSA, a stateless hash-based signature scheme</div>
-      <q class="qwhy">FIPS 203 is ML-KEM, with parameter sets 512, 768 and 1024, resting on the Module Learning With Errors problem. ML-DSA is FIPS 204 and SLH-DSA is FIPS 205; all three were published the same day.</q>
+      <button class="qopt" type="button">A · ML-DSA, a lattice-based digital signature scheme</button>
+      <button class="qopt" type="button">B · ML-KEM, a module-lattice-based key-encapsulation mechanism, published 13 August 2024, which is how two parties agree a key</button>
+      <button class="qopt" type="button">C · SLH-DSA, a stateless hash-based signature scheme</button>
+      <p class="qwhy">FIPS 203 is ML-KEM, with parameter sets 512, 768 and 1024, resting on the Module Learning With Errors problem. ML-DSA is FIPS 204 and SLH-DSA is FIPS 205; all three were published the same day.</p>
     </div>
 
     <div class="quiz-score"></div>

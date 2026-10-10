@@ -597,26 +597,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">At ten qubits the bench reports 25 oracle calls against 512 classical lookups. Brindle's analyst extends this to the 12-million-row table and reports "quantum search is 2,600 times faster". What is missing?</p>
-      <div class="qopt">A · Nothing: 8,388,608 over 3,217 is about 2,600</div>
-      <div class="qopt">B · The factor should be 512 over 25, about 20, at every size</div>
-      <div class="qopt">C · The 2,600 counts oracle calls only; loading 12 million rows costs at least 12 million writes, twice the brute-force lookups, so for one search the quantum total is larger, and the factor only appears if the load is amortised over at least 3 searches and the data cannot be indexed</div>
-      <q class="qwhy">The arithmetic in A is right and the sentence is wrong. The square-root factor is real for oracle calls and vanishes for a single search once the load is counted; bench C prints 12,063,988 against 6,000,000. The window where it holds is 3 to 4,224 searches per load on this table, under declared costs.</q>
+      <button class="qopt" type="button">A · Nothing: 8,388,608 over 3,217 is about 2,600</button>
+      <button class="qopt" type="button">B · The factor should be 512 over 25, about 20, at every size</button>
+      <button class="qopt" type="button">C · The 2,600 counts oracle calls only; loading 12 million rows costs at least 12 million writes, twice the brute-force lookups, so for one search the quantum total is larger, and the factor only appears if the load is amortised over at least 3 searches and the data cannot be indexed</button>
+      <p class="qwhy">The arithmetic in A is right and the sentence is wrong. The square-root factor is real for oracle calls and vanishes for a single search once the load is counted; bench C prints 12,063,988 against 6,000,000. The window where it holds is 3 to 4,224 searches per load on this table, under declared costs.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Under p = 0.01 per gate, the ten-qubit bench reports 0.0010 at the ideal optimum of 25 iterations and 0.0137 as the best any depth can do, at 4 iterations. What does the second number tell you?</p>
-      <div class="qopt">A · Under noise the optimum moves earlier, because a shorter circuit tosses fewer coins; but even the best depth is fourteen times a floor of 0.000977 and nothing like an answer, so the honest headline is still that the search fails at this error rate</div>
-      <div class="qopt">B · Running 4 iterations instead of 25 fixes the noise problem</div>
-      <div class="qopt">C · The two numbers contradict each other, so the bench has a bug</div>
-      <q class="qwhy">Both numbers come from the same curve with the same channel applied; they differ because fewer gates survive the channel better. The best-depth figure is the honest nuance and it does not rescue the result. Thirteen in a thousand is not a search.</q>
+      <button class="qopt" type="button">A · Under noise the optimum moves earlier, because a shorter circuit tosses fewer coins; but even the best depth is fourteen times a floor of 0.000977 and nothing like an answer, so the honest headline is still that the search fails at this error rate</button>
+      <button class="qopt" type="button">B · Running 4 iterations instead of 25 fixes the noise problem</button>
+      <button class="qopt" type="button">C · The two numbers contradict each other, so the bench has a bug</button>
+      <p class="qwhy">Both numbers come from the same curve with the same channel applied; they differ because fewer gates survive the channel better. The best-depth figure is the honest nuance and it does not rescue the result. Thirteen in a thousand is not a search.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">With the oracle switched off, the bench reports exactly 1 over N at every qubit count and every iteration. Why does that matter for trusting the other numbers?</p>
-      <div class="qopt">A · It shows the diffusion step is broken</div>
-      <div class="qopt">B · It shows the success probability is produced by the oracle's phase flip and not by an artifact of the code, because removing the one thing that is supposed to do the work removes the whole effect and leaves the uniform distribution the maths predicts</div>
-      <div class="qopt">C · It shows the simulator cannot search without a target</div>
-      <q class="qwhy">A bench that cannot report a worse number measures nothing. The break button produces the worst possible number, 1 over N, exactly, and the self test checks the same property on every load. The diffusion step is doing precisely what it should: mapping the uniform state to itself.</q>
+      <button class="qopt" type="button">A · It shows the diffusion step is broken</button>
+      <button class="qopt" type="button">B · It shows the success probability is produced by the oracle's phase flip and not by an artifact of the code, because removing the one thing that is supposed to do the work removes the whole effect and leaves the uniform distribution the maths predicts</button>
+      <button class="qopt" type="button">C · It shows the simulator cannot search without a target</button>
+      <p class="qwhy">A bench that cannot report a worse number measures nothing. The break button produces the worst possible number, 1 over N, exactly, and the self test checks the same property on every load. The diffusion step is doing precisely what it should: mapping the uniform state to itself.</p>
     </div>
 
     <div class="quiz-score"></div>

@@ -692,26 +692,26 @@ print("unknown row, h=4:", short.loc["customer_db", "exposure"], "| post-quantum
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Why is the retention column, rather than the algorithm column, the one that orders a post-quantum inventory?</p>
-      <div class="qopt">A · Because the algorithm column is always the same across an estate</div>
-      <div class="qopt">B · Because under harvest now, decrypt later the risk starts when vulnerable data is sent or stored and lasts as long as it must stay secret, so years of required secrecy past the horizon are the exposure</div>
-      <div class="qopt">C · Because retention determines which FIPS standard replaces the algorithm</div>
-      <q class="qwhy">The family says whether a row is at risk at all; how long the data must stay secret, plus how long the old scheme stays in use, says how much of its life outlasts any horizon. The standard on the replacement path follows from the use, key exchange or signature, not from retention.</q>
+      <button class="qopt" type="button">A · Because the algorithm column is always the same across an estate</button>
+      <button class="qopt" type="button">B · Because under harvest now, decrypt later the risk starts when vulnerable data is sent or stored and lasts as long as it must stay secret, so years of required secrecy past the horizon are the exposure</button>
+      <button class="qopt" type="button">C · Because retention determines which FIPS standard replaces the algorithm</button>
+      <p class="qwhy">The family says whether a row is at risk at all; how long the data must stay secret, plus how long the old scheme stays in use, says how much of its life outlasts any horizon. The standard on the replacement path follows from the use, key exchange or signature, not from retention.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">The customer database's encryption is embedded by a supplier and discovery cannot name the family. How should the row be scored?</p>
-      <div class="qopt">A · As at risk, the worst case, with the status recording a finding and the question to the supplier; scoring it as zero would rank the least-understood row as the safest</div>
-      <div class="qopt">B · As zero until the supplier replies, since unknown data should not distort the ranking</div>
-      <div class="qopt">C · Leave it out of the inventory until the family is known</div>
-      <q class="qwhy">A blank that scores as best is the classic catalogue defect: in the widget, switching the rule to zero drops customer_db from second toward the bottom. The factsheet tells organisations to ask suppliers for embedded cryptography precisely because discovery tools may miss it; the row stays in, flagged, with an owner.</q>
+      <button class="qopt" type="button">A · As at risk, the worst case, with the status recording a finding and the question to the supplier; scoring it as zero would rank the least-understood row as the safest</button>
+      <button class="qopt" type="button">B · As zero until the supplier replies, since unknown data should not distort the ranking</button>
+      <button class="qopt" type="button">C · Leave it out of the inventory until the family is known</button>
+      <p class="qwhy">A blank that scores as best is the classic catalogue defect: in the widget, switching the rule to zero drops customer_db from second toward the bottom. The factsheet tells organisations to ask suppliers for embedded cryptography precisely because discovery tools may miss it; the row stays in, flagged, with an owner.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Your ranking at H = 4 puts checkout third; at H = 15 checkout clears and the contracts archive is second. What belongs in the board paper?</p>
-      <div class="qopt">A · The H = 15 ranking, because the NIST IR 8547 draft gives 2035 as the year</div>
-      <div class="qopt">B · Whichever ranking matches the most recent vendor estimate of the timeline</div>
-      <div class="qopt">C · Both: the backup archive first under every horizon tested, the rows that move named, and a sentence that the horizon is contested (Preskill "eventually", the NIST draft "even if a decade away", Aaronson "supposing we had one") and was not resolved</div>
-      <q class="qwhy">2030 and 2035 are proposed policy dates for retiring algorithms, not a forecast of a machine, and no primary source gives a year for one. A ranking that holds across horizons can be acted on now; the rows that swing are where the disagreement costs something, and the paper should show that rather than hide it behind one chosen year.</q>
+      <button class="qopt" type="button">A · The H = 15 ranking, because the NIST IR 8547 draft gives 2035 as the year</button>
+      <button class="qopt" type="button">B · Whichever ranking matches the most recent vendor estimate of the timeline</button>
+      <button class="qopt" type="button">C · Both: the backup archive first under every horizon tested, the rows that move named, and a sentence that the horizon is contested (Preskill "eventually", the NIST draft "even if a decade away", Aaronson "supposing we had one") and was not resolved</button>
+      <p class="qwhy">2030 and 2035 are proposed policy dates for retiring algorithms, not a forecast of a machine, and no primary source gives a year for one. A ranking that holds across horizons can be acted on now; the rows that swing are where the disagreement costs something, and the paper should show that rather than hide it behind one chosen year.</p>
     </div>
 
     <div class="quiz-score"></div>

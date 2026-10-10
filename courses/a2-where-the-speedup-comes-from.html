@@ -470,26 +470,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A ten-qubit register has been put into a uniform superposition and nothing else. The deck calls this "all 1,024 possibilities at once". What does one read of it return?</p>
-      <div class="qopt">A · All 1,024 answers, which the machine then filters</div>
-      <div class="qopt">B · The correct slot, since it is in the superposition</div>
-      <div class="qopt">C · One random slot, with a 0.000977 chance of being the target, which is exactly the odds of guessing without a register at all</div>
-      <q class="qwhy">A uniform register has equal squares everywhere, so a read is a uniform draw. The value of a search is added afterwards by the oracle's sign flip and the diffusion's reflection; the starting superposition on its own is worth nothing.</q>
+      <button class="qopt" type="button">A · All 1,024 answers, which the machine then filters</button>
+      <button class="qopt" type="button">B · The correct slot, since it is in the superposition</button>
+      <button class="qopt" type="button">C · One random slot, with a 0.000977 chance of being the target, which is exactly the odds of guessing without a register at all</button>
+      <p class="qwhy">A uniform register has equal squares everywhere, so a read is a uniform draw. The value of a search is added afterwards by the oracle's sign flip and the diffusion's reflection; the starting superposition on its own is worth nothing.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">On three qubits the marked slot reads 0.945 after two iterations. Brindle's analyst runs a third iteration to be safe and reads 0.330. What happened?</p>
-      <div class="qopt">A · Noise crept in, which is why real hardware is unreliable</div>
-      <div class="qopt">B · The amplitude is rotating, and the third iteration turned it past the top; the optimum is about pi over 4 times the square root of N, and more iterations beyond it lower the odds</div>
-      <div class="qopt">C · The oracle was applied to the wrong slot on the third pass</div>
-      <q class="qwhy">The simulator is exact and has no noise. Each iteration turns the marked amplitude by the same fixed angle, so past the peak it keeps turning and the probability falls, then rises again later. The optimum is a stopping point to be computed, not a limit the machine finds on its own.</q>
+      <button class="qopt" type="button">A · Noise crept in, which is why real hardware is unreliable</button>
+      <button class="qopt" type="button">B · The amplitude is rotating, and the third iteration turned it past the top; the optimum is about pi over 4 times the square root of N, and more iterations beyond it lower the odds</button>
+      <button class="qopt" type="button">C · The oracle was applied to the wrong slot on the third pass</button>
+      <p class="qwhy">The simulator is exact and has no noise. Each iteration turns the marked amplitude by the same fixed angle, so past the peak it keeps turning and the probability falls, then rises again later. The optimum is a stopping point to be computed, not a limit the machine finds on its own.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">At ten qubits the widget prints 25 oracle calls against 512 lookups. The deck calls this an exponential speedup. Which reading is honest?</p>
-      <div class="qopt">A · The factor grows as the square root of N: about 20 at 1,024 items and about 2,600 at Brindle's 16.8 million slots, under the assumption that the oracle is free and the data is already loaded; it is real, bounded, and not exponential</div>
-      <div class="qopt">B · The factor doubles with every added qubit, which is what exponential means</div>
-      <div class="qopt">C · The factor is unlimited, since Grover's abstract says the method is the fastest possible</div>
-      <q class="qwhy">Doubling N doubles the classical count and multiplies the quantum one by about 1.4, so the ratio grows as the square root of N. Grover's abstract says the method is within a constant factor of the best possible quantum search, which bounds the gain rather than removing the bound. And the whole count assumes the data is already inside the machine, which session 3 prices.</q>
+      <button class="qopt" type="button">A · The factor grows as the square root of N: about 20 at 1,024 items and about 2,600 at Brindle's 16.8 million slots, under the assumption that the oracle is free and the data is already loaded; it is real, bounded, and not exponential</button>
+      <button class="qopt" type="button">B · The factor doubles with every added qubit, which is what exponential means</button>
+      <button class="qopt" type="button">C · The factor is unlimited, since Grover's abstract says the method is the fastest possible</button>
+      <p class="qwhy">Doubling N doubles the classical count and multiplies the quantum one by about 1.4, so the ratio grows as the square root of N. Grover's abstract says the method is within a constant factor of the best possible quantum search, which bounds the gain rather than removing the bound. And the whole count assumes the data is already inside the machine, which session 3 prices.</p>
     </div>
 
     <div class="quiz-score"></div>
