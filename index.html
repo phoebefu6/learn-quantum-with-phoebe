@@ -19,7 +19,7 @@
 <meta name="twitter:image" content="https://phoebefu6.github.io/learn-quantum-with-phoebe/assets/og-cover.png">
 <!-- social:end -->
 <title>Learn Quantum with Phoebe</title>
-<link rel="stylesheet" href="assets/style.css?v=1">
+<link rel="stylesheet" href="assets/style.css?v=2">
 <style>
 
   .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
@@ -105,6 +105,88 @@
 </header>
 
 <main class="wrap">
+
+  <section class="section xhx-hero" aria-label="A hand-drawn Grover search over 1,024 slots, and a noise dial that collapses it">
+    <figure class="zoomable" style="margin:0 0 1rem">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left, a strip of 1,024 slots drawn as a hatched bar with one marked slot rising above the rest after 25 iterations, 1,060 gates. Right, the success probability as one tall bar against the uniform floor of 0.000977; a noise dial from 0 to 0.02 per gate lowers it from 0.9995 to 0.3467 at one error per thousand gates and to the floor at 0.01. Tiles show oracle calls 25 against 512 expected classically, and the loading tax: 12,063,988 to search 12,000,000 rows once against 6,000,000 brute force.">
+        <defs>
+          <filter id="xhxSk" x="-3%" y="-3%" width="106%" height="106%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter>
+          <pattern id="xhxHc" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(-38)"><line x1="0" y1="0" x2="0" y2="7" stroke="#0E7490" stroke-width="1" opacity=".5"/></pattern>
+          <marker id="xhxAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#16153A" stroke-width="1.6" stroke-linecap="round"/></marker>
+        </defs>
+        <style>
+          .xhxH { font: 800 12px Inter, sans-serif; fill: #16153A; }
+          .xhxL { font: 600 12px Inter, sans-serif; fill: #16153A; }
+          .xhxS { font: 400 11px Inter, sans-serif; fill: #5A5B7A; }
+          .xhxB { font: 800 11px Inter, sans-serif; fill: #0B5A70; }
+          .xhxV { font: 800 20px Inter, sans-serif; fill: #242070; }
+          .xhxA { font: 700 11px Inter, sans-serif; fill: #3730A3; }
+          .xhxN { font: 400 12px Inter, sans-serif; fill: #5A5B7A; }
+          .xhx-bar { transition: height .35s ease, y .35s ease; }
+          .xhx-fog { transition: opacity .35s ease; }
+          @media (prefers-reduced-motion: reduce) { .xhx-bar, .xhx-fog { transition: none; } }
+        </style>
+        <g filter="url(#xhxSk)" fill="none" stroke="#16153A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- left: the register -->
+          <rect x="30" y="30" width="380" height="250" rx="12" fill="#FFFFFF" transform="rotate(-0.4 220 155)"/>
+          <text class="xhxH" x="48" y="56" stroke="none">TEN QUBITS, 1,024 SLOTS, ONE MARKED</text>
+          <text class="xhxS" x="48" y="74" stroke="none">a real statevector runs in the page; this is its shape</text>
+          <line x1="60" y1="236" x2="390" y2="236"/>
+          <rect x="60" y="222" width="330" height="14" fill="url(#xhxHc)" stroke="none"/>
+          <text class="xhxS" x="60" y="256" stroke="none">1,023 unmarked slots, each near 1 / 1,024</text>
+          <rect x="258" y="96" width="14" height="140" fill="#9A97D4" stroke="none"/>
+          <text class="xhxB" x="196" y="92" stroke="none">the marked slot</text>
+          <text class="xhxL" x="64" y="116" stroke="none">25 iterations of</text>
+          <text class="xhxL" x="64" y="132" stroke="none">flip, then diffuse,</text>
+          <text class="xhxL" x="64" y="148" stroke="none">1,060 gates</text>
+          <path d="M160 160 C200 176 230 176 252 170" marker-end="url(#xhxAr)"/>
+          <text class="xhxS" x="64" y="186" stroke="none">amplitude moves into</text>
+          <text class="xhxS" x="64" y="200" stroke="none">one slot by interference</text>
+          <!-- right: the bar and the floor -->
+          <rect x="430" y="30" width="420" height="250" rx="12" fill="#FFFFFF" transform="rotate(0.3 640 155)"/>
+          <text class="xhxH" x="448" y="56" stroke="none">PROBABILITY OF READING THE MARKED SLOT</text>
+          <text class="xhxS" x="448" y="74" stroke="none" id="xhx-sub">clean circuit, every gate exact</text>
+          <line x1="470" y1="236" x2="830" y2="236"/><line x1="470" y1="236" x2="470" y2="96"/>
+          <rect class="xhx-bar" x="540" y="96" width="60" height="140" fill="#3730A3" stroke="none" id="xhx-pbar"/>
+          <text class="xhxV" x="616" y="112" stroke="none" id="xhx-p">0.9995</text>
+          <text class="xhxS" x="616" y="130" stroke="none" id="xhx-pn">at the optimal depth</text>
+          <path d="M470 234 L830 234" stroke="#0E7490" stroke-dasharray="5 4"/>
+          <text class="xhxB" x="640" y="226" stroke="none">uniform floor 0.000977</text>
+          <path class="xhx-fog" d="M476 100 h350 v130 h-350 z" fill="url(#xhxHc)" stroke="none" opacity="0" id="xhx-fog"/>
+          <text class="xhxA" x="474" y="254" stroke="none">noise per gate:</text>
+          <text class="xhxA" x="566" y="254" stroke="none" id="xhx-pv">p = 0</text>
+          <!-- tiles -->
+          <rect x="30" y="300" width="250" height="78" rx="10" fill="#EEEDF9" transform="rotate(0.4 155 339)"/>
+          <text class="xhxS" x="48" y="324" stroke="none">oracle calls to find the slot</text>
+          <text class="xhxV" x="48" y="356" stroke="none">25</text>
+          <text class="xhxA" x="92" y="356" stroke="none">against 512 expected classically</text>
+          <rect x="300" y="300" width="250" height="78" rx="10" fill="#EEEDF9" transform="rotate(-0.4 425 339)"/>
+          <text class="xhxS" x="318" y="324" stroke="none">loading tax, 12,000,000 rows, one search</text>
+          <text class="xhxV" x="318" y="356" stroke="none">12.06M</text>
+          <text class="xhxA" x="400" y="356" stroke="none">against 6.0M brute force</text>
+          <rect x="570" y="300" width="280" height="78" rx="10" fill="#FFFFFF" transform="rotate(0.3 710 339)"/>
+          <text class="xhxL" x="588" y="326" stroke="none" id="xhx-state">Clean: the search works</text>
+          <text class="xhxN" x="588" y="346" stroke="none" id="xhx-n1">the fine print is loading and noise,</text>
+          <text class="xhxN" x="588" y="362" stroke="none" id="xhx-n2">not the algorithm. Session 10's bench.</text>
+        </g>
+      </svg>
+      <figcaption>🔍 Click to zoom - the speedup is real and the fine print eats it: loading the rows costs more than the search saves, and one error in a thousand gates takes most of the answer</figcaption>
+    </figure>
+    <div class="xhx-row">
+      <label for="xhx-noise" class="xhxlbl">Noise per gate</label>
+      <select id="xhx-noise" class="btn"><option value="0" selected>0, exact</option><option value="0.001">0.001</option><option value="0.005">0.005</option><option value="0.01">0.01</option><option value="0.02">0.02</option></select>
+      <span class="xhx-hint">Canon from the fine-print bench: global depolarising noise, one knob per gate, at the clean optimum of 25 iterations.</span>
+    </div>
+    <div class="xhx-guess" id="xhx-guess">
+      <p class="xhx-q"><b>Guess first.</b> Clean, the search reads the marked slot with probability 0.9995. At one error per thousand gates, across 1,060 gates, what does that fall to?</p>
+      <div class="xhx-slider">
+        <input type="range" id="xhx-g" min="0" max="1" step="0.01" value="0.9" aria-label="your guess, probability">
+        <output for="xhx-g" id="xhx-gv">0.90</output>
+        <button type="button" class="btn" id="xhx-reveal">Lock my guess</button>
+      </div>
+      <p class="xhx-answer" id="xhx-ans" hidden></p>
+    </div>
+  </section>
 
   <section class="section">
     <div class="paths" style="margin-top:0">
@@ -427,7 +509,39 @@ window.MINDMAP_DATA = {
   ]
 };
 </script>
-<script src="assets/mindmap.js?v=1"></script>
-<script src="assets/app.js?v=1"></script>
+<script src="assets/mindmap.js?v=2"></script>
+<script>
+(function(){
+  var fig=document.querySelector('.xhx-hero svg'); if(!fig) return;
+  var canon={'0':{p:'0.9995',h:140,fog:0,st:'Clean: the search works',n1:'the fine print is loading and noise,',n2:"not the algorithm. Session 10's bench.",sub:'clean circuit, every gate exact'},
+             '0.001':{p:'0.3467',h:49,fog:.35,st:'One error in a thousand gates',n1:'(1 - p) to the 1,060 keeps 0.347 of',n2:'the ideal; the rest goes uniform',sub:'one error per thousand gates'},
+             '0.005':{p:'0.0059',h:2,fog:.6,st:'Five in a thousand: near the floor',n1:'the optimum moves earlier, and even',n2:'the best depth cannot save it',sub:'five errors per thousand gates'},
+             '0.01':{p:'0.0010',h:1,fog:.8,st:'One in a hundred: the floor',n1:'reading the register tells you',n2:'nothing the uniform guess did not',sub:'one error per hundred gates'},
+             '0.02':{p:'0.0010',h:1,fog:.9,st:'Two in a hundred: the floor',n1:'more qubits make this worse, not',n2:'better: depth grows with the search',sub:'two errors per hundred gates'}};
+  var sel=document.getElementById('xhx-noise'), bar=document.getElementById('xhx-pbar'), fog=document.getElementById('xhx-fog');
+  function paint(){
+    var c=canon[sel.value];
+    document.getElementById('xhx-p').textContent=c.p;
+    document.getElementById('xhx-pv').textContent='p = '+sel.value;
+    document.getElementById('xhx-state').textContent=c.st;
+    document.getElementById('xhx-n1').textContent=c.n1; document.getElementById('xhx-n2').textContent=c.n2;
+    document.getElementById('xhx-sub').textContent=c.sub;
+    bar.setAttribute('height', c.h); bar.setAttribute('y', 236-c.h); fog.setAttribute('opacity', c.fog);
+  }
+  sel.addEventListener('change', paint); paint();
+  var g=document.getElementById('xhx-g'), gv=document.getElementById('xhx-gv'), rv=document.getElementById('xhx-reveal'), ans=document.getElementById('xhx-ans');
+  g.addEventListener('input', function(){ gv.textContent=(+g.value).toFixed(2); });
+  rv.addEventListener('click', function(){
+    var v=+g.value, line;
+    if (Math.abs(v-0.35)<=0.06) line='Right on it.';
+    else if (v>0.35) line='High. Every gate keeps only 0.999 of the state, and 1,060 of them keep 0.347.';
+    else line='Low, but the instinct is sound: the search is fragile, and at p = 0.01 it is already on the floor.';
+    ans.textContent='You said '+v.toFixed(2)+'. The bench says 0.3467. '+line+' Set the dial above and watch the bar; session 10 lets you change the qubit count too.';
+    ans.hidden=false; rv.disabled=true; g.disabled=true;
+    if (sel.value==='0') { sel.value='0.001'; paint(); }
+  });
+})();
+</script>
+<script src="assets/app.js?v=2"></script>
 </body>
 </html>
